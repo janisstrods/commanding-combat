@@ -3,6 +3,8 @@
 // HexIds. Nothing in this module is mutated after loading.
 import cardsJson from '../data/cards.json';
 import countersJson from '../data/counters.json';
+import rsgJson from '../data/rsg.json';
+import type { RsgTables } from './rsgTypes';
 import { ALL_HEXES, COLS, ROWS, colOf, hexsideKey, neighbour, neighbours, parseHex, rowOf, sideTo } from './hex';
 import type {
   CardId,
@@ -357,3 +359,12 @@ export function areaHexes(area: SetupArea, edge: Edge): HexId[] {
   }
   return out.sort((a, b) => a - b);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Random Scenario Generator
+
+/** The RSG tables (design/scenarios-reference.md §4), typed by src/engine/rsgTypes.ts. Number-keyed records take rolls,
+ * years and dice as keys. */
+export const RSG: RsgTables = deepFreeze(
+  (({ _source, _notes, ...tables }) => tables)(rsgJson as unknown as RsgTables & { _source: string; _notes: string[] }),
+);

@@ -10,6 +10,7 @@ import { buildCards } from './data/cards';
 import { buildCounters } from './data/counters';
 import { readJson, writeJson } from './data/json';
 import { buildMaps, mapNotes } from './data/maps';
+import { buildRsg } from './data/rsg';
 import { updateNotesSection } from './data/notes';
 import { buildScenarios, scenarioConversionNotes } from './data/scenarios';
 
@@ -68,3 +69,5 @@ if (want('maps')) {
   notes('maps', 'Maps (src/data/maps/<id>.json)', mapNotes(reports, missing, audit !== null));
   if (missing.length) console.log(`maps not transcribed yet (skipped): ${missing.join(', ')}`);
 }
+
+if (want('rsg')) write('rsg.json', buildRsg(readJson(join(DESIGN, 'rsg.json')), counters.counters));

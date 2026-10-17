@@ -58,6 +58,18 @@ carries from its sources. Re-run with `npx vite-node scripts/build-data.ts [card
   R, V, W, X have no secret side (`secret: false`). Smoke markers (`SMOKE_MIX`): hindrance 1–5 six each, 6–10 four each
   (50). Counter-mix limits are not in the module (survey §3) and are not modelled.
 
+## RSG (`src/data/rsg.json`, `RSG` in data.ts, types in `src/engine/rsgTypes.ts`)
+
+- Source: `design/data/rsg.json` (2006 and 2025 GMT charts agree; procedure tables from the 2025 Playbook). Counter
+  names become counter type ids (chart "Parachute Squad" = `German/Fallschirmjager Squad`, "Light MG" = `LMG`).
+- Base game only: Germany is the Axis (`germanYear`); `alliedNation` gives null for France / Britain (re-roll, R0).
+- Roll and year ranges are expanded: `troopQuality[nation][roll][year]`, `alliedNation[roll][year]`.
+- `leaderTable[nation]`: index 0 = result ≤ 0, 1..6, 7 = result 7+.
+- Support items: `leaderEither` lists its two choices in `oneOf`; `unitWithWeapon` names its `carrier`.
+- Fortification OB contents are sets × pieces (Bunker Complex = 3 Bunkers, 3 Trenches, 3 Wire, 3 Mines 8 FP).
+- `pointValues` (Playbook p. 34) are keyed by counter id or leader class; radios by FP map to that nation's radio
+  counter; the Molotov value is dropped (no counter).
+
 <!-- auto:scenarios -->
 ## Scenarios (src/data/scenarios/<n>.json)
 
