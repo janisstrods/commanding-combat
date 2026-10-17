@@ -1,0 +1,123 @@
+/* Combat Commander UI kit - design tokens (mirrors theme.ts): a field manual on a map-room desk. Khaki paper, olive
+   drab, dark ink, stencil-like headings (Oswald) and plain text (Source Sans 3). */
+:root {
+  --kit-font-title: 'Oswald', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+  --kit-font-body: 'Source Sans 3', 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+
+  --kit-paper: #ece3c8;
+  --kit-paper-light: #f6f0de;
+  --kit-paper-dark: #d8cba4;
+  --kit-khaki: #c2b182;
+  --kit-khaki-dark: #8f7f55;
+  --kit-olive: #56662f;
+  --kit-olive-light: #7c8c4f;
+  --kit-olive-dark: #36421b;
+  --kit-ink: #23241c;
+  --kit-ink-soft: #55533f;
+  --kit-ink-faint: #7f7a62;
+  --kit-red: #962d22;
+  --kit-red-dark: #63190f;
+  --kit-brass: #b38f3f;
+  --kit-brass-light: #e0c77f;
+  --kit-steel: #5d6669;
+  --kit-good: #3f6b2a;
+  --kit-bad: #a3291c;
+
+  /* the desk the papers lie on, and the text written straight on it */
+  --kit-desk: #a99a72;
+  --kit-desk-dark: #8c7d57;
+  --kit-desk-ink: #23241c;
+  --kit-desk-ink-soft: rgba(35, 36, 28, .72);
+  --kit-desk-line: rgba(35, 36, 28, .28);
+
+  --kit-german: #5f6a6a;
+  --kit-american: #6b6a3a;
+  --kit-russian: #7a5a3a;
+
+  --kit-radius-sm: 3px;
+  --kit-radius-md: 6px;
+  --kit-radius-lg: 10px;
+  --kit-shadow-soft: 0 1px 3px rgba(0, 0, 0, .28);
+  --kit-shadow-paper: 0 1px 0 rgba(255, 255, 255, .25) inset, 0 2px 4px rgba(0, 0, 0, .18), 0 10px 24px rgba(0, 0, 0, .22);
+  --kit-shadow-lifted: 0 18px 40px rgba(0, 0, 0, .45), 0 4px 10px rgba(0, 0, 0, .3);
+
+  /* procedural textures (SVG turbulence, no image assets) */
+  --kit-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n' x='0' y='0'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .22  0 0 0 0 .12  .5 0 0 0 -.2'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+  --kit-mottle: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='520'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .36  0 0 0 0 .18  .8 0 0 0 -.36'/></filter><rect width='520' height='520' filter='url(%23n)'/></svg>");
+  --kit-weave: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='6' height='6'><path d='M0 .5h6M0 3.5h6' stroke='%23000' stroke-opacity='.07'/><path d='M.5 0v6M3.5 0v6' stroke='%23fff' stroke-opacity='.06'/></svg>");
+
+  --kit-paper-bg:
+    radial-gradient(120% 90% at 50% 35%, rgba(255, 252, 238, .55) 0%, rgba(255, 252, 238, 0) 62%),
+    radial-gradient(150% 130% at 50% 50%, rgba(0, 0, 0, 0) 58%, rgba(110, 90, 40, .22) 100%),
+    var(--kit-mottle),
+    var(--kit-grain),
+    linear-gradient(175deg, #f1e9d1 0%, #e9dfc1 55%, #e0d3ae 100%);
+
+  --kit-desk-bg:
+    radial-gradient(90% 70% at 50% 35%, rgba(255, 245, 210, .28) 0%, rgba(255, 245, 210, 0) 65%),
+    radial-gradient(150% 120% at 50% 50%, rgba(0, 0, 0, 0) 45%, rgba(40, 30, 10, .45) 100%),
+    var(--kit-weave),
+    var(--kit-mottle),
+    linear-gradient(180deg, #b3a47b 0%, #a39469 100%);
+
+  color-scheme: light;
+}
+
+/* The map room at night: the desk turns dark olive; papers stay paper (a little dimmer). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kit-paper: #ddd3b6;
+    --kit-paper-light: #e8e0c8;
+    --kit-paper-dark: #c7b98f;
+    --kit-desk: #22261b;
+    --kit-desk-dark: #171a12;
+    --kit-desk-ink: #e6dcbc;
+    --kit-desk-ink-soft: rgba(230, 220, 188, .7);
+    --kit-desk-line: rgba(230, 220, 188, .22);
+    --kit-paper-bg:
+      radial-gradient(120% 90% at 50% 35%, rgba(255, 252, 238, .3) 0%, rgba(255, 252, 238, 0) 62%),
+      radial-gradient(150% 130% at 50% 50%, rgba(0, 0, 0, 0) 58%, rgba(80, 64, 26, .3) 100%),
+      var(--kit-mottle),
+      var(--kit-grain),
+      linear-gradient(175deg, #e3dabf 0%, #d9cdab 55%, #cfc29b 100%);
+    --kit-desk-bg:
+      radial-gradient(90% 70% at 50% 30%, rgba(160, 170, 110, .12) 0%, rgba(0, 0, 0, 0) 65%),
+      radial-gradient(150% 120% at 50% 50%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .55) 100%),
+      var(--kit-weave),
+      linear-gradient(180deg, #282d20 0%, #1c2016 100%);
+    color-scheme: dark;
+  }
+}
+
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--kit-desk-bg);
+  background-color: var(--kit-desk);
+  color: var(--kit-desk-ink);
+  font-family: var(--kit-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+/* The desk: full-bleed background for screens. */
+.kit-desk {
+  background: var(--kit-desk-bg);
+  background-color: var(--kit-desk);
+  color: var(--kit-desk-ink);
+  font-family: var(--kit-font-body);
+}
+
+/* A sheet of khaki paper. */
+.kit-paper {
+  background: var(--kit-paper-bg);
+  background-color: var(--kit-paper);
+  color: var(--kit-ink);
+}
+
+/* Stencilled heading text. */
+.kit-stencil {
+  font-family: var(--kit-font-title);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}

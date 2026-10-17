@@ -1,0 +1,86 @@
+/* The map board (SVG in hex-radius units: sizes below are fractions of a hex radius). */
+.board-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.board-margin { fill: #e3d8b6; }
+
+.board-label {
+  font-family: var(--kit-font-title);
+  font-weight: 500;
+  font-size: 0.19px;
+  letter-spacing: 0.01px;
+  text-anchor: middle;
+  fill: rgba(28, 28, 18, 0.82);
+  paint-order: stroke;
+  stroke: rgba(244, 236, 208, 0.55);
+  stroke-width: 0.045px;
+  stroke-linejoin: round;
+}
+.board-objective-num {
+  font-family: var(--kit-font-title);
+  font-weight: 700;
+  font-size: 0.27px;
+  text-anchor: middle;
+  fill: #7a1c12;
+}
+
+.board-hits polygon { fill: transparent; stroke: none; }
+.board-hover { fill: rgba(255, 252, 230, 0.12); stroke: rgba(255, 252, 230, 0.9); stroke-width: 0.035px; }
+
+.board-select polygon {
+  fill: rgba(255, 238, 150, 0.2);
+  stroke: #ffe98a;
+  stroke-width: 0.06px;
+  stroke-linejoin: round;
+  animation: board-pulse 1.4s ease-in-out infinite;
+}
+.board-target polygon {
+  fill: rgba(196, 44, 26, 0.2);
+  stroke: #c42c1a;
+  stroke-width: 0.07px;
+  stroke-linejoin: round;
+}
+@keyframes board-pulse {
+  0%, 100% { stroke-opacity: 1; fill-opacity: 1; }
+  50% { stroke-opacity: .55; fill-opacity: .5; }
+}
+
+.board-los__casing { stroke: rgba(255, 255, 245, 0.85); stroke-width: 0.11px; stroke-linecap: round; }
+.board-los__line { stroke-width: 0.055px; stroke-linecap: round; }
+.board-los.is-clear .board-los__line { stroke: #2d7a2a; }
+.board-los.is-blocked .board-los__line { stroke: #b3261e; stroke-dasharray: 0.16 0.09; }
+.board-los__end { fill: #fffdf0; stroke-width: 0.04px; }
+.board-los.is-clear .board-los__end { stroke: #2d7a2a; }
+.board-los.is-blocked .board-los__end { stroke: #b3261e; }
+
+.board-stack__tray { fill: rgba(30, 32, 20, 0.55); stroke: rgba(255, 248, 220, 0.6); stroke-width: 0.025px; }
+
+.board-edge-label {
+  font-family: var(--kit-font-title);
+  font-weight: 600;
+  font-size: 0.3px;
+  letter-spacing: 0.06px;
+  text-transform: uppercase;
+  text-anchor: middle;
+  fill: #2a2a1e;
+}
+
+.board-compass__hex { fill: #f2ead0; stroke: #2a2a1e; stroke-width: 0.025px; }
+.board-compass__tick { stroke: #2a2a1e; stroke-width: 0.025px; }
+.board-compass__north { stroke: #8a2318; stroke-width: 0.045px; stroke-linecap: round; }
+.board-compass__num {
+  font-family: var(--kit-font-title);
+  font-weight: 600;
+  font-size: 0.17px;
+  text-anchor: middle;
+  fill: #2a2a1e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-select polygon { animation: none; }
+}
