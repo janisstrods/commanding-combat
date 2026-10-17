@@ -1,0 +1,1657 @@
+{
+ "map": "4",
+ "module_board_name": "Board 4",
+ "status": "transcribed 2026-10-17; module terrain file (pass 1) checked hex-by-hex and hexside-by-hexside against images/Map4.png (pass 2)",
+ "method": "terrainMaps/Board 4.txt converted to hex labels (vassal_extract.py terrain); every hex checked on 3-column overlay sheets (crop_hex.py --sheet, halves) plus zoomed crops; centre-dot pixel classification, dot-on-edge test and whole-hex colour composition per hex; every inner hexside sampled for wall (neutral grey), fence (brown) and hedge (dark green) pixels (all 47 module walls and 21 module fences confirmed; J2|K2 scored 0.47 because the wall has a gap for the road; the other grey hits are building roofs crossing hexsides; no hedges); gully band traced pixel by pixel near the M6-M10 dots; roads traced as hexside crossings with pixel profiles along the hexsides; objective circles read from the art. 'between' pairs sorted by column letter then numeric row.",
+ "classification_rule_used": "terrain under the hex centre dot (Map 1 pilot rule); hexes where the dot sits on an artwork edge or off the road, or where other terrain artwork is also in the hex are flagged confidence=medium with a note",
+ "effort": "~35 minutes (flat chateau map; walls, fences, one gully, road loop)",
+ "agreement_with_module_file": {
+  "hexes_agreed": "150/150",
+  "hexsides_agreed": "68/68 module hexsides (art has 68)",
+  "agreement_basis": "a hex agrees when its base terrain matches the module entry (module \"Road\" = Open + Road feature); a hexside agrees when the same hex pair carries the same feature",
+  "disagreements": []
+ },
+ "elevation": "Map 4 has no hills: every hex level 0 (hex_colors.py found no hill shades). The M6-M10 gully is recorded as terrain Gully at level 0; any depression effect is a rules question.",
+ "hexes": {
+  "A1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "A8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "note": "road starts at the SW corner of the hex (the A7/B7 corner, by the farm buildings); no crossing into A7 or B7 recorded"
+  },
+  "B7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 1
+  },
+  "B8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road passes ~35 px N of the centre dot"
+  },
+  "C8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road corner (N-S road turning E) passes ~25 px SE of the centre dot"
+  },
+  "D6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road corner (N-S road turning E) passes ~40 px N/NE of the centre dot"
+  },
+  "D9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road runs along the N edge of the hex (~50 px N of the centre dot), just inside the E5/E6 hexside"
+  },
+  "E7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "E8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road runs along the S edge of the hex (~40 px S of the centre dot)"
+  },
+  "E9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "F6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "F7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "F8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "F9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "F10": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "G1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "carriage circle: centre dot in the open middle of a road loop; the E-W road runs along the N edge of the hex"
+  },
+  "G7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "G8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road runs along the S edge of the hex (~45 px S of the centre dot)"
+  },
+  "G9": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "G10": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "H1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "H6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "H7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "H8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "H9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "H10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I2": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the W corner of the building; ~1/4 of the hex is building artwork",
+   "objective": 2
+  },
+  "I3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road runs along the N edge of the hex (~55 px N of the centre dot), just inside the I5/I6 hexside"
+  },
+  "I7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 5
+  },
+  "I8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road runs along the S edge of the hex (~45 px S of the centre dot)"
+  },
+  "I9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "J9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "J10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "K3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "M1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M3": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "M4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road from L4 ends at the centre dot; also: Building (stem of the T-shaped M3/N3 building covers the NE part of the hex and touches the dot)"
+  },
+  "M5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M6": {
+   "terrain": "Gully",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "gully is a narrow (~30 px) ravine band; centre dot on its E edge; rest of hex open"
+  },
+  "M7": {
+   "terrain": "Gully",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "gully is a narrow (~30 px) ravine band; centre dot on its W edge; rest of hex open"
+  },
+  "M8": {
+   "terrain": "Gully",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "gully is a narrow (~30 px) ravine band passing ~6 px E of the centre dot (strict dot reading: Open); classified Gully as in module file"
+  },
+  "M9": {
+   "terrain": "Gully",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "gully is a narrow (~30 px) ravine band; centre dot on its E edge; rest of hex open"
+  },
+  "M10": {
+   "terrain": "Gully",
+   "elevation": 0,
+   "features": [],
+   "note": "centre dot on the gully band; gully leaves the map at the bottom edge"
+  },
+  "N1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N3": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 4
+  },
+  "N4": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N5": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N6": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N7": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 3
+  },
+  "N10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O4": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O5": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O6": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O7": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O8": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O9": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O10": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  }
+ },
+ "hexsides": [
+  {
+   "between": [
+    "A1",
+    "A2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "A2",
+    "B1"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "A7",
+    "A8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "A8",
+    "B7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "A8",
+    "B8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "A9",
+    "B8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "B1",
+    "B2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "B1",
+    "C2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "B8",
+    "B9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "B9",
+    "C9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C1",
+    "C2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C2",
+    "D1"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C9",
+    "C10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C10",
+    "D9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D1",
+    "D2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D1",
+    "E2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D9",
+    "D10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D10",
+    "E10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "E1",
+    "E2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "E2",
+    "F1"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "F1",
+    "F2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "F1",
+    "G2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G1",
+    "G2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G2",
+    "H1"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H1",
+    "H2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H1",
+    "I2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I1",
+    "I2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I2",
+    "J1"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I10",
+    "J10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J1",
+    "J2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J2",
+    "K2"
+   ],
+   "feature": "Wall",
+   "note": "wall has a gap in the middle of the hexside where the J2-K2 road passes"
+  },
+  {
+   "between": [
+    "J2",
+    "K3"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J3",
+    "K3"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J3",
+    "K4"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J4",
+    "K4"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J4",
+    "K5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J5",
+    "K5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J5",
+    "K6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J6",
+    "K6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J6",
+    "K7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J7",
+    "K7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J7",
+    "K8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J8",
+    "K8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J8",
+    "K9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J9",
+    "J10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J9",
+    "K9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J9",
+    "K10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "L2",
+    "M3"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "L3",
+    "M3"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "L3",
+    "M4"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "L4",
+    "M5"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "L5",
+    "M5"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M2",
+    "M3"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M3",
+    "N2"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M5",
+    "M6"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M6",
+    "N5"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M6",
+    "N6"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M7",
+    "N6"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M7",
+    "N7"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M8",
+    "N7"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M8",
+    "N8"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M9",
+    "N8"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M9",
+    "N9"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M10",
+    "N9"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "M10",
+    "N10"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "N2",
+    "N3"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "N2",
+    "O3"
+   ],
+   "feature": "Fence"
+  },
+  {
+   "between": [
+    "O2",
+    "O3"
+   ],
+   "feature": "Fence"
+  }
+ ],
+ "road_crossings": [
+  {
+   "between": [
+    "B6",
+    "C7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C7",
+    "D6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D5",
+    "D6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D6",
+    "D7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D7",
+    "D8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D5",
+    "E6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "E6",
+    "F5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F5",
+    "G6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "G6",
+    "H5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "H5",
+    "I6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "I6",
+    "J5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D8",
+    "E8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "E8",
+    "F8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F8",
+    "G8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "G8",
+    "H8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "H8",
+    "I8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "I8",
+    "J8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F8",
+    "F9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F9",
+    "F10"
+   ],
+   "feature": "Road",
+   "note": "road spur fades out at this hexside (towards the F10 house); F10 itself has no road"
+  },
+  {
+   "between": [
+    "H8",
+    "H9"
+   ],
+   "feature": "Road",
+   "note": "road spur fades out at this hexside (towards the H9 house); H9 itself has no road"
+  },
+  {
+   "between": [
+    "J2",
+    "J3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J3",
+    "J4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J4",
+    "J5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J5",
+    "J6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J6",
+    "J7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J7",
+    "J8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J8",
+    "J9"
+   ],
+   "feature": "Road",
+   "note": "road spur fades out at this hexside (towards the J9 house); J9 itself has no road"
+  },
+  {
+   "between": [
+    "J2",
+    "K2"
+   ],
+   "feature": "Road",
+   "note": "road passes through a gap in the J2|K2 wall"
+  },
+  {
+   "between": [
+    "K2",
+    "L1"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L1",
+    "L2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L2",
+    "L3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L3",
+    "L4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L4",
+    "L5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L5",
+    "L6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L6",
+    "L7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L7",
+    "L8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L8",
+    "L9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L9",
+    "L10"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L4",
+    "M4"
+   ],
+   "feature": "Road",
+   "note": "two short arms from the L road merge and cross this hexside; road ends inside M4 at the foot of the M3/N3 building"
+  }
+ ],
+ "road_map_edge_exits": [
+  {
+   "hex": "L1",
+   "side": 1,
+   "edge": "top"
+  },
+  {
+   "hex": "L10",
+   "side": 4,
+   "edge": "bottom"
+  }
+ ],
+ "trail_crossings": [],
+ "railway_crossings": [],
+ "bridges": [],
+ "objectives": {
+  "1": "B7",
+  "2": "I2",
+  "3": "N9",
+  "4": "N3",
+  "5": "I7"
+ }
+}

@@ -1,0 +1,1261 @@
+{
+ "map": "7",
+ "module_board_name": "Board 7",
+ "status": "transcribed and verified hex-by-hex against images/Map7.png (VASSAL art) on 2026-10-17",
+ "method": "module terrainMaps/Board 7.txt converted to hex labels (pass 1), then every hex checked against the art (pass 2) on 3-column overlay sheets annotated with the draft codes, zoomed crops (crop_hex.py), and a pixel check of woods/open share per hex and around every centre dot; trails and the railway traced as hexside crossings and map-edge exits; elevation checked with hex_colors.py and visually; objective circles confirmed against maps.json printed_objectives. Map 7 has no hexside features (none in the art, none in the module file).",
+ "classification_rule_used": "terrain under the hex centre dot (Map 1 pilot rule); roads/trails/railways are features, not terrain. Trail lanes (open strips with a dashed line through the woods) are treated as part of the woods, as in the module file (\"Wood trail\") and the Map 1 pilot; every hex whose centre dot lies on a trail lane is flagged confidence=medium. The railway runs on an open corridor and is recorded as Open + Railway.",
+ "effort": "~45 minutes (forest map: trail lanes and woods edges)",
+ "agreement_with_module_file": {
+  "hexes_agreed": "147/150",
+  "hexsides_agreed": "0/0 module hexsides confirmed; 0 hexside(s) in the art not in the module file",
+  "disagreements": [
+   {
+    "where": "E5",
+    "module": "Woods",
+    "art": "trail lane at the centre dot (trail runs F4-E5-D5/E6)",
+    "resolution": "Woods + Trail feature (trail added), flagged medium"
+   },
+   {
+    "where": "F4",
+    "module": "Woods",
+    "art": "Woods at centre dot with the trail lane through the west part",
+    "resolution": "Woods + Trail feature (trail added)"
+   },
+   {
+    "where": "F6",
+    "module": "Woods Railway track",
+    "art": "railway on open corridor at the centre dot, woods in the S part",
+    "resolution": "Open + Railway (centre-dot rule), flagged medium with also: Woods"
+   }
+  ]
+ },
+ "elevation": "Map 7 has no hills: every hex level 0 (hex_colors.py palette shows no hill shades; none visible in the art)",
+ "hexes": {
+  "A1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "note": "open hex; the A7 trail starts at the A6/A7 hexside"
+  },
+  "A7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "A8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ],
+   "objective": 4
+  },
+  "A10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "B8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ],
+   "note": "railway at the centre dot; the B7 trail ends just inside the N edge and the C9 trail starts just inside the SE edge"
+  },
+  "B9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "note": "centre dot in woods; the trail crosses the south part of the hex"
+  },
+  "C3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open; the trail ends at the C3/C4 hexside"
+  },
+  "C4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "C9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open (open ground is about half the hex)"
+  },
+  "C10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "D2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot in the open clearing around the trail junction (open ground is about half the hex); classified Woods + Trail as in the module file; if the clearing counts as Open, this hex is Open",
+   "objective": 1
+  },
+  "D3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the west edge of the woods artwork; west half of the hex open"
+  },
+  "D5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "D8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "D10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open; the trail forks and leaves the bottom edge through sides 5 and 3"
+  },
+  "E1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane where it opens out towards open hex F3 (open ground is about half the hex, woods in the N part); classified Woods + Trail as in the module file; if the lane counts as Open, this hex is Open"
+  },
+  "E4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open; module file has plain Woods (no trail) here although the trail runs F4-E5 in the art"
+  },
+  "E6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "E8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "note": "open hex; the E3 trail ends just inside it and the F4 trail starts at its south hexside"
+  },
+  "F4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the edge of the woods; the trail lane runs N-S through the west part of the hex (module file: plain Woods, no trail)"
+  },
+  "F5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the railway, which runs on an open corridor; also: Woods (S part and a sliver at the N edge) (module: Woods Railway track)",
+   "objective": 5
+  },
+  "F7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "G7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot at the edge of a small clearing notch in the woods"
+  },
+  "G9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the south edge of the woods artwork; south half of the hex open"
+  },
+  "H5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "H6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot just inside the edge of the woods artwork; SE part of the hex open"
+  },
+  "I5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "I6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "J5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "K5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "L4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "L7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "L8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "M1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "M2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "M3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "M4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "note": "open hex; the M5 trail starts at the M4/M5 hexside"
+  },
+  "M5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "M6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot at the edge of the trail lane at a trail junction; classified Woods + Trail as in the module file",
+   "objective": 2
+  },
+  "M7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "M8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the edge of a small clearing inside the woods"
+  },
+  "M9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "M10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ]
+  },
+  "N3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "N8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "N9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Railway"
+   ],
+   "objective": 3
+  },
+  "O3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O7": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  },
+  "O10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [
+    "Trail"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the trail lane, which is drawn as open ground cut through the woods; classified Woods + Trail as in the module file (\"Wood trail\"); if the lane counts as Open, this hex is Open"
+  }
+ },
+ "hexsides": [],
+ "road_crossings": [],
+ "road_map_edge_exits": [],
+ "trail_crossings": [
+  {
+   "between": [
+    "D1",
+    "D2"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "C2",
+    "D2"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "C2",
+    "C3"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "C3",
+    "C4"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs out into open hex C4"
+  },
+  {
+   "between": [
+    "D2",
+    "E3"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "E3",
+    "F3"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs a few px into open hex F3"
+  },
+  {
+   "between": [
+    "F3",
+    "F4"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail starts at the edge of open hex F3"
+  },
+  {
+   "between": [
+    "E5",
+    "F4"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "D5",
+    "E5"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs out into open hex D5"
+  },
+  {
+   "between": [
+    "E5",
+    "E6"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs a few px into open hex E6"
+  },
+  {
+   "between": [
+    "A6",
+    "A7"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail starts at the edge of open hex A6"
+  },
+  {
+   "between": [
+    "A7",
+    "B7"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "B7",
+    "B8"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs a few px into open (railway) hex B8"
+  },
+  {
+   "between": [
+    "B8",
+    "C9"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail starts just inside open (railway) hex B8"
+  },
+  {
+   "between": [
+    "C9",
+    "D9"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "D9",
+    "D10"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "M4",
+    "M5"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail starts at the edge of open hex M4"
+  },
+  {
+   "between": [
+    "M5",
+    "M6"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "L6",
+    "M6"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "L6",
+    "L7"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "K8",
+    "L7"
+   ],
+   "feature": "Trail",
+   "note": "ends at this hexside: trail runs out into open hex K8"
+  },
+  {
+   "between": [
+    "M6",
+    "M7"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "M7",
+    "N7"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "N7",
+    "N8"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "N8",
+    "O9"
+   ],
+   "feature": "Trail"
+  },
+  {
+   "between": [
+    "O9",
+    "O10"
+   ],
+   "feature": "Trail"
+  }
+ ],
+ "trail_map_edge_exits": [
+  {
+   "hex": "D1",
+   "side": 1,
+   "edge": "top"
+  },
+  {
+   "hex": "D10",
+   "side": 5,
+   "edge": "bottom",
+   "note": "west branch of the fork"
+  },
+  {
+   "hex": "D10",
+   "side": 3,
+   "edge": "bottom",
+   "note": "east branch of the fork"
+  },
+  {
+   "hex": "O10",
+   "side": 4,
+   "edge": "bottom"
+  }
+ ],
+ "railway_crossings": [
+  {
+   "between": [
+    "A9",
+    "B8"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "B8",
+    "C8"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "C8",
+    "D7"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "D7",
+    "E7"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "E7",
+    "F6"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "F6",
+    "G6"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "G6",
+    "H5"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "H5",
+    "I5"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "I5",
+    "J4"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "J4",
+    "K4"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "K4",
+    "L3"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "L3",
+    "M3"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "M3",
+    "N2"
+   ],
+   "feature": "Railway"
+  },
+  {
+   "between": [
+    "N2",
+    "O2"
+   ],
+   "feature": "Railway"
+  }
+ ],
+ "railway_map_edge_exits": [
+  {
+   "hex": "A9",
+   "side": 5,
+   "edge": "left"
+  },
+  {
+   "hex": "O2",
+   "side": 2,
+   "edge": "right"
+  }
+ ],
+ "bridges": [],
+ "objectives": {
+  "1": "D2",
+  "2": "M6",
+  "3": "O2",
+  "4": "A9",
+  "5": "F6"
+ },
+ "railway_note": "single straight railway from the left edge (A9) to the right edge (O2) along a hex-grid direction: it passes through the centre dot of each of its 15 hexes and crosses each hexside at its midpoint, so it touches no other hex"
+}

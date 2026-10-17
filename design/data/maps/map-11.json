@@ -1,0 +1,1292 @@
+{
+ "map": "11",
+ "module_board_name": "Board 11",
+ "status": "transcribed 2026-10-17 from images/Map11.png (VASSAL module 2.6.4 art); every hex and hexside checked on 3-column overlay sheets plus zoomed crops",
+ "method": "pass 1 = module terrainMaps/Board 11.txt converted to hex labels; pass 2 = independent visual check of all 150 hexes and all hexsides (crop_hex.py sheets split in halves, zoomed crops); elevation from hex_colors.py plus a blurred centre-dot probe with distance-to-contour, and a colour mask (hill 1 / hill 2 / open / woods) to follow contours under woods; roads traced as hexside crossings; objectives confirmed on the art",
+ "classification_rule_used": "terrain at the hex centre dot (pilot rule); hexes where other terrain artwork is significant, the contour passes within ~30 px of the dot or is hidden under woods, or the road misses the dot by 30+ px, are flagged confidence=medium with a note",
+ "effort": "~35 minutes",
+ "agreement_with_module_file": {
+  "hexes_agreed": "150/150",
+  "hexsides_agreed": "44/44 module hexsides (art shows 44)",
+  "agreement_basis": "hex agrees when base terrain and hill/no-hill match the module entry (module \"Road\" = Open + Road feature, \"Hill X\" = X on a hill); module has no elevation levels, so levels themselves are not compared",
+  "disagreements": []
+ },
+ "elevation_levels_present": [
+  0,
+  1,
+  2
+ ],
+ "hexes": {
+  "A1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "A3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "note": "road starts at the left map edge (side 6) and passes ~25 px west of the centre dot"
+  },
+  "A4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "B3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "B10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "C2": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the centre dot; the hill contour is hidden under the woods (hill colour emerges on the east side of the woods and ~20 px south-east of the dot); elevation kept as in the module file (Hill Woods)",
+   "objective": 4
+  },
+  "C3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "D2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "D3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "D9": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "D10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "E2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "E4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "F1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "G8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "H6": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the centre dot; the hill contour is hidden under the woods (hill colour emerges below-left of the woods at about the height of the dot, ~40 px west; the contour may pass close to the dot); elevation kept as in the module file (Hill Woods)"
+  },
+  "H7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H8": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H9": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "hill edge (level 1 / ground) ~28 px west of the centre dot"
+  },
+  "H10": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I7": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the centre dot; the hill contour is hidden under the woods (hill colour emerges on the south and east sides of the woods; interpolated contour runs just north of the dot); elevation kept as in the module file (Hill Woods)"
+  },
+  "I8": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": [],
+   "note": "small level-2 hilltop (darker shade) on the level-1 hill",
+   "objective": 5
+  },
+  "I9": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I10": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "note": "woods entirely surrounded by level-1 hill"
+  },
+  "J1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J6": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "J8": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "J9": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "hill edge (level 1 / ground) ~28 px east of the centre dot"
+  },
+  "J10": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "K1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "dirt road spur from M6 curves through the east part of the hex (~30 px from the dot) and ends inside the hex"
+  },
+  "L7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "M7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 2
+  },
+  "M8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "N2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "N3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "N4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "N5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road junction ~40 px east of the centre dot (dot on open ground)"
+  },
+  "N6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "note": "road spur from M6 ends inside this hex, just past the centre dot"
+  },
+  "N7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 1
+  },
+  "N8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [],
+   "objective": 3
+  },
+  "O6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "O7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the east part of the hex ~37 px from the dot and leaves the right map edge"
+  },
+  "O8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  }
+ },
+ "hexsides": [
+  {
+   "between": [
+    "L3",
+    "L4"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L1",
+    "L2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L7",
+    "L8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "N7",
+    "N8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K7",
+    "L7"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K8",
+    "L7"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K2",
+    "L1"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "M8",
+    "N7"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K4",
+    "L3"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A2",
+    "A3"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "M7",
+    "M8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L10",
+    "M10"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A7",
+    "B7"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K3",
+    "K4"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A8",
+    "B7"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A8",
+    "B8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A5",
+    "B5"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A6",
+    "B5"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A6",
+    "B6"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A7",
+    "B6"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A4",
+    "B3"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A4",
+    "B4"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A5",
+    "B4"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "K1",
+    "K2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A3",
+    "B2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L3",
+    "M4"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L2",
+    "M2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "N9",
+    "O9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "N8",
+    "O8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "N8",
+    "O9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L9",
+    "M10"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A10",
+    "B10"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L9",
+    "M9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L8",
+    "M9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A10",
+    "B9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "N10",
+    "O10"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "A9",
+    "B9"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L8",
+    "M8"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "J1",
+    "K1"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "J1",
+    "K2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "J2",
+    "K2"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "J2",
+    "K3"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "J3",
+    "K3"
+   ],
+   "feature": "Hedge"
+  },
+  {
+   "between": [
+    "L1",
+    "M2"
+   ],
+   "feature": "Hedge"
+  }
+ ],
+ "road_crossings": [
+  {
+   "between": [
+    "A3",
+    "A4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A4",
+    "A5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A5",
+    "A6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A6",
+    "A7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A7",
+    "A8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A8",
+    "A9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A9",
+    "A10"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "N1",
+    "N2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "N2",
+    "N3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "N3",
+    "N4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "N4",
+    "N5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "N5",
+    "O6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "O6",
+    "O7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M6",
+    "N5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L6",
+    "M6"
+   ],
+   "feature": "Road",
+   "note": "spur ends inside L6"
+  },
+  {
+   "between": [
+    "M6",
+    "N6"
+   ],
+   "feature": "Road",
+   "note": "spur branches inside M6 and ends inside N6"
+  }
+ ],
+ "road_map_edge_exits": [
+  {
+   "hex": "A3",
+   "side": 6,
+   "edge": "left"
+  },
+  {
+   "hex": "A10",
+   "side": 4,
+   "edge": "bottom"
+  },
+  {
+   "hex": "N1",
+   "side": 1,
+   "edge": "top"
+  },
+  {
+   "hex": "O7",
+   "side": 3,
+   "edge": "right"
+  }
+ ],
+ "trail_crossings": [],
+ "railway_crossings": [],
+ "bridges": [],
+ "objectives": {
+  "1": "N7",
+  "2": "M7",
+  "3": "O5",
+  "4": "C2",
+  "5": "I8"
+ },
+ "elevation": "two hill shades: level 1 \u2248 (206,170,106) and one level-2 hilltop in I8 \u2248 (163,126,85)",
+ "roads_note": "all roads on this map are dirt (tan) roads"
+}

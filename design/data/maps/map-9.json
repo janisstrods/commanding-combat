@@ -1,0 +1,1234 @@
+{
+ "map": "9",
+ "module_board_name": "Board 9",
+ "status": "transcribed 2026-10-17 from images/Map9.png (VASSAL module 2.6.4 art); every hex and hexside checked on 3-column overlay sheets plus zoomed crops",
+ "method": "pass 1 = module terrainMaps/Board 9.txt converted to hex labels; pass 2 = independent visual check of all 150 hexes and all hexsides (crop_hex.py sheets split in halves, zoomed crops); elevation: hex_colors.py palette, then a ground-luminance probe that ignores green vine/brush pixels (level 1 ground ~178, level 2 ~132) at the dot and on rings at 30/55 px, verified visually; roads traced as hexside crossings; objectives confirmed on the art",
+ "classification_rule_used": "terrain at the hex centre dot (pilot rule); hexes where other terrain artwork is significant, or the dot sits within ~20 px of a terrain edge, are flagged confidence=medium with a note",
+ "effort": "~50 minutes",
+ "agreement_with_module_file": {
+  "hexes_agreed": "143/150",
+  "hexsides_agreed": "26/26 module hexsides (art shows 26)",
+  "agreement_basis": "hex agrees when base terrain and hill/no-hill match the module entry (module \"Road\" = Open + Road feature, \"Hill X\" = X on a hill); module has no elevation levels, so levels themselves are not compared",
+  "disagreements": [
+   {
+    "where": "D1",
+    "module": "Field",
+    "art": "centre dot on open ground; field covers the south part of the hex",
+    "resolution": "Open (centre-dot rule), medium, also: Field"
+   },
+   {
+    "where": "F1",
+    "module": "Field",
+    "art": "centre dot on open ground; field covers the south part of the hex",
+    "resolution": "Open (centre-dot rule), medium, also: Field"
+   },
+   {
+    "where": "K2",
+    "module": "Hill Building",
+    "art": "centre dot on open level-1 ground between three buildings",
+    "resolution": "Open elevation 1 (centre-dot rule), medium, also: Building - rules ruling needed"
+   },
+   {
+    "where": "J4",
+    "module": "Road",
+    "art": "centre dot on a building on the level-1 hill; road ends at the building",
+    "resolution": "Building, elevation 1"
+   },
+   {
+    "where": "J1",
+    "module": "Road",
+    "art": "road on a level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' cannot carry the hill)"
+   },
+   {
+    "where": "J2",
+    "module": "Road",
+    "art": "road on a level-1 hill",
+    "resolution": "Open + Road, elevation 1"
+   },
+   {
+    "where": "J3",
+    "module": "Road",
+    "art": "road on a level-1 hill",
+    "resolution": "Open + Road, elevation 1"
+   }
+  ]
+ },
+ "elevation_levels_present": [
+  0,
+  1,
+  2
+ ],
+ "hexes": {
+  "A1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A7": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "A8": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "A9": {
+   "terrain": "Building",
+   "elevation": 2,
+   "features": [],
+   "objective": 5
+  },
+  "A10": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "B1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B7": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "B8": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "B9": {
+   "terrain": "Building",
+   "elevation": 2,
+   "features": []
+  },
+  "B10": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "C1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "note": "road passes just north of the centre dot and leaves the top edge through side 2"
+  },
+  "C2": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "C3": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "C4": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "C5": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "C6": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "C7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "C8": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "C9": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "C10": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "D1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "also: Field. Field artwork covers the south ~40% of the hex; the field edge is ~40 px south of the centre dot. Module: Field"
+  },
+  "D2": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "D3": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "D4": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "D5": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "D6": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "field edge ~15 px north of the centre dot (dot on open ground)"
+  },
+  "D7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D8": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "D9": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "D10": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "E1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E2": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "E3": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "E4": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "E5": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "E6": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "E7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "E9": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "E10": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "F1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "also: Field. Field edge ~35 px south of the centre dot. Module: Field"
+  },
+  "F2": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "F3": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "F4": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "F5": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "F6": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "field edge ~10 px north of the centre dot (dot on open ground)"
+  },
+  "F7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road junction; the road bends ~15 px north-east of the centre dot"
+  },
+  "F9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "G2": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "G3": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "G4": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "G5": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "G6": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "G7": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "G8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Orchard. Centre dot on the road; orchard trees (outside the wall) fill the rest of the hex"
+  },
+  "G9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the west part of the hex, ~35 px from the centre dot"
+  },
+  "G10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "H1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H5": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "H6": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "H7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Orchard. Centre dot on the road; orchard trees fill the rest of the hex"
+  },
+  "H8": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "H9": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "H10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I2": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": [],
+   "objective": 1
+  },
+  "I3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 3
+  },
+  "I7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Orchard. Centre dot on the road, which ends ~10 px short of the I7/J6 hexside; orchard trees on both sides"
+  },
+  "I8": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "I9": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "I10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "note": "road on a level-1 hill; road leaves the top map edge"
+  },
+  "J2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "note": "road on a level-1 hill"
+  },
+  "J3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "note": "road on a level-1 hill"
+  },
+  "J4": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": [],
+   "note": "centre dot on the building (level-1 hill); the road from J1-J3 ends at this building. Module: Road",
+   "objective": 4
+  },
+  "J5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 2
+  },
+  "J7": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "J8": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "J9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "J10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "K2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "also: Building. Three small buildings surround the centre dot (nearest ~5 px away); the dot itself is on open hill ground. Module: Hill Building - a rules ruling will decide; by the designer's intent this is almost certainly a Building hex"
+  },
+  "K3": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "K4": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "K5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "K6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K7": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "K8": {
+   "terrain": "Field",
+   "elevation": 0,
+   "features": []
+  },
+  "K9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "L2": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "L3": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "L4": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "L5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "L6": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "L7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "L8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "M2": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "M3": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "M4": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "M5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "M6": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "M7": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "M8": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "M9": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "M10": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "N1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "N2": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "N3": {
+   "terrain": "Field",
+   "elevation": 1,
+   "features": []
+  },
+  "N4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "N5": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "N6": {
+   "terrain": "Brush",
+   "elevation": 1,
+   "features": []
+  },
+  "N7": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "N8": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "N9": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "N10": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "O1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "O5": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "O6": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "O7": {
+   "terrain": "Brush",
+   "elevation": 2,
+   "features": []
+  },
+  "O8": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "O9": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "O10": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  }
+ },
+ "hexsides": [
+  {
+   "between": [
+    "I6",
+    "J5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "L1",
+    "L2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I3",
+    "J2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G6",
+    "H6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G6",
+    "H5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G5",
+    "H5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G7",
+    "H7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "K2",
+    "L2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I5",
+    "I6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I2",
+    "I3"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G6",
+    "G7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "G7",
+    "G8"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H2",
+    "I2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H5",
+    "I5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J6",
+    "K7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J6",
+    "K6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H6",
+    "I7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "K2",
+    "K3"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J6",
+    "J7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "F6",
+    "G7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "F7",
+    "G7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H1",
+    "H2"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J5",
+    "J6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H4",
+    "H5"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H6",
+    "H7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J2",
+    "K3"
+   ],
+   "feature": "Wall"
+  }
+ ],
+ "road_crossings": [
+  {
+   "between": [
+    "B1",
+    "C1"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B1",
+    "B2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B2",
+    "B3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B3",
+    "B4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B4",
+    "B5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B5",
+    "B6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B6",
+    "C7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C7",
+    "D7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D7",
+    "E8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "E8",
+    "F8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F8",
+    "G8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F8",
+    "G9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "G9",
+    "G10"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "G8",
+    "H7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "H7",
+    "I7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "I7",
+    "J6"
+   ],
+   "feature": "Road",
+   "note": "road ends ~10 px short of this hexside, at the walled J6 farm (recorded as in the Map 1 pilot for spurs ending at building hexsides)"
+  },
+  {
+   "between": [
+    "J1",
+    "J2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J2",
+    "J3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J3",
+    "J4"
+   ],
+   "feature": "Road",
+   "note": "road ends at the J4 building"
+  }
+ ],
+ "road_map_edge_exits": [
+  {
+   "hex": "C1",
+   "side": 2,
+   "edge": "top",
+   "note": "leaves near the top-right corner of C1"
+  },
+  {
+   "hex": "J1",
+   "side": 1,
+   "edge": "top"
+  },
+  {
+   "hex": "G10",
+   "side": 4,
+   "edge": "bottom"
+  }
+ ],
+ "trail_crossings": [],
+ "railway_crossings": [],
+ "bridges": [],
+ "objectives": {
+  "1": "I2",
+  "2": "J6",
+  "3": "I6",
+  "4": "J4",
+  "5": "A9"
+ },
+ "elevation": "two hill shades: level 1 \u2248 (206,173,108), level 2 \u2248 (165,126,85). Level-2 areas: south-west corner (A8-C10) and east edge (N7-O10, O5-O7).",
+ "brush_note": "all Brush hexes on this map are drawn as vineyard-style rows of bushes on hill ground (module: Hill Brush); classified Brush as in the module",
+ "orchard_note": "the walled orchard G7/H5/H6 continues outside the walls as orchard trees in G8, H7 and I7, whose centre dots are on the road"
+}

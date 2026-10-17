@@ -1,0 +1,1400 @@
+{
+ "map": "12",
+ "module_board_name": "Board 12",
+ "status": "transcribed 2026-10-17 from images/Map12.png (VASSAL module 2.6.4 art); every hex and hexside checked on 3-column overlay sheets plus zoomed crops",
+ "method": "pass 1 = module terrainMaps/Board 12.txt converted to hex labels; pass 2 = independent visual check of all 150 hexes and all hexsides (crop_hex.py sheets split in halves, zoomed crops, 2-3x dot close-ups); elevation: hex_colors.py, a level probe at each dot with distance-to-contour, colour-coded level masks of the whole map, and 16-direction rays from every woods hex to read the hill level round the woods; roads traced visually and cross-checked with an automatic road-colour hexside scan; objectives confirmed by locating the printed red circles",
+ "classification_rule_used": "terrain at the hex centre dot (pilot rule); hexes where other terrain artwork is significant, the dot is on an edge, the road misses the dot by ~40 px, or the hill contour is hidden under woods are flagged confidence=medium with a note",
+ "effort": "~75 minutes",
+ "agreement_with_module_file": {
+  "hexes_agreed": "139/150",
+  "hexsides_agreed": "23/23 module hexsides (art shows 23)",
+  "agreement_basis": "hex agrees when base terrain and hill/no-hill match the module entry (module \"Road\" = Open + Road feature, \"Hill X\" = X on a hill); module has no elevation levels, so levels themselves are not compared",
+  "disagreements": [
+   {
+    "where": "A2",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "B2",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "B3",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "C4",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "C5",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "G6",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "H5",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "I5",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "I4",
+    "module": "Road",
+    "art": "road on the level-1 hill",
+    "resolution": "Open + Road, elevation 1 (module 'Road' replaces the hill)"
+   },
+   {
+    "where": "J3",
+    "module": "Road",
+    "art": "centre dot on the edge of woods on the level-1 hill; road crosses the NW part of the hex",
+    "resolution": "Woods + Road, elevation 1, medium"
+   },
+   {
+    "where": "F10",
+    "module": "Building",
+    "art": "centre dot in the open gap between two buildings",
+    "resolution": "Open (centre-dot rule), medium, also: Building - rules ruling needed"
+   }
+  ]
+ },
+ "elevation_levels_present": [
+  0,
+  1,
+  2,
+  3
+ ],
+ "hexes": {
+  "A1": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "A2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "A3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "A4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "A5": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "A6": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "A7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "A8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "A9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "A10": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "B1": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "B2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "B3": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~40 px east of the centre dot (dot on level-1 hill ground)"
+  },
+  "B4": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "note": "woods on a level-1 hill"
+  },
+  "B5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the edge of a small open clearing inside the woods (classified Woods as in module file, cf. Map 1 I2); the level-1 hill covers the north part of the hex, the dot is on level 0"
+  },
+  "B6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "B7": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "objective": 1
+  },
+  "B8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "B9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "B10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "C1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "C2": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "C3": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "C4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~40 px west of the centre dot (dot on level-1 hill ground)"
+  },
+  "C5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "C6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "C7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "C8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "note": "road crossroads at the centre dot"
+  },
+  "C9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "C10": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "D1": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "D2": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "D3": {
+   "terrain": "Woods",
+   "elevation": 2,
+   "features": [],
+   "note": "woods on a level-2 hill"
+  },
+  "D4": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "D5": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "D6": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": [],
+   "note": "round building inside a walled enclosure (walls on all six hexsides) on the level-1 hill",
+   "objective": 3
+  },
+  "D7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "D10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "E1": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "note": "woods on a level-1 hill (hill colour visible round the woods)"
+  },
+  "E2": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the dot; hill contour hidden. Level-1 ground east/south of the woods, level-2 ground ~40-50 px west; level interpolated as 1"
+  },
+  "E3": {
+   "terrain": "Woods",
+   "elevation": 2,
+   "features": [],
+   "note": "woods on a level-2 hill"
+  },
+  "E4": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "E5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "E6": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": [],
+   "note": "building on level-0 ground; the level-1 hill reaches the NW corner of the hex"
+  },
+  "E7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "E8": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "E9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "E10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F1": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "note": "woods on a level-1 hill"
+  },
+  "F2": {
+   "terrain": "Woods",
+   "elevation": 2,
+   "features": [],
+   "note": "woods on a level-2 hill (level-2 colour all round the woods)"
+  },
+  "F3": {
+   "terrain": "Open",
+   "elevation": 3,
+   "features": [],
+   "objective": 5
+  },
+  "F4": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "F5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "F6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "F7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "F8": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "F9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "F10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "also: Building. Two buildings north and south of the centre dot; the dot is in the ~12 px open gap between them. Module: Building"
+  },
+  "G1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "G2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "G3": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "G4": {
+   "terrain": "Open",
+   "elevation": 3,
+   "features": []
+  },
+  "G5": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "G6": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "G7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "G8": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "G9": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "G10": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "H1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "H2": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "H3": {
+   "terrain": "Woods",
+   "elevation": 2,
+   "features": [],
+   "note": "woods on a level-2 hill (level-2 colour at 40-65 px all round)"
+  },
+  "H4": {
+   "terrain": "Open",
+   "elevation": 3,
+   "features": [],
+   "note": "level-3 hilltop; cliffs on the H4/I4, H4/I5 and H4/H5 hexsides"
+  },
+  "H5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "H6": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "H7": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "H8": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "H9": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "H10": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "I1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "I2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "I3": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the dot; hill contour hidden. Level-1 ground visible on the west side, open level-0 ground in the NE corner; level interpolated as 1 (module: Hill Woods)"
+  },
+  "I4": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Woods. Road through the centre dot on the level-1 hill; woods cover the east ~30% of the hex"
+  },
+  "I5": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ]
+  },
+  "I6": {
+   "terrain": "Woods",
+   "elevation": 3,
+   "features": [],
+   "note": "woods on the level-3 hilltop; cliff hexsides I5/I6 and H5/I6"
+  },
+  "I7": {
+   "terrain": "Woods",
+   "elevation": 3,
+   "features": [],
+   "note": "woods on the level-3 hilltop",
+   "objective": 4
+  },
+  "I8": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "I9": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "I10": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "J1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "J2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the edge of a small clearing; rest of hex woods"
+  },
+  "J3": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "centre dot on the north edge of a woods blob on the level-1 hill; the road crosses the NW part of the hex ~30 px from the dot. Module: Road. Also: Open (hill ground between road and woods)"
+  },
+  "J4": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": [],
+   "note": "level-2 hill; cliff on the J4/K4 hexside"
+  },
+  "J5": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "J6": {
+   "terrain": "Open",
+   "elevation": 2,
+   "features": []
+  },
+  "J7": {
+   "terrain": "Woods",
+   "elevation": 2,
+   "features": [],
+   "note": "woods on a level-2 hill"
+  },
+  "J8": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the dot; level-1 ground on both sides, level-2 ground (I8) ~45 px north-west; level interpolated as 1"
+  },
+  "J9": {
+   "terrain": "Building",
+   "elevation": 1,
+   "features": []
+  },
+  "J10": {
+   "terrain": "Orchard",
+   "elevation": 1,
+   "features": [],
+   "note": "orchard on the level-1 hill"
+  },
+  "K1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "K2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "confidence": "medium",
+   "note": "centre dot on the east edge of the woods; open ground east of it"
+  },
+  "K3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "K4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K5": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "confidence": "medium",
+   "note": "woods cover the dot; level-1 ground west of the woods, open level 0 at the east edge; level interpolated as 1"
+  },
+  "K6": {
+   "terrain": "Woods",
+   "elevation": 1,
+   "features": [],
+   "note": "woods on a level-1 hill; level-2 ground (J6) ~50 px west"
+  },
+  "K7": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "K8": {
+   "terrain": "Open",
+   "elevation": 1,
+   "features": []
+  },
+  "K9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "K10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L1": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "L2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road Y-junction ~35 px north of the centre dot; the branch to M3 passes east of the dot"
+  },
+  "L3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": [],
+   "objective": 2
+  },
+  "L4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "L8": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "L9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~45 px south-east of the centre dot (dot on open ground)"
+  },
+  "L10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~40 px west of the centre dot (dot on open ground); road leaves the bottom edge"
+  },
+  "M1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "M2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "M3": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~40 px south-west of the centre dot (dot on open ground)"
+  },
+  "M4": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Woods. Road through the centre dot; woods art from L4/N4 covers the edges of the hex"
+  },
+  "M5": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "also: Woods. Road through the centre dot; woods art from L5/N5 covers the edges of the hex"
+  },
+  "M6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "M7": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "M8": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ]
+  },
+  "M9": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": [
+    "Road"
+   ],
+   "confidence": "medium",
+   "note": "road crosses the hex ~40 px west of the centre dot (dot on open ground)"
+  },
+  "M10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N2": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "N3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "N6": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N7": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N8": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "N9": {
+   "terrain": "Building",
+   "elevation": 0,
+   "features": []
+  },
+  "N10": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O1": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O2": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O3": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O4": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O5": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  },
+  "O6": {
+   "terrain": "Open",
+   "elevation": 0,
+   "features": []
+  },
+  "O7": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O8": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O9": {
+   "terrain": "Orchard",
+   "elevation": 0,
+   "features": []
+  },
+  "O10": {
+   "terrain": "Woods",
+   "elevation": 0,
+   "features": []
+  }
+ },
+ "hexsides": [
+  {
+   "between": [
+    "C10",
+    "D9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C9",
+    "D9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "N9",
+    "N10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "J4",
+    "K4"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: J4)"
+  },
+  {
+   "between": [
+    "H5",
+    "I6"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: I6)"
+  },
+  {
+   "between": [
+    "H4",
+    "I4"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: H4)"
+  },
+  {
+   "between": [
+    "H4",
+    "I5"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: H4)"
+  },
+  {
+   "between": [
+    "O6",
+    "O7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D6",
+    "E7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "N5",
+    "N6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D6",
+    "E6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "O9",
+    "O10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C6",
+    "D6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C7",
+    "D6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "C9",
+    "C10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "I5",
+    "I6"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: I6)"
+  },
+  {
+   "between": [
+    "M10",
+    "N9"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "N9",
+    "O10"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "H4",
+    "H5"
+   ],
+   "feature": "Cliff",
+   "note": "cliff shading drawn on the hexside (higher side: H4)"
+  },
+  {
+   "between": [
+    "N6",
+    "O6"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D6",
+    "D7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "E6",
+    "E7"
+   ],
+   "feature": "Wall"
+  },
+  {
+   "between": [
+    "D5",
+    "D6"
+   ],
+   "feature": "Wall"
+  }
+ ],
+ "road_crossings": [
+  {
+   "between": [
+    "A2",
+    "B2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B2",
+    "B3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B3",
+    "C4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C4",
+    "C5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C5",
+    "C6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C6",
+    "C7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C7",
+    "C8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C8",
+    "D8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D8",
+    "D9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D9",
+    "D10"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "A9",
+    "B8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "B8",
+    "C8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "C8",
+    "D7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "D7",
+    "E7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "E7",
+    "F6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "F6",
+    "G6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "G6",
+    "H5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "H5",
+    "I5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "I4",
+    "I5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "I4",
+    "J3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "J3",
+    "K3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "K3",
+    "L2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L1",
+    "L2"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L2",
+    "M3"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M3",
+    "M4"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M4",
+    "M5"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M5",
+    "M6"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M6",
+    "M7"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M7",
+    "M8"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "M8",
+    "M9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L9",
+    "M9"
+   ],
+   "feature": "Road"
+  },
+  {
+   "between": [
+    "L9",
+    "L10"
+   ],
+   "feature": "Road"
+  }
+ ],
+ "road_map_edge_exits": [
+  {
+   "hex": "A2",
+   "side": 6,
+   "edge": "left"
+  },
+  {
+   "hex": "A9",
+   "side": 5,
+   "edge": "left"
+  },
+  {
+   "hex": "D10",
+   "side": 4,
+   "edge": "bottom"
+  },
+  {
+   "hex": "L1",
+   "side": 1,
+   "edge": "top"
+  },
+  {
+   "hex": "L10",
+   "side": 5,
+   "edge": "bottom",
+   "note": "leaves through the lower-left side of L10"
+  }
+ ],
+ "trail_crossings": [],
+ "railway_crossings": [],
+ "bridges": [],
+ "objectives": {
+  "1": "B7",
+  "2": "L3",
+  "3": "D6",
+  "4": "I7",
+  "5": "F3"
+ },
+ "elevation": "three hill shades: level 1 \u2248 (206,165,105), level 2 \u2248 (156,121,87), level 3 \u2248 (122,90,66). Level-3 hilltops: F3/G4/H4 and I6/I7.",
+ "roads_note": "all roads on this map are dirt (tan) roads; the module draft marks 33 Road hexes, the art has the same 33 road hexes (J3 classified Woods+Road here)"
+}
