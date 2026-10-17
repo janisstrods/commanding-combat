@@ -1,6 +1,8 @@
 // Current values of units and Weapons (§3.3, §13, §O20.4, §F106), Cover (§T78.3, §T93, R-17, R-20) and stacking (§8.2).
+import { hexsideCoverAgainst } from './los';
 import { isUnit, typeOf } from './state';
-import type { GameState, HexId, Piece, PieceId, Side } from './types';
+import { TERRAIN, hasRoad } from './terrain';
+import type { FortKind, GameState, HexId, Piece, PieceId, Side } from './types';
 
 /** Figures per unit kind (§8.2): Squad 4, Team 2, Leader 1. */
 export const FIGURES: Readonly<Record<string, number>> = { squad: 4, team: 2, leader: 1 };
@@ -113,4 +115,46 @@ export function weaponStats(s: GameState, id: PieceId): WeaponStats {
     }
   }
   return { fp, range, minRange: t.minRange ?? 0 };
+}
+
+/** Alternate Cover of each Fortification (§F); +1 against Mortars and Artillery. Wire and Mines give none. */
+export const FORT_COVER: Readonly<Partial<Record<FortKind, number>>> = { foxholes: 3, trench: 4, pillbox: 5, bunker: 6 };
+
+/** What a Cover is wanted against. */
+export interface CoverVs {
+  /** Hexes of the firing pieces: a Wall / Hedge counts if every firer's LOS crosses it into the hex (project ruling). */
+  firers?: HexId[];
+  /** A Mortar or Artillery attack: Fortifications +1, no Wall / Hedge Cover. */
+  mortarOrArtillery?: boolean;
+  /** Flamethrower, Molotov, Mines: Cover is 0, unmodifiable. */
+  ignoresCover?: boolean;
+}
+
+/**
+ * The best single Cover of `hex` itself (§T78.3): its terrain's or its Fortification's (never added), −1 in a road hex
+ * (§T93). No hexside Cover (Interdiction, R-36, and every Cover that is not against a Fire Attack).
+ */
+export function hexCover(s: GameState, hex: HexId, mortarOrArtillery = false): number {
+  let best = TERRAIN[s.map.terrain[hex]].cover ?? 0;
+  const f = s.fort[hex];
+  const fc = f ? FORT_COVER[f] : undefined;
+  if (fc !== undefined) best = Math.max(best, fc + (mortarOrArtillery ? 1 : 0));
+  return best - (hasRoad(s.map, hex) ? 1 : 0);
+}
+
+/**
+ * The Cover unit `id` uses (§T78.3, R-17, R-20): the best single one of its hex's terrain, its Fortification (+1 vs
+ * Mortars / Artillery) and a Wall / Hedge the attack's LOS crosses into the hex (not vs Mortars / Artillery); −1 in a road
+ * hex, whichever is used. 0 against a Flamethrower or Mines.
+ */
+export function cover(s: GameState, id: PieceId, vs: CoverVs = {}): number {
+  if (vs.ignoresCover) return 0;
+  const hex = s.pieces[id].hex;
+  let best = hexCover(s, hex, !!vs.mortarOrArtillery);
+  if (!vs.mortarOrArtillery && vs.firers?.length) {
+    let side = Infinity;
+    for (const f of vs.firers) side = Math.min(side, hexsideCoverAgainst(s.map, f, hex, s.scenario.special));
+    if (side > 0) best = Math.max(best, side - (hasRoad(s.map, hex) ? 1 : 0));
+  }
+  return best;
 }
