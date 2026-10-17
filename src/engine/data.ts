@@ -3,8 +3,29 @@
 // HexIds. Nothing in this module is mutated after loading.
 import cardsJson from '../data/cards.json';
 import countersJson from '../data/counters.json';
-import { parseHex } from './hex';
-import type { CardId, ChitId, CounterType, FateCard, HexSide, Nation, Quality } from './types';
+import { ALL_HEXES, COLS, ROWS, colOf, hexsideKey, neighbour, neighbours, parseHex, rowOf, sideTo } from './hex';
+import type {
+  CardId,
+  ChitId,
+  CounterType,
+  Edge,
+  FateCard,
+  FortKind,
+  HexId,
+  HexSide,
+  HexsideFeature,
+  MapDef,
+  Nation,
+  PathKind,
+  Quality,
+  ScenarioDef,
+  SetupArea,
+  Side,
+  SideSetup,
+  SpecialRules,
+  TerrainMask,
+  TerrainType,
+} from './types';
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Fate cards
@@ -78,3 +99,264 @@ export const OBJECTIVE_CHITS: Readonly<Record<ChitId, ObjectiveChit>> = Object.f
 export const SMOKE_MIX: readonly number[] = Object.freeze(
   Object.entries(countersJson.smokeMix as Record<string, number>).flatMap(([v, n]) => Array<number>(n).fill(Number(v))),
 );
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Maps
+
+/** One hex of a map file (src/data/maps/<id>.json). */
+interface MapHexJson {
+  terrain: TerrainType;
+  elevation: number;
+  crest?: boolean;
+  /** Building id (hexes of one drawn building share it); absent for non-building hexes. */
+  building?: number;
+  /** Path depictions in the hex. */
+  paths?: PathKind[];
+}
+
+interface MapJson {
+  id: string;
+  hexes: Record<string, MapHexJson>;
+  hexsides: { between: [string, string]; feature: HexsideFeature }[];
+  /** Path crossings between two hexes, and map-edge exits (hex + side). */
+  paths: ({ between: [string, string]; kind: PathKind } | { hex: string; side: HexSide; kind: PathKind })[];
+  /** Objectives 1..5. */
+  objectives: string[];
+}
+
+/** Task 4's mask files: run-length encoded `[value, count, value, count, ...]` rasters. */
+interface MaskJson {
+  res: number;
+  x0: number;
+  y0: number;
+  width: number;
+  height: number;
+  cls: number[];
+  level: number[];
+}
+
+const fileId = (path: string) => path.replace(/^.*\//, '').replace(/\.json$/, '');
+const byFileId = <T>(files: Record<string, T>): Record<string, T> =>
+  Object.fromEntries(Object.entries(files).map(([path, v]) => [fileId(path), v]));
+
+const MAP_FILES = byFileId(import.meta.glob<MapJson>('../data/maps/*.json', { eager: true, import: 'default' }));
+const MASK_FILES = byFileId(import.meta.glob<MaskJson>('../data/masks/*.json', { eager: true, import: 'default' }));
+
+const MAP_ORDER = ['1', '2', '3', '4', '5', '5w', '6', '7', '8', '9', '10', '11', '12'];
+/** Ids of the maps present in src/data/maps ("1".."12", "5w"). */
+export const MAP_IDS: readonly string[] = Object.keys(MAP_FILES).sort(
+  (a, b) => (MAP_ORDER.indexOf(a) + 1 || 99) - (MAP_ORDER.indexOf(b) + 1 || 99) || a.localeCompare(b),
+);
+
+export function hasMap(id: string): boolean {
+  return id in MAP_FILES;
+}
+
+function unrle(rle: number[], n: number, what: string): Uint8Array {
+  const out = new Uint8Array(n);
+  let k = 0;
+  for (let i = 0; i < rle.length; i += 2) {
+    const [v, c] = [rle[i], rle[i + 1]];
+    if (k + c > n) throw new Error(`${what}: run-length data longer than ${n} cells`);
+    out.fill(v, k, k + c);
+    k += c;
+  }
+  if (k !== n) throw new Error(`${what}: run-length data has ${k} cells, expected ${n}`);
+  return out;
+}
+
+/** Decodes a mask file (exported for tests and tools). */
+export function decodeMask(m: MaskJson, what = 'mask'): TerrainMask {
+  const n = m.width * m.height;
+  return { res: m.res, x0: m.x0, y0: m.y0, width: m.width, height: m.height, cls: unrle(m.cls, n, `${what} cls`), level: unrle(m.level, n, `${what} level`) };
+}
+
+function pathKey(p: MapJson['paths'][number]): number {
+  if ('between' in p) {
+    const a = parseHex(p.between[0]);
+    const side = sideTo(a, parseHex(p.between[1]));
+    if (side === null) throw new Error(`Path ${p.between.join('-')}: hexes are not adjacent`);
+    return hexsideKey(a, side);
+  }
+  const h = parseHex(p.hex);
+  if (neighbour(h, p.side) !== null) throw new Error(`Path exit ${p.hex} side ${p.side} is not a map edge`);
+  return hexsideKey(h, p.side);
+}
+
+function convertMap(j: MapJson): MapDef {
+  const n = ALL_HEXES.length;
+  const terrain: TerrainType[] = new Array(n);
+  const elevation: number[] = new Array(n).fill(0);
+  const crest: boolean[] = new Array(n).fill(false);
+  const building: number[] = new Array(n).fill(-1);
+  const pathHexes: Partial<Record<PathKind, boolean[]>> = {};
+  const markPath = (kind: PathKind, h: HexId) => {
+    (pathHexes[kind] ??= new Array(n).fill(false))[h] = true;
+  };
+  for (const [lbl, hx] of Object.entries(j.hexes)) {
+    const h = parseHex(lbl);
+    terrain[h] = hx.terrain;
+    elevation[h] = hx.elevation;
+    crest[h] = !!hx.crest;
+    if (hx.building !== undefined) building[h] = hx.building;
+    for (const k of hx.paths ?? []) markPath(k, h);
+  }
+  for (const h of ALL_HEXES) if (!terrain[h]) throw new Error(`Map ${j.id}: no terrain for hex ${h}`);
+  const hexsides: Record<number, HexsideFeature> = {};
+  for (const s of j.hexsides) {
+    const a = parseHex(s.between[0]);
+    const side = sideTo(a, parseHex(s.between[1]));
+    if (side === null) throw new Error(`Map ${j.id}: hexside ${s.between.join('-')} joins hexes that are not adjacent`);
+    hexsides[hexsideKey(a, side)] = s.feature;
+  }
+  const paths: Record<number, PathKind> = {};
+  for (const p of j.paths) {
+    paths[pathKey(p)] = p.kind;
+    if ('between' in p) p.between.forEach((l) => markPath(p.kind, parseHex(l)));
+    else markPath(p.kind, parseHex(p.hex));
+  }
+  const def: MapDef = {
+    id: j.id,
+    terrain,
+    elevation,
+    crest,
+    hexsides,
+    paths,
+    pathHexes,
+    objectives: j.objectives.map(parseHex),
+    building,
+  };
+  const mask = MASK_FILES[j.id];
+  if (mask) def.mask = decodeMask(mask, `mask ${j.id}`);
+  return def;
+}
+
+const MAPS = new Map<string, MapDef>();
+
+/** The map `id` ("1".."12", "5w"), converted once and cached; with its terrain mask when src/data/masks has one. */
+export function loadMap(id: string): MapDef {
+  let m = MAPS.get(id);
+  if (!m) {
+    const j = MAP_FILES[id];
+    if (!j) throw new Error(`No map "${id}"`);
+    m = convertMap(j);
+    MAPS.set(id, m);
+  }
+  return m;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Scenarios
+
+type SetupAreaJson =
+  | { kind: 'depth'; depth: number }
+  | { kind: 'near'; hexes: string[] }
+  | { kind: 'hexes'; hexes: string[] }
+  | { kind: 'anyFree' };
+
+interface ScenarioJson extends Omit<ScenarioDef, 'sides' | 'prePlaced' | 'special'> {
+  sides: Record<Side, Omit<SideSetup, 'setupArea' | 'reinforcements'> & { setupArea: SetupAreaJson; reinforcements: Record<string, Record<string, number>> }>;
+  prePlaced: { hex: string; fort: FortKind }[];
+  special: Omit<SpecialRules, 'stackingLimits'> & { stackingLimits?: Record<string, number> };
+}
+
+const SCENARIO_FILES = byFileId(import.meta.glob<ScenarioJson>('../data/scenarios/*.json', { eager: true, import: 'default' }));
+
+function convertArea(a: SetupAreaJson): SetupArea {
+  if (a.kind === 'near') return { kind: 'near', hexes: a.hexes.map(parseHex) };
+  if (a.kind === 'hexes') return { kind: 'hexes', hexes: a.hexes.map(parseHex) };
+  return { ...a };
+}
+
+function convertScenario(j: ScenarioJson): ScenarioDef {
+  const sides = {} as Record<Side, SideSetup>;
+  for (const side of ['axis', 'allied'] as Side[]) {
+    const s = j.sides[side];
+    sides[side] = {
+      ...s,
+      forces: { ...s.forces },
+      fortifications: { ...s.fortifications },
+      reinforcements: Object.fromEntries(Object.entries(s.reinforcements).map(([k, v]) => [Number(k), { ...v }])),
+      setupArea: convertArea(s.setupArea),
+      secretChits: [...s.secretChits],
+    };
+  }
+  const { stackingLimits, ...special } = j.special;
+  const def: ScenarioDef = {
+    id: j.id,
+    name: j.name,
+    map: j.map,
+    year: j.year,
+    sides,
+    initiative: j.initiative,
+    firstTurn: j.firstTurn,
+    setupFirst: j.setupFirst,
+    time: j.time,
+    suddenDeath: j.suddenDeath,
+    vp: j.vp,
+    control: [...j.control],
+    openChits: [...j.openChits],
+    prePlaced: j.prePlaced.map((p) => ({ hex: parseHex(p.hex), fort: p.fort })),
+    special: { ...special },
+  };
+  if (stackingLimits) {
+    def.special.stackingLimits = Object.fromEntries(Object.entries(stackingLimits).map(([k, v]) => [parseHex(k), v]));
+  }
+  return deepFreeze(def);
+}
+
+function deepFreeze<T>(o: T): T {
+  if (o && typeof o === 'object' && !Object.isFrozen(o)) {
+    Object.freeze(o);
+    for (const v of Object.values(o as object)) deepFreeze(v);
+  }
+  return o;
+}
+
+/** The twelve historical scenarios, in Playbook order. */
+export const SCENARIOS: readonly ScenarioDef[] = Object.freeze(
+  Object.values(SCENARIO_FILES)
+    .map(convertScenario)
+    .sort((a, b) => Number(a.id) - Number(b.id)),
+);
+
+/** Scenario `id` ("1".."12"); throws if there is none. */
+export function scenario(id: string): ScenarioDef {
+  const s = SCENARIOS.find((x) => x.id === id);
+  if (!s) throw new Error(`No scenario "${id}"`);
+  return s;
+}
+
+/**
+ * The hexes of a set-up area for a side whose friendly edge is `edge`: 'depth' = the first `depth` rows (top / bottom
+ * edge) or columns (left / right edge) counted from that edge; 'near' = the hexes and their neighbours; 'hexes' = exactly
+ * those; 'anyFree' = every hex (the "no enemy unit" part is for the deployment code). Sorted by HexId.
+ */
+export function areaHexes(area: SetupArea, edge: Edge): HexId[] {
+  let out: HexId[];
+  switch (area.kind) {
+    case 'depth': {
+      const d = area.depth;
+      const inArea = (h: HexId) => {
+        const k = colOf(h);
+        const n = rowOf(h);
+        if (edge === 'top') return n <= d;
+        if (edge === 'bottom') return n > ROWS - d;
+        if (edge === 'left') return k < d;
+        return k >= COLS - d;
+      };
+      out = ALL_HEXES.filter(inArea);
+      break;
+    }
+    case 'near':
+      out = [...new Set(area.hexes.flatMap((h) => [h, ...neighbours(h)]))];
+      break;
+    case 'hexes':
+      out = [...new Set(area.hexes)];
+      break;
+    case 'anyFree':
+      out = [...ALL_HEXES];
+      break;
+  }
+  return out.sort((a, b) => a - b);
+}

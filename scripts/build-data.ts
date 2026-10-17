@@ -8,10 +8,18 @@ import { join } from 'node:path';
 import { buildCards } from './data/cards';
 import { buildCounters } from './data/counters';
 import { readJson, writeJson } from './data/json';
+import { updateNotesSection } from './data/notes';
+import { buildScenarios, scenarioConversionNotes } from './data/scenarios';
 
 const ROOT = join(__dirname, '..');
 const DESIGN = join(ROOT, 'design', 'data');
 const OUT = join(ROOT, 'src', 'data');
+const NOTES = join(ROOT, 'design', 'data-notes.md');
+
+function notes(name: string, title: string, lines: string[]) {
+  const changed = updateNotesSection(NOTES, name, title, lines);
+  console.log(`${changed ? 'wrote    ' : 'unchanged'} design/data-notes.md (${name})`);
+}
 
 const parts = process.argv.slice(2).filter((a) => !a.startsWith('-'));
 const want = (p: string) => parts.length === 0 || parts.includes(p);
@@ -24,3 +32,28 @@ function write(rel: string, value: unknown, width?: number) {
 const counters = buildCounters(readJson(join(DESIGN, 'counters.json')));
 if (want('cards')) write('cards.json', buildCards(readJson(join(DESIGN, 'fate-cards.json'))), 250);
 if (want('counters')) write('counters.json', counters);
+
+if (want('scenarios')) {
+  const ids = new Set(counters.counters.map((c) => c.id));
+  const printed = new Map<string, string[]>(
+    readJson(join(DESIGN, 'maps.json'))
+      .maps.filter((m: any) => m.printed_objectives)
+      .map((m: any) => [m.map, m.printed_objectives.map((o: any) => o.hex)]),
+  );
+  const built = buildScenarios(readJson(join(DESIGN, 'scenarios.json')), ids, printed);
+  for (const [n, scn] of built) write(`scenarios/${n}.json`, scn);
+  notes('scenarios', 'Scenarios (src/data/scenarios/<n>.json)', [
+    'Built from design/data/scenarios.json (the VASSAL setups: forces, quality, orders, surrender, time, SD, VP, chits,',
+    'initiative, reinforcements, pre-placed pieces) plus scripts/data/scenario-rules.ts (design/scenarios-reference.md:',
+    'names, edges, set-up areas and order, first Turn, special rules). Hand size by posture and Discard Capability by',
+    'nation unless a special rule says otherwise. Where the Playbook and the module differ, the Playbook wins.',
+    '',
+    '### Conversion calls',
+    '',
+    ...scenarioConversionNotes(),
+    '',
+    '### Special rules the SpecialRules fields cannot express (`special.notes`; each needs code in Task 1 / 7-10)',
+    '',
+    ...built.flatMap(([n, scn]) => (scn.special.notes ?? []).map((t) => `- Scenario ${n} (${scn.name}): ${t}`)),
+  ]);
+}
