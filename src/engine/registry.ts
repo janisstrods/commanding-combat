@@ -2,12 +2,13 @@
 // an entry that is not written yet is a stub that logs "not yet implemented" and does nothing (its Order cannot be
 // given, its Action is never offered).
 //
-// To register a handler: export it from your file (orders/<name>.ts, actions/<name>.ts, events/<name>.ts), add one
-// import line below and replace the stub in the table. Handler files must not read these tables at module load time
-// (only inside functions), because the modules import each other.
-import { commandConfusionAction, commandConfusionOrder } from './orders/confusion';
-import { fireOrder, opFireAction } from './orders/fire';
-import { moveOrder } from './orders/move';
+// To register a handler: export it from your file (orders/<name>.ts, actions/<name>.ts, events/<name>.ts) and add it to
+// that folder's index.ts. The tables below look each handler up when it is used (never while modules load), so the
+// import order of the engine's modules, which import each other, does not matter. Handler files must not read these
+// tables at module load time either (only inside functions).
+import * as actionIndex from './actions/index';
+import * as eventIndex from './events/index';
+import * as orderIndex from './orders/index';
 import type { Gen } from './decisions';
 import type {
   ActionName, ActionOption, Answer, Decision, EventName, FateCard, FlowCtx, GameState, OrderName, PieceId, Side, WindowInfo, WindowKind,
@@ -67,78 +68,45 @@ function stubEvent(name: EventName): EventHandler {
   };
 }
 
-export const ORDERS: Record<OrderName, OrderHandler> = {
-  Advance: stubOrder('Advance'),
-  'Artillery Denied': stubOrder('Artillery Denied'),
-  'Artillery Request': stubOrder('Artillery Request'),
-  'Command Confusion': commandConfusionOrder,
-  Fire: fireOrder,
-  Move: moveOrder,
-  Recover: stubOrder('Recover'),
-  Rout: stubOrder('Rout'),
-};
+const ORDER_NAMES: readonly OrderName[] = [
+  'Advance', 'Artillery Denied', 'Artillery Request', 'Command Confusion', 'Fire', 'Move', 'Recover', 'Rout',
+];
+const ACTION_NAMES: readonly ActionName[] = [
+  'Ambush', 'Assault Fire', 'Bore Sighting', 'Command Confusion', 'Concealment', 'Crossfire', 'Demolitions', 'Dig In',
+  'Fire', 'Hand Grenades', 'Hidden Entrenchments', 'Hidden Mines', 'Hidden Pillbox', 'Hidden Unit', 'Hidden Wire',
+  'Light Wounds', 'Marksmanship', 'No Quarter', 'Smoke Grenades', 'Spray Fire', 'Sustained Fire',
+];
+const EVENT_NAMES: readonly EventName[] = [
+  'Air Support', 'Battle Harden', 'Battlefield Integrity', 'Blaze', 'Booby Trap', 'Breeze', 'Command & Control',
+  'Commissar', 'Cower', 'Deploy', 'Dust', 'Elan', 'Entrench', 'Field Promotion', 'Fog of War', 'Hero', 'Infiltration',
+  'Interdiction', 'Interrogation', 'KIA', 'Malfunction', 'Medic', 'Mission Objective', 'Prisoners of War',
+  'Reconnaissance', 'Reinforcements', 'Rubble', 'Sappers', 'Scrounge', 'Shell Shock', 'Shellholes',
+  'Strategic Objective', 'Suppressing Fire', 'Walking Wounded', 'White Phosphorus',
+];
 
-export const ACTIONS: Record<ActionName, ActionHandler> = {
-  Ambush: stubAction('Ambush'),
-  'Assault Fire': stubAction('Assault Fire'),
-  'Bore Sighting': stubAction('Bore Sighting'),
-  'Command Confusion': commandConfusionAction,
-  Concealment: stubAction('Concealment'),
-  Crossfire: stubAction('Crossfire'),
-  Demolitions: stubAction('Demolitions'),
-  'Dig In': stubAction('Dig In'),
-  Fire: opFireAction,
-  'Hand Grenades': stubAction('Hand Grenades'),
-  'Hidden Entrenchments': stubAction('Hidden Entrenchments'),
-  'Hidden Mines': stubAction('Hidden Mines'),
-  'Hidden Pillbox': stubAction('Hidden Pillbox'),
-  'Hidden Unit': stubAction('Hidden Unit'),
-  'Hidden Wire': stubAction('Hidden Wire'),
-  'Light Wounds': stubAction('Light Wounds'),
-  Marksmanship: stubAction('Marksmanship'),
-  'No Quarter': stubAction('No Quarter'),
-  'Smoke Grenades': stubAction('Smoke Grenades'),
-  'Spray Fire': stubAction('Spray Fire'),
-  'Sustained Fire': stubAction('Sustained Fire'),
-};
+/**
+ * A table whose entries are looked up in `handlers()` when read, falling back to a stub. Assigning an entry overrides it
+ * (tests swap handlers in and restore them with Object.assign).
+ */
+function lazyTable<K extends string, V>(names: readonly K[], handlers: () => Partial<Record<K, V>>, stub: (k: K) => V): Record<K, V> {
+  const table = {} as Record<K, V>;
+  const overrides: Partial<Record<K, V>> = {};
+  for (const k of names) {
+    const fallback = stub(k);
+    Object.defineProperty(table, k, {
+      enumerable: true,
+      get: () => overrides[k] ?? handlers()[k] ?? fallback,
+      set: (v: V) => {
+        overrides[k] = v;
+      },
+    });
+  }
+  return table;
+}
 
-export const EVENTS: Record<EventName, EventHandler> = {
-  'Air Support': stubEvent('Air Support'),
-  'Battle Harden': stubEvent('Battle Harden'),
-  'Battlefield Integrity': stubEvent('Battlefield Integrity'),
-  Blaze: stubEvent('Blaze'),
-  'Booby Trap': stubEvent('Booby Trap'),
-  Breeze: stubEvent('Breeze'),
-  'Command & Control': stubEvent('Command & Control'),
-  Commissar: stubEvent('Commissar'),
-  Cower: stubEvent('Cower'),
-  Deploy: stubEvent('Deploy'),
-  Dust: stubEvent('Dust'),
-  Elan: stubEvent('Elan'),
-  Entrench: stubEvent('Entrench'),
-  'Field Promotion': stubEvent('Field Promotion'),
-  'Fog of War': stubEvent('Fog of War'),
-  Hero: stubEvent('Hero'),
-  Infiltration: stubEvent('Infiltration'),
-  Interdiction: stubEvent('Interdiction'),
-  Interrogation: stubEvent('Interrogation'),
-  KIA: stubEvent('KIA'),
-  Malfunction: stubEvent('Malfunction'),
-  Medic: stubEvent('Medic'),
-  'Mission Objective': stubEvent('Mission Objective'),
-  'Prisoners of War': stubEvent('Prisoners of War'),
-  Reconnaissance: stubEvent('Reconnaissance'),
-  Reinforcements: stubEvent('Reinforcements'),
-  Rubble: stubEvent('Rubble'),
-  Sappers: stubEvent('Sappers'),
-  Scrounge: stubEvent('Scrounge'),
-  'Shell Shock': stubEvent('Shell Shock'),
-  Shellholes: stubEvent('Shellholes'),
-  'Strategic Objective': stubEvent('Strategic Objective'),
-  'Suppressing Fire': stubEvent('Suppressing Fire'),
-  'Walking Wounded': stubEvent('Walking Wounded'),
-  'White Phosphorus': stubEvent('White Phosphorus'),
-};
+export const ORDERS: Record<OrderName, OrderHandler> = lazyTable(ORDER_NAMES, () => orderIndex.ORDER_HANDLERS, stubOrder);
+export const ACTIONS: Record<ActionName, ActionHandler> = lazyTable(ACTION_NAMES, () => actionIndex.ACTION_HANDLERS, stubAction);
+export const EVENTS: Record<EventName, EventHandler> = lazyTable(EVENT_NAMES, () => eventIndex.EVENT_HANDLERS, stubEvent);
 
 /** Extra answer checks by decision kind, for kinds other tasks add. */
 export const DECISION_CHECKS: Partial<Record<Decision['kind'], DecisionCheck>> = {};
