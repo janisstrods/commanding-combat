@@ -328,6 +328,15 @@ export interface SpecialRules {
   stackingLimits?: Record<number, number>;
   /** Chits removed from the cup before drawing. */
   excludeChits?: string[];
+  /** Set-up Fortifications are placed after both sides have deployed their units (RSG RS.12; also fits scenario 3's
+   * Hidden Fortifications, whose Allies place only Wire). */
+  fortificationsLast?: boolean;
+  /** After all set-up, each Objective that one side alone occupies passes to that side, swinging its open chits' VP
+   * (objectives.ts updateControl over all five). RSG RS.11.2 / RS.13; also fits scenario 7. */
+  controlAfterSetup?: boolean;
+  /** Pieces that start together: one unit of type `unit` carries one Weapon of type `weapon` from staging on (a unit
+   * bought with its Weapon on a Support Table must set up with it, RS.7 / §11.2; also fits scenario 10's Pioniers). */
+  carried?: Partial<Record<Side, { unit: string; weapon: string }[]>>;
   /** Free text of the rules this list cannot express, shown in the briefing; each must also be implemented in code. */
   notes?: string[];
 }
