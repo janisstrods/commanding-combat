@@ -402,6 +402,24 @@ export interface TurnState {
   opFire: PieceId[];
   /** The Turn ended with a pass: how many cards were discarded. */
   passDiscards: number | null;
+  /** Pieces (units and Weapons) that have fired in the Fire Order in progress (each fires once, §O20.3). */
+  fired: PieceId[];
+  /** The Move Order in progress, or null (kept in the state so a flow can resume from it). */
+  move: MoveProgress | null;
+}
+
+/** Bookkeeping of the Move Order in progress (§O21). */
+export interface MoveProgress {
+  /** MP spent so far this Move Order, per unit. */
+  spent: Record<PieceId, number>;
+  /** Units that have entered a road hex this Move Order (+1 Movement for the rest of it, §T93). */
+  road: PieceId[];
+  /** Units whose move is over (they finished, exited or were stopped). */
+  done: PieceId[];
+  /** The unit or group moving now (it finishes before another starts, §O21.2), or null between them. */
+  group: PieceId[] | null;
+  /** Some activated unit has entered a hex (a Move Order must move someone, §O14.4). */
+  entered: boolean;
 }
 
 /** One reveal from a Fate deck. Rolls (dice) can be re-rolled with the Initiative; reveals for hexes/events cannot. */
@@ -431,6 +449,8 @@ export type RevealPurpose =
 export interface GameState {
   /** Shared, never mutated during play (cloneState keeps the reference). */
   readonly scenario: ScenarioDef;
+  /** The scenario's map; shared and never mutated, like `scenario` (a GameState is a los.ts LosView). */
+  readonly map: MapDef;
   /** RNG state (only shuffles and pre-game tables use it; every "roll" is a card reveal). */
   rng: number;
   rngCalls: number;
@@ -466,7 +486,16 @@ export interface GameState {
   endReason: EndReason | null;
   /** Phase before play: 'setup' while deploying, then 'play'. */
   phase: 'setup' | 'play' | 'over';
+  /**
+   * Redacted views only (state.ts `redact`): the pools the viewer cannot see into, sorted. `cards[side]`: the cards of
+   * that side's deck that are in its draw pile or (for the opponent) its hand; `chits`: the cup plus the opponent's
+   * secret chits. The masked lists themselves hold UNKNOWN_CARD / UNKNOWN_CHIT.
+   */
+  unseen?: { cards: Record<Side, CardId[]>; chits: ChitId[] };
 }
+
+/** Placeholder for an Objective chit the viewer cannot know (cup, opponent's secret chits) in a redacted state. */
+export const UNKNOWN_CHIT: ChitId = '??';
 
 export type EndReason = 'surrender' | 'annihilation' | 'exit' | 'suddenDeath' | 'objectivesV';
 
@@ -483,9 +512,74 @@ export type WindowKind =
   | 'beforeMelee'
   | 'afterMelee'
   | 'opponentPassed'
-  | 'timeAdvanceEnd';
+  | 'timeAdvanceEnd'
+  /** Any time while the active player's units are activated to Move (Assault Fire, Smoke Grenades): offered inside every
+   * `move` decision of the Move Order as `actions`, not as a separate `react` decision. */
+  | 'duringMove';
 
-/** One Action a player may play now: the card, which of its uses, and the choices it needs (if any). */
+/** A Fire Attack in progress (§O20.4), as the Action windows see it; Actions played on it change it. */
+export interface AttackInfo {
+  /** The firing player. */
+  side: Side;
+  mode: 'order' | 'opFire' | 'assault' | 'artillery' | 'mine';
+  pieces: PieceId[];
+  /** Target hexes: one, or two after Spray Fire (§A40). */
+  targets: HexId[];
+  ordnance: boolean;
+  /** A Mortar (or Artillery) attack: Airburst, Fortification +1, no Wall/Hedge Cover. */
+  mortarOrArtillery: boolean;
+  /** Flamethrower / Mines: target Cover is 0. */
+  ignoresCover: boolean;
+  /** FP before Action bonuses (after group, Hindrance and height); fire.ts recomputes it after the window. */
+  fp: number;
+  /** FP added by Actions (+2 each for Bore Sighting, Crossfire, Hand Grenades, Marksmanship, Sustained Fire). */
+  bonus: number;
+  /** The Attack Total once rolled (before Concealment), else null. */
+  total: number | null;
+  /** Subtracted from the total for the remaining Defense rolls (Concealment). */
+  reduction: number;
+  /** Actions played on this attack, in order. */
+  played: ActionName[];
+}
+
+/** What a reaction window is about. Handlers may write to it (e.g. `opFireDone`); fire.ts reads `attack` back. */
+export interface WindowInfo {
+  /** The hex entered, the target or defending hex, the melee hex. */
+  hex?: HexId;
+  /** The units concerned: the moving group, the defending unit, the Squad about to break, melee participants. */
+  units?: PieceId[];
+  /** The side whose units entered the hex (afterHexEntry / afterAdvanceEntry). */
+  mover?: Side;
+  attack?: AttackInfo;
+  /** squadWouldBreak: what breaks it. */
+  cause?: CasualtyCause;
+  /** opponentPassed: how many cards he discarded. */
+  discards?: number;
+  /** afterHexEntry: the one Op Fire attack of this MP expenditure has been made (§A33.3). */
+  opFireDone?: boolean;
+}
+
+/** Why a piece breaks or is eliminated (Light Wounds applies to breaking only, R-54). */
+export type CasualtyCause =
+  | 'fire'
+  | 'opFire'
+  | 'artillery'
+  | 'mine'
+  | 'melee'
+  | 'ambush'
+  | 'sniper'
+  | 'event'
+  | 'jammed'
+  | 'overstack'
+  | 'retreat'
+  | 'rout'
+  | 'other';
+
+/**
+ * One Action a player may play now: the card, which of its uses, and the choices it needs (if any). The Fire Action's
+ * option with `card: ''` is the Op Fire attack with units already activated for Op Fire this Move Order (no card).
+ * Targets: unless the Action's handler checks them itself, an answer picks exactly one from each list given.
+ */
 export interface ActionOption {
   card: CardId;
   action: ActionName;
@@ -583,13 +677,33 @@ export type Decision =
       players?: Side[];
     }
   /** Fire: the next Fire Attack among the activated pieces, or done. */
-  | { kind: 'fire'; side: Side; mode: 'order' | 'opFire' | 'assault'; pieces: PieceId[]; target?: HexId }
+  | {
+      kind: 'fire';
+      side: Side;
+      mode: 'order' | 'opFire' | 'assault';
+      pieces: PieceId[];
+      target?: HexId;
+      /** 'done' is refused: the Order has made no attack yet and one is possible (§O14.4). */
+      mustFire?: boolean;
+    }
   /** Move: the next step of the Move Order. */
-  | { kind: 'move'; side: Side; units: PieceId[]; current: PieceId[] | null }
+  | {
+      kind: 'move';
+      side: Side;
+      /** Activated units that may still start (or, in `current`, continue) moving. */
+      units: PieceId[];
+      current: PieceId[] | null;
+      /** MP left per unit of `units` / `current` (current Movement + Road bonus − MP spent). */
+      mp: Record<PieceId, number>;
+      /** 'done' with no group moving is refused: no unit has entered a hex yet and one can (§O14.4). */
+      mustMove?: boolean;
+      /** Actions the mover may play now (window 'duringMove': Assault Fire, Smoke Grenades); answered with 'play'. */
+      actions?: ActionOption[];
+    }
   /** Advance: where each activated unit goes (one answer per unit). */
   | { kind: 'advance'; side: Side; units: PieceId[] }
   /** A reaction window: play one of these Actions, or pass. Asked again after each play until the player passes. */
-  | { kind: 'react'; side: Side; window: WindowKind; options: ActionOption[] }
+  | { kind: 'react'; side: Side; window: WindowKind; options: ActionOption[]; info: WindowInfo }
   /** The Initiative holder may cancel the most recent roll (§9.1). */
   | { kind: 'reroll'; side: Side; roll: Reveal }
   /** A generic choice among items. */
@@ -611,7 +725,8 @@ export type Answer =
   | { kind: 'play'; option: number; targets?: { pieces?: PieceId[]; hexes?: HexId[] } }
   | { kind: 'reroll'; yes: boolean }
   | { kind: 'choose'; items: number[] }
-  | { kind: 'deploy'; piece: PieceId; hex: HexId }
+  /** `carrier`: for a Weapon, the unit in `hex` that takes it (default: the first one there without a Weapon). */
+  | { kind: 'deploy'; piece: PieceId; hex: HexId; carrier?: PieceId }
   | { kind: 'done' };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -647,6 +762,12 @@ export type GameEvent =
   | { kind: 'suddenDeath'; roll: number; time: number; ends: boolean }
   | { kind: 'reinforce'; pieces: PieceId[] }
   | { kind: 'log'; text: string; side?: Side }
+  | { kind: 'reshuffle'; side: Side }
+  | { kind: 'transfer'; weapon: PieceId; from: PieceId; to: PieceId }
+  | { kind: 'fix'; piece: PieceId }
+  | { kind: 'initiative'; side: Side }
+  /** A unit replaced by others in its hex (Light Wounds, Deploy); `piece` went back to the counter mix. */
+  | { kind: 'replace'; piece: PieceId; by: PieceId[] }
   | { kind: 'gameOver'; winner: Side; reason: EndReason };
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -656,4 +777,11 @@ export interface FlowCtx {
   emit: (e: GameEvent) => void;
   /** Report a refused answer (the flow asks again). */
   invalid: (message: string) => void;
+  /**
+   * Trigger depth: > 0 while resolving a trigger or an Event (including a Time advance and a melee inside an Event).
+   * Rolls made at depth > 0 never trigger (§1.9.1). Pass `{ ...ctx, depth: (ctx.depth ?? 0) + 1 }` down.
+   */
+  depth?: number;
+  /** Set by casualties.ts `simultaneously`: sides that lost (surrender / annihilation) during it, judged at its end. */
+  losers?: Side[];
 }
