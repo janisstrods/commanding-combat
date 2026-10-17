@@ -1,0 +1,1279 @@
+{
+ "_source": "VASSAL module CombatCommanderEurope-2.6.4.vmod predefined setups \"001 - Fat Lipki.vsav\" .. \"012 - Misty Mountain.vsav\" (decoded with design/tools/vassal_extract.py scenario).",
+ "_notes": [
+  "Units are NOT on hexes in the module setups: they sit on the off-board Stage Map; players place them in their set-up areas, which are NOT in the module (scenario cards needed).",
+  "orders = the Orders value shown on the OB display (module global Axis/Allied Orders, row 1..6 of the OB marker); hand_size from posture; troop_quality = OB display column Elite/Line/Green (used for deploying teams).",
+  "time_marker_start / sudden_death_space are Time Track spaces (0..12).",
+  "vp_marker_start: side_ahead + vp as placed on the VP track (VPValue-61; negative=Axis).",
+  "objectives_on_map: hex of the module's VPO markers sitting on the numbered objective circles printed on the map; initial_control from the marker state (None = uncontrolled).",
+  "objective_chits: chits placed face-up in the Open/Axis/Allied boxes; random_objective_reminders mark boxes where a chit is to be drawn at random; \"set aside\" chits were parked off-map by the module author (probably removed from the random pool - verify).",
+  "hand_size = module AxisDrawLimit/AlliedDrawLimit, derived from posture (Defender 4, Recon 5, Attacker 6).",
+  "Not in the module: set-up zones, special scenario rules text, which map edge each side uses/exits, scenario card exit VP, exact reinforcement entry rules.",
+  "Units parked on the Time Track in the setup are listed per side as reinforcements_by_time_space (space number 0..12) - check the scenario card for the exact entry rule."
+ ],
+ "scenarios": [
+  {
+   "number": 1,
+   "name": "Fat Lipki",
+   "module_file": "001 - Fat Lipki.vsav",
+   "map": "1",
+   "year": 1941,
+   "axis": {
+    "nation": "German",
+    "posture": "Recon",
+    "troop_quality": "Line",
+    "orders": 2,
+    "hand_size": 5,
+    "surrender_level": 5,
+    "units_in_staging_area": {
+     "Cpl Winkler": 1,
+     "LMG": 1,
+     "Lt Von Karsties": 1,
+     "Rifle Squad": 4
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Recon",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 5,
+    "surrender_level": 7,
+    "units_in_staging_area": {
+     "Cpl Krylov": 1,
+     "LMG": 1,
+     "MMG": 2,
+     "Rifle Squad": 8,
+     "Sgt Kovalev": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 2,
+   "sudden_death_space": 7,
+   "vp_marker_start": {
+    "side_ahead": null,
+    "vp": 0
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "E8",
+     "initial_control": null
+    },
+    {
+     "objective": 2,
+     "hex": "D3",
+     "initial_control": null
+    },
+    {
+     "objective": 3,
+     "hex": "H8",
+     "initial_control": null
+    },
+    {
+     "objective": 4,
+     "hex": "N5",
+     "initial_control": null
+    },
+    {
+     "objective": 5,
+     "hex": "F6",
+     "initial_control": null
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": [
+     "Axis",
+     "Open",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 2,
+   "name": "Hedgerows and Hand Grenades",
+   "module_file": "002 - Hedgerows and Hand Grenades.vsav",
+   "map": "2",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Green",
+    "orders": 4,
+    "hand_size": 4,
+    "surrender_level": 8,
+    "units_in_staging_area": {
+     "Conscript Squad": 5,
+     "Cpl Rettenhaus": 1,
+     "HMG": 2,
+     "LMG": 2,
+     "Lt Schrader": 1,
+     "Sgt Biermann": 1,
+     "Sgt Esser": 1,
+     "Volksgrenadier Squad": 3
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Attacker",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 6,
+    "surrender_level": 9,
+    "units_in_staging_area": {
+     "Cpl Hubbard": 1,
+     "Elite Squad": 2,
+     "Light Mortar": 1,
+     "Line Squad": 6,
+     "Lt Blankenship": 1,
+     "MMG": 1,
+     "Radio:105mm": 1,
+     "Sgt Smith": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 0,
+   "sudden_death_space": 8,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 10
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "N3",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "J8",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "F6",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "G7",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "J4",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "T"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": [
+     "Axis",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 3,
+   "name": "Bonfire of the NKVD",
+   "module_file": "003 - Bonfire of the NKVD.vsav",
+   "map": "3",
+   "year": 1941,
+   "axis": {
+    "nation": "German",
+    "posture": "Attacker",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 6,
+    "surrender_level": 7,
+    "units_in_staging_area": {
+     "HMG": 1,
+     "LMG": 3,
+     "Lt Schrader": 1,
+     "Rifle Squad": 6,
+     "Sgt Ganz": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Defender",
+    "troop_quality": "Green",
+    "orders": 4,
+    "hand_size": 4,
+    "surrender_level": 10,
+    "units_in_staging_area": {
+     "Cpl Gordov": 1,
+     "Cpt Egorov": 1,
+     "Green Team": 1,
+     "LMG": 1,
+     "MMG": 1,
+     "Militia Squad": 10,
+     "Sgt Maisky": 1
+    },
+    "fortifications_in_staging_area": {
+     "Wire": 12
+    },
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 0,
+   "sudden_death_space": 7,
+   "vp_marker_start": {
+    "side_ahead": "Allied",
+    "vp": 20
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "I3",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 2,
+     "hex": "H2",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 3,
+     "hex": "D7",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 4,
+     "hex": "J7",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 5,
+     "hex": "N5",
+     "initial_control": "Russian"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "Q",
+     "R",
+     "S"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [
+     "V",
+     "W",
+     "X"
+    ],
+    "random_objective_reminders": []
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 4,
+   "name": "Closed for Renovation",
+   "module_file": "004 - Closed for Renovation.vsav",
+   "map": "4",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Elite",
+    "orders": 3,
+    "hand_size": 4,
+    "surrender_level": 8,
+    "units_in_staging_area": {
+     "Elite Rifle Squad": 6,
+     "HMG": 2,
+     "IG 18 Gun": 1,
+     "LMG": 2,
+     "Lt Lauerbach": 1,
+     "Lt Schrader": 1,
+     "Weapon Team": 3
+    },
+    "fortifications_in_staging_area": {
+     "Wire": 5
+    },
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Attacker",
+    "troop_quality": "Elite",
+    "orders": 4,
+    "hand_size": 6,
+    "surrender_level": 11,
+    "units_in_staging_area": {
+     ".50 cal MG": 2,
+     "Elite Squad": 6,
+     "Line Squad": 4,
+     "Lt Wray": 1,
+     "MMG": 2,
+     "Radio:75mm": 1,
+     "Satchel Charge": 2,
+     "Sgt Buehler": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {
+     "3": {
+      "Flamethrower": 2,
+      "Engineer Squad": 2,
+      "Sgt White": 1
+     }
+    }
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 1,
+   "sudden_death_space": 7,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 20
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "B7",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "I2",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "N9",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "N3",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "I7",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "Q",
+     "R"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": []
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 5,
+   "name": "Cold Front",
+   "module_file": "005 - Cold Front.vsav",
+   "map": "5w",
+   "year": 1941,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 4,
+    "surrender_level": 5,
+    "units_in_staging_area": {
+     "HMG": 1,
+     "LMG": 2,
+     "Lt Von Karsties": 1,
+     "Rifle Squad": 3,
+     "Satchel Charge": 1,
+     "Sgt Ganz": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {
+     "Trench": 6
+    },
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Attacker",
+    "troop_quality": "Elite",
+    "orders": 5,
+    "hand_size": 6,
+    "surrender_level": 12,
+    "units_in_staging_area": {
+     "Guards SMG Squad": 12,
+     "Sgt Bikovets": 1,
+     "Sgt Kaminsky": 1,
+     "Sgt Kovalev": 1,
+     "Sgt Maisky": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Allied",
+   "time_marker_start": 5,
+   "sudden_death_space": 13,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 9
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "G4",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "D5",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "K8",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "O5",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "G6",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "W"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [
+     "R",
+     "V",
+     "X"
+    ],
+    "random_objective_reminders": []
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 6,
+   "name": "Paralyzed from the West Down",
+   "module_file": "006 - Paralyzed from the West Down.vsav",
+   "map": "6",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 1,
+    "hand_size": 4,
+    "surrender_level": 9,
+    "units_in_staging_area": {
+     "Conscript Squad": 3,
+     "Fallschirmjager Squad": 3,
+     "HMG": 2,
+     "LMG": 3,
+     "Rifle Squad": 3,
+     "Sgt Biermann": 1,
+     "Sgt Esser": 1,
+     "Weapon Team": 2
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Attacker",
+    "troop_quality": "Elite",
+    "orders": 4,
+    "hand_size": 6,
+    "surrender_level": 11,
+    "units_in_staging_area": {
+     "Cpl Hubbard": 1,
+     "Lt Wray": 1,
+     "MMG": 2,
+     "Paratroop Squad": 10,
+     "Sgt Smith": 1,
+     "Weapon Team": 2
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Allied",
+   "time_marker_start": 0,
+   "sudden_death_space": 6,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 9
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "O5",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "J8",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "F4",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "E8",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "J3",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "V",
+     "X"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [
+     "W"
+    ],
+    "random_objective_reminders": [
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 7,
+   "name": "Bessarabian Nights",
+   "module_file": "007 - Bessarabian Nights.vsav",
+   "map": "7",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Recon",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 5,
+    "surrender_level": 8,
+    "units_in_staging_area": {
+     "LMG": 3,
+     "Lt Schrader": 1,
+     "Sgt Biermann": 1,
+     "Volksgrenadier Squad": 6
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 1,
+    "hand_size": 4,
+    "surrender_level": 14,
+    "units_in_staging_area": {
+     "Cpl Bulganin": 1,
+     "Green Team": 4,
+     "LMG": 4,
+     "Light Mortar": 1,
+     "Militia Squad": 4,
+     "SMG Squad": 4,
+     "Satchel Charge": 4,
+     "Sgt Maisky": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {},
+    "oddities": [
+     "Light Mortar (German counter in Allied staging area)"
+    ]
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 0,
+   "sudden_death_space": 5,
+   "vp_marker_start": {
+    "side_ahead": null,
+    "vp": 0
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "D2",
+     "initial_control": null
+    },
+    {
+     "objective": 2,
+     "hex": "M6",
+     "initial_control": null
+    },
+    {
+     "objective": 3,
+     "hex": "O2",
+     "initial_control": null
+    },
+    {
+     "objective": 4,
+     "hex": "A9",
+     "initial_control": null
+    },
+    {
+     "objective": 5,
+     "hex": "F6",
+     "initial_control": null
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "V",
+     "X"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [
+     "R",
+     "W"
+    ],
+    "random_objective_reminders": [
+     "Axis",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 8,
+   "name": "Breakout Dance",
+   "module_file": "008 - Breakout Dance.vsav",
+   "map": "8",
+   "year": 1943,
+   "axis": {
+    "nation": "German",
+    "posture": "Recon",
+    "troop_quality": "Line",
+    "orders": 3,
+    "hand_size": 5,
+    "surrender_level": 4,
+    "units_in_staging_area": {
+     "LMG": 3,
+     "Lt Schrader": 1,
+     "Rifle Squad": 3,
+     "Sgt Ganz": 1
+    },
+    "fortifications_in_staging_area": {
+     "Foxholes": 3
+    },
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Recon",
+    "troop_quality": "Line",
+    "orders": 1,
+    "hand_size": 5,
+    "surrender_level": 9,
+    "units_in_staging_area": {
+     "LMG": 1,
+     "MMG": 2,
+     "Rifle Squad": 10,
+     "Sgt Kaminsky": 1,
+     "Sgt Maisky": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 0,
+   "sudden_death_space": 5,
+   "vp_marker_start": {
+    "side_ahead": "Allied",
+    "vp": 2
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "F9",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 2,
+     "hex": "J9",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "O7",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "D5",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 5,
+     "hex": "J2",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [],
+    "axis_fixed": [
+     "W"
+    ],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": []
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 9,
+   "name": "Rush to Contact",
+   "module_file": "009 - Rush to Contact.vsav",
+   "map": "9",
+   "year": 1945,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 4,
+    "hand_size": 4,
+    "surrender_level": 11,
+    "units_in_staging_area": {
+     "LMG": 1,
+     "Radio:81mm": 1,
+     "Rifle Squad": 1,
+     "Sgt Pfeiffer": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {
+     "Minefield": 3
+    },
+    "reinforcements_by_time_space": {
+     "3": {
+      "Volksgrenadier Squad": 8,
+      "HMG": 1,
+      "LMG": 4,
+      "Weapon Team": 2,
+      "Sgt Biermann": 1,
+      "Sgt Esser": 1,
+      "Cpt Wehling": 1
+     }
+    }
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Attacker",
+    "troop_quality": "Elite",
+    "orders": 6,
+    "hand_size": 6,
+    "surrender_level": 13,
+    "units_in_staging_area": {
+     "Cpl Hubbard": 1,
+     "Lt Esparza": 1,
+     "Lt Wray": 1,
+     "Paratroop Squad": 6,
+     "Satchel Charge": 3
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {
+     "3": {
+      "Paratroop Squad": 2,
+      "MMG": 1,
+      "Sgt Smith": 1
+     },
+     "4": {
+      "Paratroop Squad": 2,
+      "Lt Blankenship": 1
+     },
+     "5": {
+      "Lt Thomas": 1,
+      "Paratroop Squad": 2
+     }
+    }
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 2,
+   "sudden_death_space": 12,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 14
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "I2",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "J6",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "I6",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "J4",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "A9",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "U"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": [
+     "Axis",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [
+    {
+     "name": "Minefield 7FP",
+     "hex": null
+    },
+    {
+     "name": "Minefield 8 FP",
+     "hex": null
+    }
+   ],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 10,
+   "name": "Commando School",
+   "module_file": "010 - Commando School.vsav",
+   "map": "10",
+   "year": 1943,
+   "axis": {
+    "nation": "German",
+    "posture": "Attacker",
+    "troop_quality": "Line",
+    "orders": 4,
+    "hand_size": 6,
+    "surrender_level": 7,
+    "units_in_staging_area": {
+     "Flamethrower": 1,
+     "HMG": 1,
+     "LMG": 2,
+     "Lt Lauerbach": 1,
+     "Pionier Squad": 2,
+     "Rifle Squad": 4,
+     "Satchel Charge": 1,
+     "Sgt Biermann": 1,
+     "Sgt Esser": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "Russian",
+    "posture": "Defender",
+    "troop_quality": "Elite",
+    "orders": 3,
+    "hand_size": 4,
+    "surrender_level": 6,
+    "units_in_staging_area": {
+     ".50 cal MG": 1,
+     "Elite Team": 2,
+     "Guards Rifle Squad": 2,
+     "Guards SMG Squad": 2,
+     "LMG": 2,
+     "Lt Khukovsky": 1,
+     "Satchel Charge": 1,
+     "Sgt Bikovets": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 0,
+   "sudden_death_space": 6,
+   "vp_marker_start": {
+    "side_ahead": "Allied",
+    "vp": 9
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "G7",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 2,
+     "hex": "N6",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "E4",
+     "initial_control": "Russian"
+    },
+    {
+     "objective": 4,
+     "hex": "M8",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "H5",
+     "initial_control": "Russian"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "W"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": [
+     "Axis",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 11,
+   "name": "Hold the Line",
+   "module_file": "011 - Hold the Line.vsav",
+   "map": "11",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Attacker",
+    "troop_quality": "Elite",
+    "orders": 2,
+    "hand_size": 6,
+    "surrender_level": 6,
+    "units_in_staging_area": {
+     "HMG": 1,
+     "LMG": 2,
+     "Lt Lauerbach": 1,
+     "SS Squad": 4,
+     "Sgt Ganz": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 2,
+    "hand_size": 4,
+    "surrender_level": 7,
+    "units_in_staging_area": {
+     ".50 cal MG": 1,
+     "Elite Squad": 1,
+     "Line Team": 2,
+     "Pack Howitzer": 1,
+     "Panzerfaust": 2,
+     "Sgt Buehler": 1,
+     "Sgt White": 1,
+     "Weapon Team": 1
+    },
+    "fortifications_in_staging_area": {
+     "Foxholes": 2,
+     "Immobilized Sherman": 1
+    },
+    "reinforcements_by_time_space": {
+     "2": {
+      "Line Squad": 1
+     },
+     "3": {
+      "Line Squad": 1
+     },
+     "4": {
+      "Line Squad": 1
+     },
+     "5": {
+      "Line Squad": 1
+     }
+    },
+    "oddities": [
+     "Panzerfaust (German counter in Allied staging area)",
+     "Panzerfaust (German counter in Allied staging area)"
+    ]
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 1,
+   "sudden_death_space": 6,
+   "vp_marker_start": {
+    "side_ahead": "Allied",
+    "vp": 10
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "N7",
+     "initial_control": "American"
+    },
+    {
+     "objective": 2,
+     "hex": "M7",
+     "initial_control": "American"
+    },
+    {
+     "objective": 3,
+     "hex": "O5",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "C2",
+     "initial_control": "American"
+    },
+    {
+     "objective": 5,
+     "hex": "I8",
+     "initial_control": "American"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "N",
+     "P"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": [
+     "Axis",
+     "Allied"
+    ]
+   },
+   "pre_placed_on_map": [
+    {
+     "name": "Wire",
+     "hex": "B2"
+    },
+    {
+     "name": "Wire",
+     "hex": "B3"
+    },
+    {
+     "name": "Wire",
+     "hex": "B5"
+    },
+    {
+     "name": "Wire",
+     "hex": "B6"
+    },
+    {
+     "name": "Wire",
+     "hex": "B8"
+    },
+    {
+     "name": "Wire",
+     "hex": "B9"
+    },
+    {
+     "name": "Wire",
+     "hex": "C8"
+    },
+    {
+     "name": "Wire",
+     "hex": "D8"
+    },
+    {
+     "name": "Wire",
+     "hex": "D5"
+    },
+    {
+     "name": "Wire",
+     "hex": "E5"
+    },
+    {
+     "name": "Wire",
+     "hex": "H5"
+    },
+    {
+     "name": "Wire",
+     "hex": "G6"
+    },
+    {
+     "name": "Wire",
+     "hex": "G8"
+    },
+    {
+     "name": "Wire",
+     "hex": "G9"
+    },
+    {
+     "name": "Minefield",
+     "hex": "C5"
+    },
+    {
+     "name": "Minefield",
+     "hex": "C6"
+    },
+    {
+     "name": "Minefield",
+     "hex": "D7"
+    },
+    {
+     "name": "Minefield",
+     "hex": "E8"
+    }
+   ],
+   "module_globals_nondefault": {}
+  },
+  {
+   "number": 12,
+   "name": "Misty Mountain",
+   "module_file": "012 - Misty Mountain.vsav",
+   "map": "12",
+   "year": 1944,
+   "axis": {
+    "nation": "German",
+    "posture": "Defender",
+    "troop_quality": "Line",
+    "orders": 4,
+    "hand_size": 4,
+    "surrender_level": 10,
+    "units_in_staging_area": {
+     "HMG": 1,
+     "LMG": 2,
+     "Light Mortar": 1,
+     "Sgt Biermann": 1,
+     "Sgt Esser": 1,
+     "Sgt Pfeiffer": 1,
+     "Volksgrenadier Squad": 9,
+     "Weapon Team": 2
+    },
+    "fortifications_in_staging_area": {
+     "Bunker": 1,
+     "Trench": 2
+    },
+    "reinforcements_by_time_space": {}
+   },
+   "allied": {
+    "nation": "American",
+    "posture": "Attacker",
+    "troop_quality": "Line",
+    "orders": 5,
+    "hand_size": 6,
+    "surrender_level": 17,
+    "units_in_staging_area": {
+     "Cpl Hubbard": 1,
+     "Cpl Jensen": 1,
+     "Light Mortar": 1,
+     "Line Squad": 8,
+     "Lt Blankenship": 1,
+     "MMG": 2,
+     "Medium Mortar": 2,
+     "Weapon Team": 5
+    },
+    "fortifications_in_staging_area": {},
+    "reinforcements_by_time_space": {
+     "7": {
+      "Green Squad": 8,
+      "Sgt Smith": 1
+     }
+    }
+   },
+   "initiative_card_starts_with": "Axis",
+   "time_marker_start": 4,
+   "sudden_death_space": 12,
+   "vp_marker_start": {
+    "side_ahead": "Axis",
+    "vp": 16
+   },
+   "objectives_on_map": [
+    {
+     "objective": 1,
+     "hex": "B7",
+     "initial_control": "German"
+    },
+    {
+     "objective": 2,
+     "hex": "L3",
+     "initial_control": "German"
+    },
+    {
+     "objective": 3,
+     "hex": "D6",
+     "initial_control": "German"
+    },
+    {
+     "objective": 4,
+     "hex": "I7",
+     "initial_control": "German"
+    },
+    {
+     "objective": 5,
+     "hex": "F3",
+     "initial_control": "German"
+    }
+   ],
+   "objective_chits": {
+    "open_fixed": [
+     "N",
+     "Q",
+     "S"
+    ],
+    "axis_fixed": [],
+    "allied_fixed": [],
+    "set_aside": [],
+    "random_objective_reminders": []
+   },
+   "pre_placed_on_map": [],
+   "module_globals_nondefault": {}
+  }
+ ]
+}

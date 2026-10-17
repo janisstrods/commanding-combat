@@ -1,0 +1,7021 @@
+{
+ "_source": "VASSAL module CombatCommanderEurope-2.6.4.vmod, buildFile.xml DrawPiles (Decks map); names read from the title bars of the card-layer images",
+ "_notes": [
+  "One record per card: order / action / event names as printed in the title bars (no rules text).",
+  "dice: the two dice printed on the card; the module calls them white and red (report text \"(1w,2r)\").",
+  "trigger: printed above the dice: Jammed, Sniper, Event or Time (None = no trigger).",
+  "order_also_playable_as_action: Fire cards are printed ORDER / ACTION FIRE.",
+  "action_defender_only: the action title carries a DEFENDER ONLY tag.",
+  "Command Confusion cards print COMMAND CONFUSION in the order bar; those with no separate action print it again in the action bar (action = Command Confusion).",
+  "breeze_direction: 1..6 = the hexside compass printed on the map (1=N, 2=NE, 3=SE, 4=S, 5=SW, 6=NW).",
+  "Checks: every deck has 72 cards; every ordered dice pair (white,red) 1-1..6-6 appears exactly twice per deck; random hexes are unique per deck - German deck = all odd-numbered hexes except A1/H1/O1, Russian and American decks = all even-numbered hexes except A10/H10/O10.",
+  "module.layers lists the image layers that compose the card face in the module (bottom first); module.prototypes the VASSAL prototypes (DR-w-r[trigger], H-hex, O-/A-/AF-/E- = order/action/event)."
+ ],
+ "trigger_counts": {
+  "German": {
+   "Jammed": 2,
+   "None": 51,
+   "Sniper": 7,
+   "Event": 10,
+   "Time": 2
+  },
+  "Russian": {
+   "Jammed": 4,
+   "None": 50,
+   "Sniper": 8,
+   "Event": 8,
+   "Time": 2
+  },
+  "American": {
+   "Jammed": 2,
+   "None": 50,
+   "Sniper": 6,
+   "Event": 12,
+   "Time": 2
+  }
+ },
+ "decks": {
+  "German": [
+   {
+    "id": "G-01",
+    "number": 1,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Shellholes",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A3",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Assault Fire.png",
+      "Event-Shellholes.png",
+      "H-A3.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A3",
+      "E-shellholes",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-02",
+    "number": 2,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Booby Trap",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A5",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Assault Fire.png",
+      "Event-Booby trap.png",
+      "H-A5.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A5",
+      "E-booby trap",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-03",
+    "number": 3,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Rubble",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "A7",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Assault Fire.png",
+      "Event-Rubble.png",
+      "H-A7.png",
+      "dr1-2.png"
+     ],
+     "prototypes": [
+      "DR-1-2",
+      "H-A7",
+      "E-rubble",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-04",
+    "number": 4,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Dust",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "A9",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Hand Grenades.png",
+      "Event-Dust.png",
+      "H-A9.png",
+      "dr1-2.png"
+     ],
+     "prototypes": [
+      "DR-1-2",
+      "H-A9",
+      "E-dust",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-05",
+    "number": 5,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Mission Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B1",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Hand Grenades.png",
+      "Event-Mission Obj.png",
+      "H-B1.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B1",
+      "E-mission objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-06",
+    "number": 6,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Strategic Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B3",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Hand Grenades.png",
+      "Event-Strategic.png",
+      "H-B3.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B3",
+      "E-strategic objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-07",
+    "number": 7,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Medic",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B5",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Spray Fire.png",
+      "Event-Medic.png",
+      "H-B5.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B5",
+      "E-medic",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-08",
+    "number": 8,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "KIA",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B7",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Spray Fire.png",
+      "Event-KIA.png",
+      "H-B7.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B7",
+      "E-kia",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-09",
+    "number": 9,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B9",
+    "module": {
+     "layers": [
+      "O-recoverG.png",
+      "Action-Spray Fire.png",
+      "Event-Air support.png",
+      "H-B9.png",
+      "dr2-2.png"
+     ],
+     "prototypes": [
+      "DR-2-2",
+      "H-B9",
+      "E-air support",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "G-10",
+    "number": 10,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Shell Shock",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": "Sniper",
+    "random_hex": "C1",
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Action-Spray Fire.png",
+      "Event-Shell shock.png",
+      "H-C1.png",
+      "dr2-2s.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-2-2s",
+      "H-C1",
+      "E-shell shock",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-11",
+    "number": 11,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C3",
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C3.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-1",
+      "H-C3",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-12",
+    "number": 12,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C5",
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C5.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-1",
+      "H-C5",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-13",
+    "number": 13,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C7",
+    "breeze_direction": 1,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze1.png",
+      "Action-Hand Grenades.png",
+      "H-C7.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-1-4",
+      "H-C7",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-14",
+    "number": 14,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C9",
+    "breeze_direction": 2,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze2.png",
+      "Action-Hand Grenades.png",
+      "H-C9.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-1-4",
+      "H-C9",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-15",
+    "number": 15,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D1",
+    "breeze_direction": 3,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze3.png",
+      "Action-Hand Grenades.png",
+      "H-D1.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-2-3",
+      "H-D1",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-16",
+    "number": 16,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D3",
+    "breeze_direction": 4,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze4.png",
+      "Action-Assault Fire.png",
+      "H-D3.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-2-3",
+      "H-D3",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-17",
+    "number": 17,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D5",
+    "breeze_direction": 5,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze5.png",
+      "Action-Assault Fire.png",
+      "H-D5.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-2",
+      "H-D5",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-18",
+    "number": 18,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D7",
+    "breeze_direction": 6,
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Event-Breeze6.png",
+      "Action-Assault Fire.png",
+      "H-D7.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-2",
+      "H-D7",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-19",
+    "number": 19,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D9",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-D9.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "DR-4-1",
+      "H-D9",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-20",
+    "number": 20,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "E1",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-E1.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "DR-4-1",
+      "H-E1",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-21",
+    "number": 21,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E3",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-E3.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E3",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-22",
+    "number": 22,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E5",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-E5.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E5",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-23",
+    "number": 23,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E7",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-E7.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E7",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-24",
+    "number": 24,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Blaze",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E9",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Blaze.png",
+      "H-E9.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E9",
+      "E-blaze",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-25",
+    "number": 25,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Field Promotion",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F1",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Event-PromoteG.png",
+      "Action-Crossfire.png",
+      "H-f1.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F1",
+      "E-field promotion",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-26",
+    "number": 26,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F3",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Crossfire.png",
+      "Event-Recon.png",
+      "H-f3.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F3",
+      "E-recon",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-27",
+    "number": 27,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F5",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Action-Concealment.png",
+      "Event-Recon.png",
+      "H-f5.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F5",
+      "E-recon",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-28",
+    "number": 28,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F7",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Event-DeployG.png",
+      "Action-Concealment.png",
+      "H-f7.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F7",
+      "E-deploy",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-29",
+    "number": 29,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F9",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Event-DeployG.png",
+      "Action-Concealment.png",
+      "H-f9.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-F9",
+      "E-deploy",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-30",
+    "number": 30,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "G1",
+    "module": {
+     "layers": [
+      "O-moveG.png",
+      "Event-DeployG.png",
+      "Action-Concealment.png",
+      "H-G1.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-G1",
+      "E-deploy",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "G-31",
+    "number": 31,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Unit",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "G3",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-Hidden UnitG.png",
+      "Event-Interdiction.png",
+      "H-G3.png",
+      "dr1-6.png"
+     ],
+     "prototypes": [
+      "DR-1-6",
+      "H-G3",
+      "E-interdiction",
+      "A-hidden unit",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-32",
+    "number": 32,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Mines",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "G5",
+    "module": {
+     "layers": [
+      "O-deniedG.png",
+      "Action-Hidden Mines.png",
+      "Event-Interdiction.png",
+      "H-G5.png",
+      "dr1-6.png"
+     ],
+     "prototypes": [
+      "DR-1-6",
+      "H-G5",
+      "E-interdiction",
+      "A-hidden mines",
+      "O-artillery denied",
+      "Axis-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "G-33",
+    "number": 33,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G7",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G7.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G7",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-34",
+    "number": 34,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G9",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G9.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G9",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-35",
+    "number": 35,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H3",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H3.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H3",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-36",
+    "number": 36,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H5",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H5.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H5",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-37",
+    "number": 37,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H7",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H7.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H7",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-38",
+    "number": 38,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H9",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H9.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H9",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-39",
+    "number": 39,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Pillbox",
+    "action_defender_only": true,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I1",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Hidden Pillbox.png",
+      "Event-Integrity.png",
+      "H-I1.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I1",
+      "E-integrity",
+      "A-hidden pillbox",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-40",
+    "number": 40,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I3",
+    "module": {
+     "layers": [
+      "O-requestG.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I3.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I3",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery request",
+      "Ger-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "G-41",
+    "number": 41,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I5",
+    "module": {
+     "layers": [
+      "O-deniedG.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I5.png",
+      "dr6-1e.png"
+     ],
+     "prototypes": [
+      "DR-6-1e",
+      "H-I5",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery denied",
+      "Axis-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "G-42",
+    "number": 42,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Bore Sighting",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I7",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-Boresight.png",
+      "Event-Suppress.png",
+      "H-I7.png",
+      "dr6-1e.png"
+     ],
+     "prototypes": [
+      "DR-6-1e",
+      "H-I7",
+      "E-suppressing fire",
+      "A-boresight",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-43",
+    "number": 43,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "I9",
+    "module": {
+     "layers": [
+      "O-advanceG.png",
+      "Action-Sustained fire.png",
+      "Event-CandC.png",
+      "H-I9.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-I9",
+      "E-c and c",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "G-44",
+    "number": 44,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J1",
+    "module": {
+     "layers": [
+      "O-advanceG.png",
+      "Action-Sustained fire.png",
+      "Event-Integrity.png",
+      "H-J1.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-J1",
+      "E-integrity",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "G-45",
+    "number": 45,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J3",
+    "module": {
+     "layers": [
+      "O-advanceG.png",
+      "Action-Sustained fire.png",
+      "Event-Air support.png",
+      "H-J3.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J3",
+      "E-air support",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "G-46",
+    "number": 46,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J5",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-Light WoundsG.png",
+      "Event-Interrogation.png",
+      "H-J5.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J5",
+      "E-interrogation",
+      "A-light wounds",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-47",
+    "number": 47,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Command Confusion",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J7",
+    "module": {
+     "layers": [
+      "OA-confusionG.png",
+      "Event-Interrogation.png",
+      "H-J7.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J7",
+      "E-interrogation",
+      "A-confuse",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-48",
+    "number": 48,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J9",
+    "module": {
+     "layers": [
+      "O-routG.png",
+      "Action-Concealment.png",
+      "Event-Interrogation.png",
+      "H-J9.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J9",
+      "E-interrogation",
+      "A-conceal",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "G-49",
+    "number": 49,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K1",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-Sustained fire.png",
+      "Event-CandC.png",
+      "H-K1.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K1",
+      "E-c and c",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-50",
+    "number": 50,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Malfunction",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K3",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-Malfunction.png",
+      "H-K3.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K3",
+      "E-malfunction",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-51",
+    "number": 51,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K5",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-Wounded.png",
+      "H-K5.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K5",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-52",
+    "number": 52,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K7",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-Wounded.png",
+      "H-K7.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K7",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-53",
+    "number": 53,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "K9",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-Wounded.png",
+      "H-K9.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-K9",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-54",
+    "number": 54,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Infiltration",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L1",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-InfiltrateG.png",
+      "H-L1.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-L1",
+      "E-infiltration",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-55",
+    "number": 55,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L3",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Smoke GrenadesG.png",
+      "Event-ReinforceG.png",
+      "H-L3.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L3",
+      "E-reinforcements",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-56",
+    "number": 56,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L5",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-ReinforceG.png",
+      "Action-Ambush.png",
+      "H-L5.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L5",
+      "E-reinforcements",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-57",
+    "number": 57,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Scrounge",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L7",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Ambush.png",
+      "Event-Scrounge.png",
+      "H-L7.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L7",
+      "E-scrounge",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-58",
+    "number": 58,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L9",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-VetG.png",
+      "Action-Ambush.png",
+      "H-L9.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L9",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-59",
+    "number": 59,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M1",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-VetG.png",
+      "Action-Ambush.png",
+      "H-M1.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M1",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-60",
+    "number": 60,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M3",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-VetG.png",
+      "Action-Ambush.png",
+      "H-M3.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M3",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-61",
+    "number": 61,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M5",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-VetG.png",
+      "Action-Ambush.png",
+      "H-M5.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M5",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-62",
+    "number": 62,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M7",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-NoQG.png",
+      "Event-VetG.png",
+      "H-M7.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M7",
+      "E-harden",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-63",
+    "number": 63,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "M9",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-NoQG.png",
+      "Event-CowerG.png",
+      "H-M9.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-M9",
+      "E-cower",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-64",
+    "number": 64,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "N1",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-NoQG.png",
+      "Event-CowerG.png",
+      "H-N1.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-N1",
+      "E-cower",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-65",
+    "number": 65,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Demolitions",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N3",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Event-PowG.png",
+      "Action-Demolitions.png",
+      "H-N3.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N3",
+      "E-pow",
+      "AF-demo",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-66",
+    "number": 66,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N5",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Light WoundsG.png",
+      "Event-PowG.png",
+      "H-N5.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N5",
+      "E-pow",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-67",
+    "number": 67,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N7",
+    "module": {
+     "layers": [
+      "O-fireG.png",
+      "Action-Light WoundsG.png",
+      "Event-HeroG.png",
+      "H-N7.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N7",
+      "E-hero",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "G-68",
+    "number": 68,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N9",
+    "module": {
+     "layers": [
+      "O-advanceG.png",
+      "Action-Light WoundsG.png",
+      "Event-HeroG.png",
+      "H-N9.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N9",
+      "E-hero",
+      "A-light wounds",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "G-69",
+    "number": 69,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O3",
+    "module": {
+     "layers": [
+      "O-advanceG.png",
+      "Action-Light WoundsG.png",
+      "Event-HeroG.png",
+      "H-O3.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O3",
+      "E-hero",
+      "A-light wounds",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "G-70",
+    "number": 70,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Marksmanship",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O5",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-MarksmanG.png",
+      "Event-HeroG.png",
+      "H-O5.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O5",
+      "E-hero",
+      "A-marksman",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-71",
+    "number": 71,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O7",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Event-HeroG.png",
+      "Action-Sustained fire.png",
+      "H-O7.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O7",
+      "E-hero",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "G-72",
+    "number": 72,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O9",
+    "module": {
+     "layers": [
+      "O-confusionG.png",
+      "Action-Sustained fire.png",
+      "Event-Fog.png",
+      "H-O9.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O9",
+      "E-fog",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   }
+  ],
+  "Russian": [
+   {
+    "id": "S-01",
+    "number": 1,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Shellholes",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A2",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Assault Fire.png",
+      "Event-Shellholes.png",
+      "H-A2.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A2",
+      "E-shellholes",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-02",
+    "number": 2,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Booby Trap",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A4",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Assault Fire.png",
+      "Event-Booby trap.png",
+      "H-A4.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A4",
+      "E-booby trap",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-03",
+    "number": 3,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Rubble",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": "Jammed",
+    "random_hex": "A6",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Assault Fire.png",
+      "Event-Rubble.png",
+      "H-A6.png",
+      "dr1-2j.png"
+     ],
+     "prototypes": [
+      "DR-1-2j",
+      "H-A6",
+      "E-rubble",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-04",
+    "number": 4,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Dust",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": "Jammed",
+    "random_hex": "A8",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Hand Grenades.png",
+      "Event-Dust.png",
+      "H-A8.png",
+      "dr1-2j.png"
+     ],
+     "prototypes": [
+      "DR-1-2j",
+      "H-A8",
+      "E-dust",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-05",
+    "number": 5,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Mission Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B2",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Hand Grenades.png",
+      "Event-Mission Obj.png",
+      "H-B2.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B2",
+      "E-mission objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-06",
+    "number": 6,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Strategic Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B4",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Hand Grenades.png",
+      "Event-Strategic.png",
+      "H-B4.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B4",
+      "E-strategic objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-07",
+    "number": 7,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Medic",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B6",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Spray Fire.png",
+      "Event-Medic.png",
+      "H-B6.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B6",
+      "E-medic",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-08",
+    "number": 8,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "KIA",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B8",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Spray Fire.png",
+      "Event-KIA.png",
+      "H-B8.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B8",
+      "E-kia",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-09",
+    "number": 9,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": "Sniper",
+    "random_hex": "B10",
+    "module": {
+     "layers": [
+      "O-recoverS.png",
+      "Action-Spray Fire.png",
+      "Event-Air support.png",
+      "H-B10.png",
+      "dr2-2s.png"
+     ],
+     "prototypes": [
+      "DR-2-2s",
+      "H-B10",
+      "E-air support",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "S-10",
+    "number": 10,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Shell Shock",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": "Sniper",
+    "random_hex": "C2",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Spray Fire.png",
+      "Event-Shell shock.png",
+      "H-C2.png",
+      "dr2-2s.png"
+     ],
+     "prototypes": [
+      "DR-2-2s",
+      "H-C2",
+      "E-shell shock",
+      "A-spray fire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-11",
+    "number": 11,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C4",
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C4.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-1",
+      "H-C4",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-12",
+    "number": 12,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C6",
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C6.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-1",
+      "H-C6",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-13",
+    "number": 13,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Demolitions",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C8",
+    "breeze_direction": 1,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze1.png",
+      "Action-Demolitions.png",
+      "H-C8.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-1-4",
+      "H-C8",
+      "E-breeze",
+      "A-demo",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-14",
+    "number": 14,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C10",
+    "breeze_direction": 2,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze2.png",
+      "Action-Sustained fire.png",
+      "H-C10.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-1-4",
+      "H-C10",
+      "E-breeze",
+      "A-sustain fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-15",
+    "number": 15,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D2",
+    "breeze_direction": 3,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze3.png",
+      "Action-Sustained fire.png",
+      "H-D2.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-2-3",
+      "H-D2",
+      "E-breeze",
+      "A-sustain fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-16",
+    "number": 16,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D4",
+    "breeze_direction": 4,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze4.png",
+      "Action-Assault Fire.png",
+      "H-D4.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-2-3",
+      "H-D4",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-17",
+    "number": 17,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D6",
+    "breeze_direction": 5,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze5.png",
+      "Action-Assault Fire.png",
+      "H-D6.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-2",
+      "H-D6",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-18",
+    "number": 18,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D8",
+    "breeze_direction": 6,
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Event-Breeze6.png",
+      "Action-Assault Fire.png",
+      "H-D8.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-3-2",
+      "H-D8",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-19",
+    "number": 19,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Commissar",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D10",
+    "module": {
+     "layers": [
+      "O-routS.png",
+      "Action-Crossfire.png",
+      "Event-Commisar.png",
+      "H-D10.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "Permanent Delete Card",
+      "DR-4-1",
+      "H-D10",
+      "E-commissar",
+      "A-crossfire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "S-20",
+    "number": 20,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Commissar",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "E2",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Commisar.png",
+      "H-E2.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "DR-4-1",
+      "H-E2",
+      "E-commissar",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-21",
+    "number": 21,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Commissar",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E4",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Commisar.png",
+      "H-E4.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E4",
+      "E-commissar",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-22",
+    "number": 22,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Commissar",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E6",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Commisar.png",
+      "H-E6.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E6",
+      "E-commissar",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-23",
+    "number": 23,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Entrench",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E8",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Entrench.png",
+      "H-E8.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E8",
+      "E-trench",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-24",
+    "number": 24,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Entrench",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E10",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Entrench.png",
+      "H-E10.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E10",
+      "E-trench",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-25",
+    "number": 25,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Field Promotion",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F2",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Event-PromoteS.png",
+      "Action-Crossfire.png",
+      "H-f2.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F2",
+      "E-field promotion",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-26",
+    "number": 26,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F4",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Crossfire.png",
+      "Event-Recon.png",
+      "H-f4.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F4",
+      "E-recon",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-27",
+    "number": 27,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F6",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Concealment.png",
+      "Event-Recon.png",
+      "H-f6.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F6",
+      "E-recon",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-28",
+    "number": 28,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F8",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Smoke GrenadesS.png",
+      "Event-Fog.png",
+      "H-f8.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F8",
+      "E-fog",
+      "A-smoke grenades",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-29",
+    "number": 29,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F10",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Smoke GrenadesS.png",
+      "Event-Fog.png",
+      "H-f10.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-F10",
+      "E-fog",
+      "A-smoke grenades",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-30",
+    "number": 30,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "G2",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Smoke GrenadesS.png",
+      "Event-Fog.png",
+      "H-G2.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-G2",
+      "E-fog",
+      "A-smoke grenades",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-31",
+    "number": 31,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Unit",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "G4",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Hidden UnitS.png",
+      "Event-Interdiction.png",
+      "H-G4.png",
+      "dr1-6.png"
+     ],
+     "prototypes": [
+      "DR-1-6",
+      "H-G4",
+      "E-interdiction",
+      "A-hidden unit",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-32",
+    "number": 32,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Mines",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "G6",
+    "module": {
+     "layers": [
+      "O-deniedS.png",
+      "Action-Hidden Mines.png",
+      "Event-Interdiction.png",
+      "H-G6.png",
+      "dr1-6.png"
+     ],
+     "prototypes": [
+      "DR-1-6",
+      "H-G6",
+      "E-interdiction",
+      "A-hidden mines",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "S-33",
+    "number": 33,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G8",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G8.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G8",
+      "E-interdiction",
+      "A-dig in",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-34",
+    "number": 34,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G10",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G10.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G10",
+      "E-interdiction",
+      "A-dig in",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-35",
+    "number": 35,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H2",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H2.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H2",
+      "E-interdiction",
+      "A-dig in",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-36",
+    "number": 36,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H4",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H4.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H4",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-37",
+    "number": 37,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H6",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H6.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H6",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-38",
+    "number": 38,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H8",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H8.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H8",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-39",
+    "number": 39,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Pillbox",
+    "action_defender_only": true,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I2",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Hidden Pillbox.png",
+      "Event-Integrity.png",
+      "H-I2.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I2",
+      "E-integrity",
+      "A-hidden pillbox",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-40",
+    "number": 40,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I4",
+    "module": {
+     "layers": [
+      "O-requestS.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I4.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I4",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery request",
+      "Sov-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "S-41",
+    "number": 41,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "I6",
+    "module": {
+     "layers": [
+      "O-deniedS.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I6.png",
+      "dr6-1.png"
+     ],
+     "prototypes": [
+      "DR-6-1",
+      "H-I6",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "S-42",
+    "number": 42,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Bore Sighting",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": null,
+    "random_hex": "I8",
+    "module": {
+     "layers": [
+      "O-deniedS.png",
+      "Action-Boresight.png",
+      "Event-Suppress.png",
+      "H-I8.png",
+      "dr6-1.png"
+     ],
+     "prototypes": [
+      "DR-6-1",
+      "H-I8",
+      "E-suppressing fire",
+      "A-boresight",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "S-43",
+    "number": 43,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "I10",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Sustained fire.png",
+      "Event-CandC.png",
+      "H-I10.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-I10",
+      "E-c and c",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-44",
+    "number": 44,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J2",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Sustained fire.png",
+      "Event-Integrity.png",
+      "H-J2.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-J2",
+      "E-integrity",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-45",
+    "number": 45,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J4",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Sustained fire.png",
+      "Event-Air support.png",
+      "H-J4.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J4",
+      "E-air support",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-46",
+    "number": 46,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J6",
+    "module": {
+     "layers": [
+      "O-advanceS.png",
+      "Action-Light WoundsS.png",
+      "Event-Interrogation.png",
+      "H-J6.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J6",
+      "E-interrogation",
+      "A-light wounds",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "S-47",
+    "number": 47,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J8",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Light WoundsS.png",
+      "Event-Interrogation.png",
+      "H-J8.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J8",
+      "E-interrogation",
+      "A-light wounds",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-48",
+    "number": 48,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J10",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Light WoundsS.png",
+      "Event-Interrogation.png",
+      "H-J10.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J10",
+      "E-interrogation",
+      "A-light wounds",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-49",
+    "number": 49,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K2",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Light WoundsS.png",
+      "Event-CandC.png",
+      "H-K2.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K2",
+      "E-c and c",
+      "A-light wounds",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-50",
+    "number": 50,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Malfunction",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K4",
+    "module": {
+     "layers": [
+      "O-moveS.png",
+      "Action-Light WoundsS.png",
+      "Event-Malfunction.png",
+      "H-K4.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K4",
+      "E-malfunction",
+      "A-light wounds",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "S-51",
+    "number": 51,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K6",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Light WoundsS.png",
+      "Event-Wounded.png",
+      "H-K6.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K6",
+      "E-walking wounded",
+      "A-light wounds",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-52",
+    "number": 52,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K8",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-Light WoundsS.png",
+      "Event-Wounded.png",
+      "H-K8.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K8",
+      "E-walking wounded",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-53",
+    "number": 53,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "K10",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-Sustained fire.png",
+      "Event-Wounded.png",
+      "H-K10.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-K10",
+      "E-walking wounded",
+      "AF-sustain fire",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-54",
+    "number": 54,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Infiltration",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L2",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-InfiltrateS.png",
+      "Action-Ambush.png",
+      "H-L2.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-L2",
+      "E-infiltration",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-55",
+    "number": 55,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Infiltration",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L4",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-InfiltrateS.png",
+      "Action-Ambush.png",
+      "H-L4.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L4",
+      "E-infiltration",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-56",
+    "number": 56,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L6",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-ReinforceS.png",
+      "Action-Ambush.png",
+      "H-L6.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L6",
+      "E-reinforcements",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-57",
+    "number": 57,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Scrounge",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L8",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-Ambush.png",
+      "Event-Scrounge.png",
+      "H-L8.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L8",
+      "E-scrounge",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-58",
+    "number": 58,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L10",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-VetS.png",
+      "Action-Ambush.png",
+      "H-L10.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L10",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-59",
+    "number": 59,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M2",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-VetS.png",
+      "Action-Ambush.png",
+      "H-M2.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M2",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-60",
+    "number": 60,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M4",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-NoQS.png",
+      "Event-VetS.png",
+      "H-M4.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M4",
+      "E-harden",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-61",
+    "number": 61,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M6",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-NoQS.png",
+      "Event-CowerS.png",
+      "H-M6.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M6",
+      "E-cower",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-62",
+    "number": 62,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "No Quarter",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M8",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-NoQS.png",
+      "Event-CowerS.png",
+      "H-M8.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M8",
+      "E-cower",
+      "AF-no q",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-63",
+    "number": 63,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "M10",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Action-Light WoundsS.png",
+      "Event-CowerS.png",
+      "H-M10.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-M10",
+      "E-cower",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-64",
+    "number": 64,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "N2",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-CowerS.png",
+      "Action-Concealment.png",
+      "H-N2.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-N2",
+      "E-cower",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-65",
+    "number": 65,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N4",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-PowS.png",
+      "Action-Concealment.png",
+      "H-N4.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N4",
+      "E-pow",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-66",
+    "number": 66,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N6",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-PowS.png",
+      "Action-Concealment.png",
+      "H-N6.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N6",
+      "E-pow",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-67",
+    "number": 67,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N8",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-PowS.png",
+      "Action-Concealment.png",
+      "H-N8.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N8",
+      "E-pow",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-68",
+    "number": 68,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N10",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-PowS.png",
+      "Action-Concealment.png",
+      "H-N10.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N10",
+      "E-pow",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-69",
+    "number": 69,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O2",
+    "module": {
+     "layers": [
+      "O-fireS.png",
+      "Event-HeroS.png",
+      "Action-Concealment.png",
+      "H-O2.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O2",
+      "E-hero",
+      "AF-conceal",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "S-70",
+    "number": 70,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O4",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Event-HeroS.png",
+      "Action-Hand Grenades.png",
+      "H-O4.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O4",
+      "E-hero",
+      "A-hand grenades",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-71",
+    "number": 71,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Entrench",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O6",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Hand Grenades.png",
+      "Event-Entrench.png",
+      "H-O6.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O6",
+      "E-trench",
+      "A-hand grenades",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "S-72",
+    "number": 72,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Entrench",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O8",
+    "module": {
+     "layers": [
+      "O-confusionS.png",
+      "Action-Hand Grenades.png",
+      "Event-Entrench.png",
+      "H-O8.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O8",
+      "E-trench",
+      "A-hand grenades",
+      "O-confuse"
+     ]
+    }
+   }
+  ],
+  "American": [
+   {
+    "id": "A-01",
+    "number": 1,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Shellholes",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A2",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Assault Fire.png",
+      "Event-Shellholes.png",
+      "H-A2.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A2",
+      "E-shellholes",
+      "AF-assault fire",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-02",
+    "number": 2,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Booby Trap",
+    "dice": {
+     "white": 1,
+     "red": 1,
+     "total": 2
+    },
+    "trigger": "Jammed",
+    "random_hex": "A4",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Assault Fire.png",
+      "Event-Booby trap.png",
+      "H-A4.png",
+      "dr1-1j.png"
+     ],
+     "prototypes": [
+      "DR-1-1j",
+      "H-A4",
+      "E-booby trap",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-03",
+    "number": 3,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Rubble",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "A6",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Assault Fire.png",
+      "Event-Rubble.png",
+      "H-A6.png",
+      "dr1-2.png"
+     ],
+     "prototypes": [
+      "DR-1-2",
+      "H-A6",
+      "E-rubble",
+      "A-assault fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-04",
+    "number": 4,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Dust",
+    "dice": {
+     "white": 1,
+     "red": 2,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "A8",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Hand Grenades.png",
+      "Event-Dust.png",
+      "H-A8.png",
+      "dr1-2.png"
+     ],
+     "prototypes": [
+      "DR-1-2",
+      "H-A8",
+      "E-dust",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-05",
+    "number": 5,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Mission Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B2",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Hand Grenades.png",
+      "Event-Mission Obj.png",
+      "H-B2.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B2",
+      "E-mission objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-06",
+    "number": 6,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Strategic Objective",
+    "dice": {
+     "white": 2,
+     "red": 1,
+     "total": 3
+    },
+    "trigger": null,
+    "random_hex": "B4",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Hand Grenades.png",
+      "Event-Strategic.png",
+      "H-B4.png",
+      "dr2-1.png"
+     ],
+     "prototypes": [
+      "DR-2-1",
+      "H-B4",
+      "E-strategic objective",
+      "A-hand grenades",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-07",
+    "number": 7,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Medic",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B6",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Spray Fire.png",
+      "Event-Medic.png",
+      "H-B6.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B6",
+      "E-medic",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-08",
+    "number": 8,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "KIA",
+    "dice": {
+     "white": 1,
+     "red": 3,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B8",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Spray Fire.png",
+      "Event-KIA.png",
+      "H-B8.png",
+      "dr1-3.png"
+     ],
+     "prototypes": [
+      "DR-1-3",
+      "H-B8",
+      "E-kia",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-09",
+    "number": 9,
+    "order": "Recover",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "B10",
+    "module": {
+     "layers": [
+      "O-recoverU.png",
+      "Action-Spray Fire.png",
+      "Event-Air support.png",
+      "H-B10.png",
+      "dr2-2.png"
+     ],
+     "prototypes": [
+      "DR-2-2",
+      "H-B10",
+      "E-air support",
+      "A-spray fire",
+      "O-recover"
+     ]
+    }
+   },
+   {
+    "id": "A-10",
+    "number": 10,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Shell Shock",
+    "dice": {
+     "white": 2,
+     "red": 2,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C2",
+    "module": {
+     "layers": [
+      "O-confusionU.png",
+      "Action-Spray Fire.png",
+      "Event-Shell shock.png",
+      "H-C2.png",
+      "dr2-2.png"
+     ],
+     "prototypes": [
+      "DR-2-2",
+      "H-C2",
+      "E-shell shock",
+      "A-spray fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-11",
+    "number": 11,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C4",
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C4.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "DR-3-1",
+      "H-C4",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-12",
+    "number": 12,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Spray Fire",
+    "action_defender_only": false,
+    "event": "Elan",
+    "dice": {
+     "white": 3,
+     "red": 1,
+     "total": 4
+    },
+    "trigger": null,
+    "random_hex": "C6",
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Action-Spray Fire.png",
+      "Event-Elan.png",
+      "H-C6.png",
+      "dr3-1.png"
+     ],
+     "prototypes": [
+      "DR-3-1",
+      "H-C6",
+      "E-elan",
+      "A-spray fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-13",
+    "number": 13,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C8",
+    "breeze_direction": 1,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze1.png",
+      "Action-Hand Grenades.png",
+      "H-C8.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "DR-1-4",
+      "H-C8",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-14",
+    "number": 14,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 1,
+     "red": 4,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "C10",
+    "breeze_direction": 2,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze2.png",
+      "Action-Hand Grenades.png",
+      "H-C10.png",
+      "dr1-4.png"
+     ],
+     "prototypes": [
+      "DR-1-4",
+      "H-C10",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-15",
+    "number": 15,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Hand Grenades",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D2",
+    "breeze_direction": 3,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze3.png",
+      "Action-Hand Grenades.png",
+      "H-D2.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "DR-2-3",
+      "H-D2",
+      "E-breeze",
+      "A-hand grenades",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-16",
+    "number": 16,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 2,
+     "red": 3,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D4",
+    "breeze_direction": 4,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze4.png",
+      "Action-Assault Fire.png",
+      "H-D4.png",
+      "dr2-3.png"
+     ],
+     "prototypes": [
+      "DR-2-3",
+      "H-D4",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-17",
+    "number": 17,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D6",
+    "breeze_direction": 5,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze5.png",
+      "Action-Assault Fire.png",
+      "H-D6.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "DR-3-2",
+      "H-D6",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-18",
+    "number": 18,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Assault Fire",
+    "action_defender_only": false,
+    "event": "Breeze",
+    "dice": {
+     "white": 3,
+     "red": 2,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D8",
+    "breeze_direction": 6,
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-Breeze6.png",
+      "Action-Assault Fire.png",
+      "H-D8.png",
+      "dr3-2.png"
+     ],
+     "prototypes": [
+      "DR-3-2",
+      "H-D8",
+      "E-breeze",
+      "A-assault fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-19",
+    "number": 19,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "D10",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-Air support.png",
+      "H-D10.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "DR-4-1",
+      "H-D10",
+      "E-air support",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-20",
+    "number": 20,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Air Support",
+    "dice": {
+     "white": 4,
+     "red": 1,
+     "total": 5
+    },
+    "trigger": null,
+    "random_hex": "E2",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-Air support.png",
+      "H-E2.png",
+      "dr4-1.png"
+     ],
+     "prototypes": [
+      "DR-4-1",
+      "H-E2",
+      "E-air support",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-21",
+    "number": 21,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E4",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-Fog.png",
+      "H-E4.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E4",
+      "E-fog",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-22",
+    "number": 22,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "White Phosphorous",
+    "dice": {
+     "white": 1,
+     "red": 5,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E6",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-WhiteP.png",
+      "H-E6.png",
+      "dr1-5.png"
+     ],
+     "prototypes": [
+      "DR-1-5",
+      "H-E6",
+      "E-white",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-23",
+    "number": 23,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "White Phosphorous",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E8",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-WhiteP.png",
+      "H-E8.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E8",
+      "E-white",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-24",
+    "number": 24,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "White Phosphorous",
+    "dice": {
+     "white": 2,
+     "red": 4,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "E10",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Crossfire.png",
+      "Event-WhiteP.png",
+      "H-E10.png",
+      "dr2-4.png"
+     ],
+     "prototypes": [
+      "DR-2-4",
+      "H-E10",
+      "E-white",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-25",
+    "number": 25,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Field Promotion",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F2",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Event-PromoteU.png",
+      "Action-Crossfire.png",
+      "H-f2.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F2",
+      "E-field promotion",
+      "A-crossfire",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-26",
+    "number": 26,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 3,
+     "red": 3,
+     "total": 6
+    },
+    "trigger": "Sniper",
+    "random_hex": "F4",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Concealment.png",
+      "Event-Recon.png",
+      "H-f4.png",
+      "dr3-3s.png"
+     ],
+     "prototypes": [
+      "DR-3-3s",
+      "H-F4",
+      "E-recon",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-27",
+    "number": 27,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Reconnaissance",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F6",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Concealment.png",
+      "Event-Recon.png",
+      "H-f6.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F6",
+      "E-recon",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-28",
+    "number": 28,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 4,
+     "red": 2,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F8",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Event-DeployU.png",
+      "Action-Concealment.png",
+      "H-f8.png",
+      "dr4-2.png"
+     ],
+     "prototypes": [
+      "DR-4-2",
+      "H-F8",
+      "E-deploy",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-29",
+    "number": 29,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Concealment",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "F10",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Event-DeployU.png",
+      "Action-Concealment.png",
+      "H-f10.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-F10",
+      "E-deploy",
+      "A-conceal",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-30",
+    "number": 30,
+    "order": "Rout",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Deploy",
+    "dice": {
+     "white": 5,
+     "red": 1,
+     "total": 6
+    },
+    "trigger": null,
+    "random_hex": "G2",
+    "module": {
+     "layers": [
+      "O-routU.png",
+      "Event-DeployU.png",
+      "Action-Sustained fire.png",
+      "H-G2.png",
+      "dr5-1.png"
+     ],
+     "prototypes": [
+      "DR-5-1",
+      "H-G2",
+      "E-deploy",
+      "A-sustain fire",
+      "O-rout"
+     ]
+    }
+   },
+   {
+    "id": "A-31",
+    "number": 31,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Unit",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G4",
+    "module": {
+     "layers": [
+      "O-deniedU.png",
+      "Action-Hidden UnitU.png",
+      "Event-Interdiction.png",
+      "H-G4.png",
+      "dr1-6e.png"
+     ],
+     "prototypes": [
+      "DR-1-6e",
+      "H-G4",
+      "E-interdiction",
+      "A-hidden unit",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "A-32",
+    "number": 32,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Mines",
+    "action_defender_only": true,
+    "event": "Interdiction",
+    "dice": {
+     "white": 1,
+     "red": 6,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G6",
+    "module": {
+     "layers": [
+      "O-deniedU.png",
+      "Action-Hidden Mines.png",
+      "Event-Interdiction.png",
+      "H-G6.png",
+      "dr1-6e.png"
+     ],
+     "prototypes": [
+      "DR-1-6e",
+      "H-G6",
+      "E-interdiction",
+      "A-hidden mines",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "A-33",
+    "number": 33,
+    "order": "Artillery Denied",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G8",
+    "module": {
+     "layers": [
+      "O-deniedU.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G8.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G8",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery denied",
+      "Allied-artillery denied"
+     ]
+    }
+   },
+   {
+    "id": "A-34",
+    "number": 34,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 2,
+     "red": 5,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "G10",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-G10.png",
+      "dr2-5e.png"
+     ],
+     "prototypes": [
+      "DR-2-5e",
+      "H-G10",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-35",
+    "number": 35,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H2",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H2.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H2",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-36",
+    "number": 36,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Dig In",
+    "action_defender_only": false,
+    "event": "Interdiction",
+    "dice": {
+     "white": 3,
+     "red": 4,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H4",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Dig In.png",
+      "Event-Interdiction.png",
+      "H-H4.png",
+      "dr3-4e.png"
+     ],
+     "prototypes": [
+      "DR-3-4e",
+      "H-H4",
+      "E-interdiction",
+      "A-dig in",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-37",
+    "number": 37,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H6",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H6.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H6",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-38",
+    "number": 38,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Sappers",
+    "dice": {
+     "white": 4,
+     "red": 3,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "H8",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Hidden Trench.png",
+      "Event-Sappers.png",
+      "H-H8.png",
+      "dr4-3e.png"
+     ],
+     "prototypes": [
+      "DR-4-3e",
+      "H-H8",
+      "E-sappers",
+      "A-hidden trench",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-39",
+    "number": 39,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Entrenchments",
+    "action_defender_only": true,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I2",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Hidden Trench.png",
+      "Event-Integrity.png",
+      "H-I2.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I2",
+      "E-integrity",
+      "A-hidden trench",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-40",
+    "number": 40,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 5,
+     "red": 2,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I4",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I4.png",
+      "dr5-2e.png"
+     ],
+     "prototypes": [
+      "DR-5-2e",
+      "H-I4",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-41",
+    "number": 41,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Hidden Wire",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I6",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Hidden Wire.png",
+      "Event-Suppress.png",
+      "H-I6.png",
+      "dr6-1e.png"
+     ],
+     "prototypes": [
+      "DR-6-1e",
+      "H-I6",
+      "E-suppressing fire",
+      "A-hidden wire",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-42",
+    "number": 42,
+    "order": "Artillery Request",
+    "order_also_playable_as_action": false,
+    "action": "Bore Sighting",
+    "action_defender_only": true,
+    "event": "Suppressing Fire",
+    "dice": {
+     "white": 6,
+     "red": 1,
+     "total": 7
+    },
+    "trigger": "Event",
+    "random_hex": "I8",
+    "module": {
+     "layers": [
+      "O-requestU.png",
+      "Action-Boresight.png",
+      "Event-Suppress.png",
+      "H-I8.png",
+      "dr6-1e.png"
+     ],
+     "prototypes": [
+      "DR-6-1e",
+      "H-I8",
+      "E-suppressing fire",
+      "A-boresight",
+      "O-artillery request",
+      "US-artillery request"
+     ]
+    }
+   },
+   {
+    "id": "A-43",
+    "number": 43,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "I10",
+    "module": {
+     "layers": [
+      "O-confusionU.png",
+      "Action-Sustained fire.png",
+      "Event-CandC.png",
+      "H-I10.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-I10",
+      "E-c and c",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-44",
+    "number": 44,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Battlefield Integrity",
+    "dice": {
+     "white": 2,
+     "red": 6,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J2",
+    "module": {
+     "layers": [
+      "O-advanceU.png",
+      "Action-Sustained fire.png",
+      "Event-Integrity.png",
+      "H-J2.png",
+      "dr2-6.png"
+     ],
+     "prototypes": [
+      "DR-2-6",
+      "H-J2",
+      "E-integrity",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "A-45",
+    "number": 45,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Fog of War",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J4",
+    "module": {
+     "layers": [
+      "O-advanceU.png",
+      "Action-Sustained fire.png",
+      "Event-Fog.png",
+      "H-J4.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J4",
+      "E-fog",
+      "A-sustain fire",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "A-46",
+    "number": 46,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 3,
+     "red": 5,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "J6",
+    "module": {
+     "layers": [
+      "O-advanceU.png",
+      "Action-Light WoundsU.png",
+      "Event-Interrogation.png",
+      "H-J6.png",
+      "dr3-5.png"
+     ],
+     "prototypes": [
+      "DR-3-5",
+      "H-J6",
+      "E-interrogation",
+      "A-light wounds",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "A-47",
+    "number": 47,
+    "order": "Advance",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J8",
+    "module": {
+     "layers": [
+      "O-advanceU.png",
+      "Action-Light WoundsU.png",
+      "Event-Interrogation.png",
+      "H-J8.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J8",
+      "E-interrogation",
+      "A-light wounds",
+      "O-advance"
+     ]
+    }
+   },
+   {
+    "id": "A-48",
+    "number": 48,
+    "order": "Move",
+    "order_also_playable_as_action": false,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Interrogation",
+    "dice": {
+     "white": 4,
+     "red": 4,
+     "total": 8
+    },
+    "trigger": "Sniper",
+    "random_hex": "J10",
+    "module": {
+     "layers": [
+      "O-moveU.png",
+      "Action-Light WoundsU.png",
+      "Event-Interrogation.png",
+      "H-J10.png",
+      "dr4-4s.png"
+     ],
+     "prototypes": [
+      "DR-4-4s",
+      "H-J10",
+      "E-interrogation",
+      "A-light wounds",
+      "O-move"
+     ]
+    }
+   },
+   {
+    "id": "A-49",
+    "number": 49,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Command & Control",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K2",
+    "module": {
+     "layers": [
+      "O-confusionU.png",
+      "Action-Sustained fire.png",
+      "Event-CandC.png",
+      "H-K2.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K2",
+      "E-c and c",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-50",
+    "number": 50,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Command Confusion",
+    "action_defender_only": false,
+    "event": "Malfunction",
+    "dice": {
+     "white": 5,
+     "red": 3,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K4",
+    "module": {
+     "layers": [
+      "OA-confusionU.png",
+      "Event-Malfunction.png",
+      "H-K4.png",
+      "dr5-3.png"
+     ],
+     "prototypes": [
+      "DR-5-3",
+      "H-K4",
+      "E-malfunction",
+      "A-confuse",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-51",
+    "number": 51,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K6",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-Wounded.png",
+      "H-K6.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K6",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-52",
+    "number": 52,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 6,
+     "red": 2,
+     "total": 8
+    },
+    "trigger": null,
+    "random_hex": "K8",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-Wounded.png",
+      "H-K8.png",
+      "dr6-2.png"
+     ],
+     "prototypes": [
+      "DR-6-2",
+      "H-K8",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-53",
+    "number": 53,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Walking Wounded",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "K10",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-Wounded.png",
+      "H-K10.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-K10",
+      "E-walking wounded",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-54",
+    "number": 54,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 3,
+     "red": 6,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L2",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-ReinforceU.png",
+      "H-L2.png",
+      "dr3-6.png"
+     ],
+     "prototypes": [
+      "DR-3-6",
+      "H-L2",
+      "E-reinforcements",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-55",
+    "number": 55,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L4",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-ReinforceU.png",
+      "H-L4.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L4",
+      "E-reinforcements",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-56",
+    "number": 56,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Reinforcements",
+    "dice": {
+     "white": 4,
+     "red": 5,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L6",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-ReinforceU.png",
+      "H-L6.png",
+      "dr4-5.png"
+     ],
+     "prototypes": [
+      "DR-4-5",
+      "H-L6",
+      "E-reinforcements",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-57",
+    "number": 57,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Scrounge",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L8",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-Scrounge.png",
+      "H-L8.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L8",
+      "E-scrounge",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-58",
+    "number": 58,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Scrounge",
+    "dice": {
+     "white": 5,
+     "red": 4,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "L10",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-Scrounge.png",
+      "H-L10.png",
+      "dr5-4.png"
+     ],
+     "prototypes": [
+      "DR-5-4",
+      "H-L10",
+      "E-scrounge",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-59",
+    "number": 59,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M2",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-VetU.png",
+      "Action-Ambush.png",
+      "H-M2.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M2",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-60",
+    "number": 60,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 6,
+     "red": 3,
+     "total": 9
+    },
+    "trigger": null,
+    "random_hex": "M4",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-VetU.png",
+      "Action-Ambush.png",
+      "H-M4.png",
+      "dr6-3.png"
+     ],
+     "prototypes": [
+      "DR-6-3",
+      "H-M4",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-61",
+    "number": 61,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M6",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Ambush.png",
+      "Event-VetU.png",
+      "H-M6.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M6",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-62",
+    "number": 62,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 4,
+     "red": 6,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "M8",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-VetU.png",
+      "Action-Ambush.png",
+      "H-M8.png",
+      "dr4-6.png"
+     ],
+     "prototypes": [
+      "DR-4-6",
+      "H-M8",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-63",
+    "number": 63,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Battle Harden",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "M10",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-VetU.png",
+      "Action-Ambush.png",
+      "H-M10.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-M10",
+      "E-harden",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-64",
+    "number": 64,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Ambush",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 5,
+     "red": 5,
+     "total": 10
+    },
+    "trigger": "Sniper",
+    "random_hex": "N2",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-CowerU.png",
+      "Action-Ambush.png",
+      "H-N2.png",
+      "dr5-5s.png"
+     ],
+     "prototypes": [
+      "DR-5-5s",
+      "H-N2",
+      "E-cower",
+      "AF-ambush",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-65",
+    "number": 65,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Cower",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N4",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Light WoundsU.png",
+      "Event-CowerU.png",
+      "H-N4.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N4",
+      "E-cower",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-66",
+    "number": 66,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 6,
+     "red": 4,
+     "total": 10
+    },
+    "trigger": null,
+    "random_hex": "N6",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Light WoundsU.png",
+      "Event-PowU.png",
+      "H-N6.png",
+      "dr6-4.png"
+     ],
+     "prototypes": [
+      "DR-6-4",
+      "H-N6",
+      "E-pow",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-67",
+    "number": 67,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Demolitions",
+    "action_defender_only": false,
+    "event": "Prisoners of War",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N8",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Event-PowU.png",
+      "Action-Demolitions.png",
+      "H-N8.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N8",
+      "E-pow",
+      "AF-demo",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-68",
+    "number": 68,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Smoke Grenades",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 5,
+     "red": 6,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "N10",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Smoke GrenadesU.png",
+      "Event-HeroU.png",
+      "H-N10.png",
+      "dr5-6.png"
+     ],
+     "prototypes": [
+      "DR-5-6",
+      "H-N10",
+      "E-hero",
+      "AF-smoke grenades",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-69",
+    "number": 69,
+    "order": "Fire",
+    "order_also_playable_as_action": true,
+    "action": "Light Wounds",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O2",
+    "module": {
+     "layers": [
+      "O-fireU.png",
+      "Action-Light WoundsU.png",
+      "Event-HeroU.png",
+      "H-O2.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O2",
+      "E-hero",
+      "AF-light wounds",
+      "O-fire"
+     ]
+    }
+   },
+   {
+    "id": "A-70",
+    "number": 70,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Command Confusion",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 5,
+     "total": 11
+    },
+    "trigger": null,
+    "random_hex": "O4",
+    "module": {
+     "layers": [
+      "OA-confusionU.png",
+      "Event-HeroU.png",
+      "H-O4.png",
+      "dr6-5.png"
+     ],
+     "prototypes": [
+      "DR-6-5",
+      "H-O4",
+      "E-hero",
+      "A-confuse",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-71",
+    "number": 71,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Sustained Fire",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O6",
+    "module": {
+     "layers": [
+      "O-confusionU.png",
+      "Event-HeroU.png",
+      "Action-Sustained fire.png",
+      "H-O6.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O6",
+      "E-hero",
+      "A-sustain fire",
+      "O-confuse"
+     ]
+    }
+   },
+   {
+    "id": "A-72",
+    "number": 72,
+    "order": "Command Confusion",
+    "order_also_playable_as_action": false,
+    "action": "Crossfire",
+    "action_defender_only": false,
+    "event": "Hero",
+    "dice": {
+     "white": 6,
+     "red": 6,
+     "total": 12
+    },
+    "trigger": "Time",
+    "random_hex": "O8",
+    "module": {
+     "layers": [
+      "O-confusionU.png",
+      "Event-HeroU.png",
+      "Action-Crossfire.png",
+      "H-O8.png",
+      "dr6-6t.png"
+     ],
+     "prototypes": [
+      "DR-6-6t",
+      "H-O8",
+      "E-hero",
+      "A-crossfire",
+      "O-confuse"
+     ]
+    }
+   }
+  ]
+ }
+}

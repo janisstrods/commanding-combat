@@ -1,0 +1,2868 @@
+{
+ "_source": "VASSAL module CombatCommanderEurope-2.6.4.vmod buildFile.xml, Parts palette (PieceSlots) with prototypes expanded; front values = dynamic-property start values, broken values = start value + the Ctrl-B (break) increment of each property; boxed values = \"Box *\" prototype; weapon portage/move penalty = \"Wpn MP n\" layer; repair/eliminate rolls = broken-side image name; radio artillery FP and SMOKE read from the radio counter images.",
+ "_verification": "Front values of every squad/team/weapon in the 2006 and 2025 GMT Order-of-Battle and Support charts shipped in the module (images/CC * Order of Battle.jpg, * OOB Table.png, CC * Support Table.jpg, RSG Leaders and Fortifications.png) were compared and agree, including boxes and weapon penalties. Broken-side values are module-only (no broken-side art in the module) - verify against physical counters before relying on them.",
+ "_counter_mix": "The module does NOT contain the counter mix (VASSAL palettes are unlimited). Leaders are unique named counters (1 each). For everything else \"count\" is null; \"max_needed_in_base_scenarios\" is the largest number used by any one of the 12 scenarios (lower bound only).",
+ "nations": {
+  "German": {
+   "leaders": [
+    {
+     "name": "Dietel (Hero)",
+     "kind": "hero",
+     "rank": null,
+     "front": {
+      "firepower": 2,
+      "range": 4,
+      "movement": 7,
+      "morale": 9,
+      "command": 0
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 2,
+      "movement": 3,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "module eliminates (does not flip) a hero when it breaks; broken values unreliable"
+    },
+    {
+     "name": "Pvt Herzog",
+     "kind": "leader",
+     "rank": "Pvt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "Private with module values FP2 / command 2 looks odd - verify"
+    },
+    {
+     "name": "Cpl Guttman",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpl Rettenhaus",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Schmidt",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpl Winkler",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Benzing",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Biermann",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Esser",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Ganz",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Grein",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Pfeiffer",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Bolter",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Borbe",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Huntziger",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Lauerbach",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Schrader",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Von Karsties",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpt Wehling",
+     "kind": "leader",
+     "rank": "Cpt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 10,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 11,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    }
+   ],
+   "squads": [
+    {
+     "name": "Pionier Squad",
+     "front": {
+      "firepower": 7,
+      "range": 3,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 4,
+      "range": 1,
+      "movement": 1,
+      "morale": 9
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "SS Squad",
+     "front": {
+      "firepower": 6,
+      "range": 5,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 10
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 4,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Fallschirmjager Squad",
+     "front": {
+      "firepower": 5,
+      "range": 4,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 3,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Elite Rifle Squad",
+     "front": {
+      "firepower": 5,
+      "range": 6,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 6,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Rifle Squad",
+     "front": {
+      "firepower": 5,
+      "range": 5,
+      "movement": 4,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 7
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 6,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Volksgrenadier Squad",
+     "front": {
+      "firepower": 5,
+      "range": 4,
+      "movement": 4,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 9,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Conscript Squad",
+     "front": {
+      "firepower": 5,
+      "range": 3,
+      "movement": 3,
+      "morale": 6
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 5
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 5,
+     "on_2006_oob_or_support_chart": true
+    }
+   ],
+   "teams": [
+    {
+     "name": "Weapon Team",
+     "front": {
+      "firepower": 2,
+      "range": 2,
+      "movement": 4,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 9
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 3,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Elite Team",
+     "front": {
+      "firepower": 3,
+      "range": 3,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 7
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Line Team",
+     "front": {
+      "firepower": 3,
+      "range": 3,
+      "movement": 4,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Green Team",
+     "front": {
+      "firepower": 3,
+      "range": 3,
+      "movement": 3,
+      "morale": 6
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 4
+     },
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": false
+    }
+   ],
+   "weapons": [
+    {
+     "name": "LMG",
+     "kind": "weapon",
+     "firepower": 4,
+     "range": 8,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 5,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "HMG",
+     "kind": "weapon",
+     "firepower": 8,
+     "range": 16,
+     "portage_or_move_penalty": -1,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Light Mortar",
+     "kind": "ordnance",
+     "firepower": 6,
+     "range": "2-13",
+     "min_range": 2,
+     "max_range": 13,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Medium Mortar",
+     "kind": "ordnance",
+     "firepower": 9,
+     "range": "3-16",
+     "min_range": 3,
+     "max_range": 16,
+     "portage_or_move_penalty": -3,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "IG 18 Gun",
+     "kind": "ordnance",
+     "firepower": 10,
+     "range": 16,
+     "portage_or_move_penalty": -3,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "IG 33 Gun",
+     "kind": "ordnance",
+     "firepower": 12,
+     "range": 16,
+     "portage_or_move_penalty": -4,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Flamethrower",
+     "kind": "ordnance",
+     "firepower": 11,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "3-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Satchel Charge",
+     "kind": "ordnance",
+     "firepower": 12,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "5-6",
+      "eliminate_numbers": "7-8"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:75mm",
+     "kind": "radio",
+     "artillery_firepower": 8,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:81mm",
+     "kind": "radio",
+     "artillery_firepower": 9,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:105mm",
+     "kind": "radio",
+     "artillery_firepower": 10,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:120mm",
+     "kind": "radio",
+     "artillery_firepower": 11,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:150mm",
+     "kind": "radio",
+     "artillery_firepower": 12,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Panzerfaust",
+     "kind": "ordnance",
+     "firepower": 12,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": false,
+     "verify": "not on the 2006 CC:E charts - probably from a later expansion (but used in base scenario 11)"
+    },
+    {
+     "name": "Molotov Cocktail",
+     "kind": "weapon",
+     "firepower": 6,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-0",
+      "eliminate_numbers": "2-9"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": false,
+     "verify": "not on the 2006 CC:E charts - probably from a later expansion"
+    }
+   ]
+  },
+  "Russian": {
+   "leaders": [
+    {
+     "name": "Gretchko (Hero)",
+     "kind": "hero",
+     "rank": null,
+     "front": {
+      "firepower": 2,
+      "range": 4,
+      "movement": 7,
+      "morale": 9,
+      "command": 0
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 2,
+      "movement": 3,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "module eliminates (does not flip) a hero when it breaks; broken values unreliable"
+    },
+    {
+     "name": "Pvt Gelon",
+     "kind": "leader",
+     "rank": "Pvt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "Private with module values FP2 / command 2 looks odd - verify"
+    },
+    {
+     "name": "Cpl Anishchik",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpl Bulganin",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Denikin",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpl Gordov",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Krylov",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Kutikov",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Bikovets",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Kaminsky",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Kovalev",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Maisky",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Pyotor",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Rodimtsev",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Bijak",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Gulikevich",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Khukovsky",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Ostroumov",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpt Egorov",
+     "kind": "leader",
+     "rank": "Cpt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 10,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 11,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    }
+   ],
+   "squads": [
+    {
+     "name": "Assault Squad",
+     "front": {
+      "firepower": 7,
+      "range": 2,
+      "movement": 5,
+      "morale": 9
+     },
+     "broken": {
+      "firepower": 4,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Guards SMG Squad",
+     "front": {
+      "firepower": 6,
+      "range": 3,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 12,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Guards Rifle Squad",
+     "front": {
+      "firepower": 5,
+      "range": 5,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "SMG Squad",
+     "front": {
+      "firepower": 5,
+      "range": 2,
+      "movement": 4,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 4,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Rifle Squad",
+     "front": {
+      "firepower": 5,
+      "range": 3,
+      "movement": 4,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 10,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Militia Squad",
+     "front": {
+      "firepower": 5,
+      "range": 2,
+      "movement": 3,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 5
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 10,
+     "on_2006_oob_or_support_chart": true
+    }
+   ],
+   "teams": [
+    {
+     "name": "Weapon Team",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 4,
+      "morale": 9
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Elite Team",
+     "front": {
+      "firepower": 3,
+      "range": 2,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 7
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Line Team",
+     "front": {
+      "firepower": 3,
+      "range": 2,
+      "movement": 4,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Green Team",
+     "front": {
+      "firepower": 3,
+      "range": 2,
+      "movement": 3,
+      "morale": 6
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 5
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 4,
+     "on_2006_oob_or_support_chart": false
+    }
+   ],
+   "weapons": [
+    {
+     "name": "LMG",
+     "kind": "weapon",
+     "firepower": 3,
+     "range": 6,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "7-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 4,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "MMG",
+     "kind": "weapon",
+     "firepower": 6,
+     "range": 10,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-4",
+      "eliminate_numbers": "7-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "HMG",
+     "kind": "weapon",
+     "firepower": 8,
+     "range": 12,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-6",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": ".50 cal MG",
+     "kind": "weapon",
+     "firepower": 9,
+     "range": 16,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-4",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Light Mortar",
+     "kind": "ordnance",
+     "firepower": 6,
+     "range": "2-14",
+     "min_range": 2,
+     "max_range": 14,
+     "portage_or_move_penalty": -1,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Medium Mortar",
+     "kind": "ordnance",
+     "firepower": 9,
+     "range": "3-16",
+     "min_range": 3,
+     "max_range": 16,
+     "portage_or_move_penalty": -3,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Infantry Gun",
+     "kind": "ordnance",
+     "firepower": 10,
+     "range": 16,
+     "portage_or_move_penalty": -4,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Flamethrower",
+     "kind": "ordnance",
+     "firepower": 11,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "3-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Satchel Charge",
+     "kind": "ordnance",
+     "firepower": 12,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 4,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:76mm",
+     "kind": "radio",
+     "artillery_firepower": 8,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:82mm",
+     "kind": "radio",
+     "artillery_firepower": 9,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:122mm",
+     "kind": "radio",
+     "artillery_firepower": 11,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:152mm",
+     "kind": "radio",
+     "artillery_firepower": 12,
+     "smoke_capable": false,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Molotov Cocktail",
+     "kind": "weapon",
+     "firepower": 6,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-0",
+      "eliminate_numbers": "2-9"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": false,
+     "verify": "not on the 2006 CC:E charts - probably from a later expansion"
+    }
+   ]
+  },
+  "American": {
+   "leaders": [
+    {
+     "name": "Lucas (Hero)",
+     "kind": "hero",
+     "rank": null,
+     "front": {
+      "firepower": 2,
+      "range": 4,
+      "movement": 7,
+      "morale": 9,
+      "command": 0
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 2,
+      "movement": 3,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "module eliminates (does not flip) a hero when it breaks; broken values unreliable"
+    },
+    {
+     "name": "Pvt Adamson",
+     "kind": "leader",
+     "rank": "Pvt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false,
+     "verify": "Private with module values FP2 / command 2 looks odd - verify"
+    },
+    {
+     "name": "Cpl Cassidy",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Hubbard",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpl Jensen",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 7,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 8,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Cpl Twells",
+     "kind": "leader",
+     "rank": "Cpl",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 6,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 7,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Bergstrom",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Buehler",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Divine",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt Elkheart",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Fuller",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Goziak",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Sgt Smith",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Sgt White",
+     "kind": "leader",
+     "rank": "Sgt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 8,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 9,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Blankenship",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Lt Esparza",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Thomas",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 1
+     },
+     "broken": {
+      "firepower": 0,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    },
+    {
+     "name": "Lt Wray",
+     "kind": "leader",
+     "rank": "Lt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 9,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 10,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": false
+    },
+    {
+     "name": "Cpt Sitner",
+     "kind": "leader",
+     "rank": "Cpt",
+     "front": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 6,
+      "morale": 10,
+      "command": 2
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 0,
+      "movement": 1,
+      "morale": 11,
+      "command": 0
+     },
+     "count": 1,
+     "on_2006_support_table": true
+    }
+   ],
+   "squads": [
+    {
+     "name": "Engineer Squad",
+     "front": {
+      "firepower": 7,
+      "range": 3,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 4,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Paratroop Squad",
+     "front": {
+      "firepower": 6,
+      "range": 4,
+      "movement": 5,
+      "morale": 8
+     },
+     "broken": {
+      "firepower": 4,
+      "range": 1,
+      "movement": 1,
+      "morale": 9
+     },
+     "boxed": {
+      "firepower": true,
+      "range": true,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 12,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Elite Squad",
+     "front": {
+      "firepower": 6,
+      "range": 6,
+      "movement": 5,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 6,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Line Squad",
+     "front": {
+      "firepower": 6,
+      "range": 6,
+      "movement": 4,
+      "morale": 6
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 8,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Green Squad",
+     "front": {
+      "firepower": 5,
+      "range": 4,
+      "movement": 3,
+      "morale": 5
+     },
+     "broken": {
+      "firepower": 3,
+      "range": 1,
+      "movement": 1,
+      "morale": 7
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 8,
+     "on_2006_oob_or_support_chart": true
+    }
+   ],
+   "teams": [
+    {
+     "name": "Weapon Team",
+     "front": {
+      "firepower": 2,
+      "range": 2,
+      "movement": 4,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 1,
+      "range": 1,
+      "movement": 1,
+      "morale": 9
+     },
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 5,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Elite Team",
+     "front": {
+      "firepower": 4,
+      "range": 4,
+      "movement": 5,
+      "morale": 7
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 8
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Line Team",
+     "front": {
+      "firepower": 3,
+      "range": 4,
+      "movement": 4,
+      "morale": 6
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 7
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Green Team",
+     "front": {
+      "firepower": 3,
+      "range": 3,
+      "movement": 3,
+      "morale": 5
+     },
+     "broken": {
+      "firepower": 2,
+      "range": 1,
+      "movement": 1,
+      "morale": 6
+     },
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": true
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    }
+   ],
+   "weapons": [
+    {
+     "name": "MMG",
+     "kind": "weapon",
+     "firepower": 6,
+     "range": 10,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-4",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "HMG",
+     "kind": "weapon",
+     "firepower": 8,
+     "range": 12,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-6",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": ".50 cal MG",
+     "kind": "weapon",
+     "firepower": 9,
+     "range": 16,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": true,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-4",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Light Mortar",
+     "kind": "ordnance",
+     "firepower": 7,
+     "range": "2-16",
+     "min_range": 2,
+     "max_range": 16,
+     "portage_or_move_penalty": -2,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Medium Mortar",
+     "kind": "ordnance",
+     "firepower": 9,
+     "range": "3-16",
+     "min_range": 3,
+     "max_range": 16,
+     "portage_or_move_penalty": -3,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Pack Howitzer",
+     "kind": "ordnance",
+     "firepower": 10,
+     "range": 16,
+     "portage_or_move_penalty": -3,
+     "boxed": {
+      "firepower": false,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": true,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Flamethrower",
+     "kind": "ordnance",
+     "firepower": 11,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "3-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 2,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Satchel Charge",
+     "kind": "ordnance",
+     "firepower": 12,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-2",
+      "eliminate_numbers": "9-10"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 3,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:75mm",
+     "kind": "radio",
+     "artillery_firepower": 8,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:81mm",
+     "kind": "radio",
+     "artillery_firepower": 9,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:105mm",
+     "kind": "radio",
+     "artillery_firepower": 10,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 1,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:155mm",
+     "kind": "radio",
+     "artillery_firepower": 12,
+     "smoke_capable": true,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Radio:203mm",
+     "kind": "radio",
+     "artillery_firepower": 13,
+     "smoke_capable": false,
+     "broken_side": "module image \"Repair A-R X A-D\" (radio broken side)",
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": true
+    },
+    {
+     "name": "Molotov Cocktail",
+     "kind": "weapon",
+     "firepower": 6,
+     "range": 1,
+     "portage_or_move_penalty": 0,
+     "boxed": {
+      "firepower": true,
+      "range": false,
+      "movement": false
+     },
+     "smoke_capable": false,
+     "broken_side": {
+      "repair_numbers": "1-0",
+      "eliminate_numbers": "2-9"
+     },
+     "count": null,
+     "max_needed_in_base_scenarios": 0,
+     "on_2006_oob_or_support_chart": false,
+     "verify": "not on the 2006 CC:E charts - probably from a later expansion"
+    }
+   ]
+  }
+ },
+ "markers": {
+  "fortifications": [
+   {
+    "name": "Foxholes",
+    "printed": "3 Cover*",
+    "cover": 3
+   },
+   {
+    "name": "Trench",
+    "printed": "4 Cover*",
+    "cover": 4
+   },
+   {
+    "name": "Pillbox",
+    "printed": "5 Cover*",
+    "cover": 5
+   },
+   {
+    "name": "Bunker",
+    "printed": "6 Cover*",
+    "cover": 6
+   },
+   {
+    "name": "Wire",
+    "printed": "WIRE; variant art shows -1 / -1 / A",
+    "note": "module has two wire images (Wire.png, Wire2.png)"
+   },
+   {
+    "name": "Minefield",
+    "variants_firepower": [
+     6,
+     7,
+     8
+    ],
+    "printed": "Minen! / 6FP / 7FP / 8FP"
+   }
+  ],
+  "other": [
+   {
+    "name": "Blaze",
+    "printed": "BLAZE blocks LOS"
+   },
+   {
+    "name": "Smoke",
+    "printed": "SMOKE n Hindrance in/out/thru",
+    "hindrance_mix": {
+     "1": 6,
+     "2": 6,
+     "3": 6,
+     "4": 6,
+     "5": 6,
+     "6": 4,
+     "7": 4,
+     "8": 4,
+     "9": 4,
+     "10": 4
+    },
+    "total": 50,
+    "note": "module draw pile Smoke Stack (MainMap); chits are drawn at random, back = Smoke Chit ?"
+   },
+   {
+    "name": "Suppressed"
+   },
+   {
+    "name": "Melee"
+   },
+   {
+    "name": "Veteran"
+   },
+   {
+    "name": "Starshell",
+    "note": "not CC:E base"
+   },
+   {
+    "name": "Spotting Round markers",
+    "note": "module helpers (Impact/Smoke/Pre-Registered/Starshells/Ordnance)"
+   },
+   {
+    "name": "Weather/visibility markers",
+    "note": "Fog, Dusk, Night, Blizzard, Heavy Winds, Mist - module helpers"
+   },
+   {
+    "name": "Immobilized Sherman",
+    "note": "used by base scenario 11"
+   },
+   {
+    "name": "Random Objective",
+    "note": "module 2.6 reminder token only"
+   }
+  ],
+  "time_track": {
+   "spaces": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    "End"
+   ],
+   "markers": [
+    "Time",
+    "Sudden Death"
+   ]
+  }
+ },
+ "objective_chits": {
+  "A": {
+   "objective": 1,
+   "vp": 1
+  },
+  "B": {
+   "objective": 2,
+   "vp": 1
+  },
+  "C": {
+   "objective": 3,
+   "vp": 1
+  },
+  "D": {
+   "objective": 4,
+   "vp": 1
+  },
+  "E": {
+   "objective": 5,
+   "vp": 1
+  },
+  "F": {
+   "objective": 2,
+   "vp": 2
+  },
+  "G": {
+   "objective": 3,
+   "vp": 2
+  },
+  "H": {
+   "objective": 4,
+   "vp": 2
+  },
+  "J": {
+   "objective": 5,
+   "vp": 2
+  },
+  "K": {
+   "objective": 3,
+   "vp": 3
+  },
+  "L": {
+   "objective": 4,
+   "vp": 3
+  },
+  "M": {
+   "objective": 5,
+   "vp": 3
+  },
+  "N": {
+   "objective": 4,
+   "vp": 4
+  },
+  "P": {
+   "objective": 5,
+   "vp": 4
+  },
+  "Q": {
+   "objective": 5,
+   "vp": 5
+  },
+  "R": {
+   "objective": 5,
+   "vp": 10
+  },
+  "S": {
+   "objective": "each of 1-5",
+   "vp": 1
+  },
+  "T": {
+   "objective": "each of 1-5",
+   "vp": 2
+  },
+  "U": {
+   "objective": "each of 1-5",
+   "vp": 3
+  },
+  "V": {
+   "objective": "all",
+   "effect": "Sudden Death win"
+  },
+  "W": {
+   "effect": "exit points doubled"
+  },
+  "X": {
+   "effect": "elimination points doubled"
+  }
+ },
+ "_objective_chits_source": "images/OBJ-A.png .. OBJ-X.png (22 chits; no I or O)"
+}
