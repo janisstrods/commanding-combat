@@ -421,6 +421,13 @@ export function redact(s: GameState, viewer: Side): GameState {
   r.chitCup = r.chitCup.map(() => UNKNOWN_CHIT);
   r.smokeCup.sort((a, b) => a - b);
   r.rng = 0;
+  // An RSG writes the secret chits drawn in RS.4 into its scenario by name; a historical scenario's named chits are
+  // printed on its card and known to both players.
+  if (r.scenario.id === 'rsg' && r.scenario.sides[opp].secretChits.some((c) => c !== 'random')) {
+    const sides = r.scenario.sides;
+    const masked = { ...sides[opp], secretChits: sides[opp].secretChits.map(() => 'random') };
+    (r as { scenario: GameState['scenario'] }).scenario = { ...r.scenario, sides: { ...sides, [opp]: masked } as typeof sides };
+  }
   if (r.phase === 'setup' && r.scenario.special.simultaneousSetup) {
     for (const id in r.pieces) {
       const p = r.pieces[id];

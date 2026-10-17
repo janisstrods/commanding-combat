@@ -5,7 +5,7 @@
 import { areaHexes } from './data';
 import { drawCards } from './deck';
 import { ask, choose, type Gen } from './decisions';
-import { drawChit, openChit } from './objectives';
+import { drawChit, openChit, updateControl } from './objectives';
 import { randInt } from './rng';
 import { figures, stackLimit, unitFigures } from './stats';
 import {
@@ -28,11 +28,13 @@ export function setupHexes(s: GameState, side: Side): HexId[] {
 /** The whole set-up; leaves the game in phase 'play' with the first Turn's player active. */
 export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
   placeChits(s, ctx);
+  attachCarried(s);
   const first = s.scenario.setupFirst;
   const late = latePieces(s);
+  const fortsLast = !!s.scenario.special.fortificationsLast;
   for (const side of [first, other(first)]) {
     yield* deploySide(s, ctx, side, setupHexes(s, side), late);
-    yield* placeFortifications(s, ctx, side);
+    if (!fortsLast) yield* placeFortifications(s, ctx, side);
   }
   for (const side of [first, other(first)]) {
     const mine = [...late].filter((id) => s.pieces[id].side === side);
@@ -40,6 +42,10 @@ export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
     const free = s.map.terrain.map((_, h) => h).filter((h) => !isImpassableHex(s, h) && !hasUnitOf(s, h, other(side)));
     yield* deploySide(s, ctx, side, free, new Set(), mine);
   }
+  // RS.12: Fortifications after both sides' units are down
+  if (fortsLast) for (const side of [first, other(first)]) yield* placeFortifications(s, ctx, side);
+  // RS.11.2 / RS.13: Objectives held by one side alone after set-up pass to it
+  if (s.scenario.special.controlAfterSetup) updateControl(s, ctx);
   for (const side of SIDES) yield* drawCards(s, ctx, side, s.players[side].handSize);
   if (s.scenario.special.initiativeChoice) {
     const holder = s.initiative;
@@ -53,6 +59,20 @@ export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
   } else s.active = s.scenario.firstTurn;
   s.turn = newTurn(1);
   s.phase = 'play';
+}
+
+/** Pieces that start together (RS.7, §11.2): each named unit in staging takes up its named Weapon before deployment. */
+function attachCarried(s: GameState): void {
+  const carried = s.scenario.special.carried;
+  if (!carried) return;
+  for (const side of SIDES) {
+    for (const { unit, weapon } of carried[side] ?? []) {
+      const staged = Object.values(s.pieces).filter((p) => p.side === side && p.where === 'staging');
+      const u = staged.find((p) => p.type === unit && !p.weapon);
+      const w = staged.find((p) => p.type === weapon && !p.carrier);
+      if (u && w) attachWeapon(s, w, u);
+    }
+  }
 }
 
 /** Objective chits (HS.3.6): named open chits, random open chits (scored for the starting control), secret chits. */
