@@ -1,6 +1,9 @@
 // A random legal answer to any decision, for fuzzing and smoke tests (and as the AI's fallback). Every answer it gives
 // passes answerError. Tasks that add decision kinds extend `randomAnswer` (or register in RANDOM_ANSWERS).
+import { activationError, commandRadius } from './activation';
 import { answerError } from './decisions';
+import { fireOptions } from './fire';
+import { isLeader } from './state';
 import type { Answer, Decision, GameState } from './types';
 
 export type Rand = () => number;
@@ -45,6 +48,20 @@ function make(s: GameState, d: Decision, rnd: Rand): Answer {
     }
     case 'reroll':
       return { kind: 'reroll', yes: rnd() < 0.1 };
+    case 'activate': {
+      if (d.players?.length && (!d.units.length || rnd() < 0.5)) return { kind: 'activatePlayer', player: pick(d.players, rnd) };
+      const first = pick(d.units, rnd);
+      const p = s.pieces[first];
+      if (!isLeader(p)) return { kind: 'activate', units: [first] };
+      const radius = commandRadius(s, p);
+      const some = [first, ...subset(radius, between(0, radius.length, rnd), rnd)];
+      return activationError(s, d, some) ? { kind: 'activate', units: [first, ...radius] } : { kind: 'activate', units: some };
+    }
+    case 'fire': {
+      const opts = [...fireOptions(s, d.pieces, d.mode, d.target).values()].flat();
+      if (!opts.length || (!d.mustFire && rnd() < 0.2)) return { kind: 'done' };
+      return { kind: 'fire', spec: pick(opts, rnd) };
+    }
     case 'react': {
       if (rnd() < 0.5) return { kind: 'done' };
       const option = Math.floor(rnd() * d.options.length);
