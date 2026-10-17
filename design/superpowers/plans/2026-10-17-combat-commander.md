@@ -264,6 +264,17 @@ rows, objective chits, log; LOS tool; fire preview; undo), `src/ui/screens/{Depl
 **Files:** `src/engine/rsg.ts`, `src/ui/screens/{RsgSetup,RsgBuy}.tsx`, `tests/rules/rsg.test.ts`. Every RS step of
 scenarios-reference §4 producing a `ScenarioDef`, with "buy for me" from Task 12's `buy.ts`.
 
+### Task 15: Scenario special rules (after Tasks 7–10)
+**Files:** `src/engine/scenarioRules.ts` (hooks the flow calls, keyed by data in `ScenarioDef.special`, never by
+scenario number), additive `SpecialRules` fields in `types.ts`, the scenario JSON files' `special` blocks,
+`tests/rules/scenarios/*.test.ts`. Implement every rule Task 3 left in `special.notes` (listed in
+`design/data-notes.md`): S3 Egorov placement, late Wire, a named card in the opening hand; S4 Hidden Gun, Wire near
+buildings; S5 Deep Freeze, Winter Camouflage; S6 Axis Orders rising 1→3; S7 random-hex set-up, Axis chain, set-up
+control, mortar eliminated instead of breaking, no exit VP, Partisans, a named card in hand; S8 Night (range-based FP
+penalty), Breakout; S9 7-FP minefield and the named-card option; S10 Pioniers' weapons, Commandos +1 melee; S11
+neutral 6-FP mines, stacking 4 in the Sherman/Bunker hexes, satchels need Cover ≥ 2; S12 A9 entry, Caves sniper, Fog.
+One test per rule from the scenario reference.
+
 ## Phase 3 — integration
 
 ### Task 14: Fuzz, golden games, balance, review, docs, release
