@@ -1,11 +1,13 @@
 // Dev page #/gallery/map/<id>: any map's board with layer toggles, the hex under the pointer, the terrain field
 // overlay and (once src/engine/los.ts exists) a line-of-sight demo: click a hex, then another.
-import { useEffect, useMemo, useState } from 'react';
-import { MAP_IDS, loadMap } from '../engine/data';
-import { hexAt, hexsideKey, label, neighbour, type HexId, type HexSide } from '../engine/hex';
-import { MASK, type MapDef, type PathKind } from '../engine/types';
-import { Board, type LosLine, type MaskOverlayMode } from '../ui/board';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CounterG } from '../art/Counter';
+import { COUNTERS, MAP_IDS, loadMap } from '../engine/data';
+import { hexAt, hexsideKey, label, neighbour, parseHex, type HexId, type HexSide } from '../engine/hex';
+import { MASK, type CounterType, type MapDef, type PathKind } from '../engine/types';
+import { Board, StackView, type LosLine, type MaskOverlayMode } from '../ui/board';
 import { terrainField, type TerrainField } from '../ui/board/paint/field';
+import { simulateMask } from '../ui/board/paint/simulate';
 import { Button, Segmented, Toggle } from '../ui/kit';
 import { navigate } from '../ui/routes';
 import './gallery.css';
@@ -35,26 +37,66 @@ function cellMix(f: TerrainField, h: HexId): string {
     .join(', ');
 }
 
+/** Flags after "?" in the hash, for screenshots: sim (simulated mask), turn, stacks, los=E5-J6, overlay=classes|levels. */
+function hashFlags(): URLSearchParams {
+  const h = window.location.hash;
+  return new URLSearchParams(h.includes('?') ? h.slice(h.indexOf('?') + 1) : '');
+}
+
+/** A few counters to show the stack slot (map gallery only). */
+function sampleStacks(): Record<number, CounterType[]> {
+  const all = Object.values(COUNTERS);
+  const pick = (nation: string, kind: string, n = 1) => all.filter((c) => c.nation === nation && c.kind === kind).slice(0, n);
+  return {
+    [parseHex('E5')]: [...pick('German', 'squad'), ...pick('German', 'leader'), ...pick('German', 'weapon')],
+    [parseHex('F6')]: pick('German', 'squad'),
+    [parseHex('J6')]: [...pick('American', 'squad', 2), ...pick('American', 'leader')],
+    [parseHex('K8')]: [...pick('Russian', 'squad'), ...pick('Russian', 'weapon')],
+  };
+}
+
 export function MapGallery({ mapId }: { mapId: string }) {
-  const map = useMemo(() => {
+  const flags = useMemo(hashFlags, []);
+  const [simulate, setSimulate] = useState(() => flags.has('sim'));
+  const real = useMemo(() => {
     try {
       return loadMap(mapId);
     } catch {
       return null;
     }
   }, [mapId]);
+  const map = useMemo(() => (real && simulate && !real.mask ? { ...real, mask: simulateMask(real) } : real), [real, simulate]);
   const field = useMemo(() => (map ? terrainField(map) : null), [map]);
   const [labels, setLabels] = useState(true);
   const [grid, setGrid] = useState(true);
   const [hexsides, setHexsides] = useState(true);
   const [objectives, setObjectives] = useState(true);
-  const [turned, setTurned] = useState(false);
-  const [overlay, setOverlay] = useState<'off' | MaskOverlayMode>('off');
+  const [turned, setTurned] = useState(() => flags.has('turn'));
+  const [overlay, setOverlay] = useState<'off' | MaskOverlayMode>(() => (flags.get('overlay') === 'classes' || flags.get('overlay') === 'levels' ? (flags.get('overlay') as MaskOverlayMode) : 'off'));
   const [hover, setHover] = useState<HexId | null>(null);
   const [los, setLos] = useState<LosFn | null>(null);
-  const [losOn, setLosOn] = useState(false);
-  const [from, setFrom] = useState<HexId | null>(null);
-  const [to, setTo] = useState<HexId | null>(null);
+  const losFlag = flags.get('los')?.split('-');
+  const [losOn, setLosOn] = useState(() => !!losFlag);
+  const [from, setFrom] = useState<HexId | null>(() => (losFlag ? parseHex(losFlag[0]) : null));
+  const [to, setTo] = useState<HexId | null>(() => (losFlag?.[1] ? parseHex(losFlag[1]) : null));
+  const [stacks, setStacks] = useState(() => flags.has('stacks'));
+  const [open, setOpen] = useState<HexId | null>(null);
+  const samples = useMemo(sampleStacks, []);
+  const renderStack = useCallback(
+    (h: HexId) => {
+      const types = samples[h];
+      if (!types?.length) return null;
+      const size = 0.8;
+      return (
+        <StackView
+          size={size}
+          expanded={open === h}
+          items={types.map((t, i) => ({ key: `${t.id}-${i}`, node: <CounterG type={t} x={0} y={0} size={size} /> }))}
+        />
+      );
+    },
+    [samples, open],
+  );
 
   useEffect(() => {
     const load = LOS_MODULE['../engine/los.ts'];
@@ -90,7 +132,10 @@ export function MapGallery({ mapId }: { mapId: string }) {
   }
 
   const click = (h: HexId) => {
-    if (!losOn) return;
+    if (!losOn) {
+      setOpen((o) => (o === h || !samples[h] ? null : h));
+      return;
+    }
     if (from === null || to !== null) {
       setFrom(h);
       setTo(null);
@@ -130,7 +175,15 @@ export function MapGallery({ mapId }: { mapId: string }) {
           <Toggle checked={turned} onChange={setTurned}>
             Turned 180°
           </Toggle>
-          <h4>Terrain field {map.mask ? '(mask)' : '(per hex)'}</h4>
+          <Toggle checked={stacks} onChange={setStacks}>
+            Sample stacks
+          </Toggle>
+          <h4>Terrain field {real?.mask ? '(mask)' : simulate ? '(simulated mask)' : '(per hex)'}</h4>
+          {!real?.mask ? (
+            <Toggle checked={simulate} onChange={setSimulate}>
+              Simulated mask (dev)
+            </Toggle>
+          ) : null}
           <Segmented<'off' | MaskOverlayMode>
             label="Mask overlay"
             value={overlay}
@@ -170,6 +223,8 @@ export function MapGallery({ mapId }: { mapId: string }) {
             onHexClick={click}
             losLine={losLine}
             selectable={losOn && from !== null ? [from] : undefined}
+            renderStack={stacks ? renderStack : undefined}
+            topStack={open}
             edgeLabels={{ top: 'Top edge', bottom: 'Bottom edge', left: 'Left edge', right: 'Right edge' }}
           />
         </main>

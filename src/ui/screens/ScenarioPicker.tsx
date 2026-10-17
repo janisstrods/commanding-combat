@@ -1,6 +1,6 @@
 // The scenario picker: the twelve scenarios with their briefings, a side (by nation) and the AI level; Start goes to
 // #/play/<id>/<side>/<level>.
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SCENARIOS, loadMap } from '../../engine/data';
 import type { Edge, Nation, Posture, Quality, ScenarioDef, Side } from '../../engine/types';
 import { summaryOf } from '../../scenarios/summaries';
@@ -71,6 +71,14 @@ export function ScenarioPicker(p: { selected?: string }) {
     navigate({ kind: 'scenarios', selected: id }, { replace: true });
   };
   const start = () => navigate({ kind: 'play', scenario: scn.id, side: pick.side, level: pick.level });
+  // the chosen scenario in view in the list (only the list scrolls; once, when the picker opens)
+  const scrolled = useRef(false);
+  const scrollIn = useCallback((el: HTMLButtonElement | null) => {
+    if (!el || scrolled.current) return;
+    scrolled.current = true;
+    const list = el.closest('.picker-list');
+    if (list) list.scrollTop = Math.max(0, el.offsetTop - (list as HTMLElement).offsetTop - 8);
+  }, []);
 
   return (
     <div className="picker-root kit-desk">
@@ -84,7 +92,13 @@ export function ScenarioPicker(p: { selected?: string }) {
         <ol className="picker-list" aria-label="Scenarios">
           {SCENARIOS.map((s) => (
             <li key={s.id}>
-              <button type="button" className={`picker-item ${s.id === scn.id ? 'is-active' : ''}`} onClick={() => choose(s.id)} aria-current={s.id === scn.id}>
+              <button
+                type="button"
+                ref={s.id === scn.id ? scrollIn : undefined}
+                className={`picker-item ${s.id === scn.id ? 'is-active' : ''}`}
+                onClick={() => choose(s.id)}
+                aria-current={s.id === scn.id}
+              >
                 <span className="picker-num">{s.id}</span>
                 <span className="picker-name">{s.name}</span>
                 <span className="picker-meta">
@@ -148,6 +162,7 @@ function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pic
             <dd>{vpText(scn.vp)}</dd>
           </div>
         </dl>
+        <div className="brief-sides-wrap">
         <table className="brief-sides">
           <thead>
             <tr>
@@ -179,6 +194,7 @@ function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pic
             })}
           </tbody>
         </table>
+        </div>
       </article>
       <div className="picker-map">
         {map ? <Board map={map} rotate180={turnFor(mine.edge)} showLabels={false} showCompass={false} edgeLabels={edges} marginScale={2} ppu={44} title={`Map ${scn.map}`} /> : null}

@@ -33,7 +33,7 @@ export function PlayPlaceholder(p: { scenario: string; side: Side; level: AiLeve
             {scn.id}. {scn.name}
           </b>
           <span>
-            You command the {NATION_PLURAL[mine.nation]} against a {AI_LEVEL_INFO[p.level].label} computer opponent
+            You command the {NATION_PLURAL[mine.nation]} against {p.level === 'elite' ? 'an' : 'a'} {AI_LEVEL_INFO[p.level].label} computer opponent
             {p.seed !== undefined ? ` (seed ${p.seed})` : ''}.
           </span>
         </div>

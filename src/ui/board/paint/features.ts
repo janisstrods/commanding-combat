@@ -359,64 +359,67 @@ const PATH_KINDS: ReadonlySet<LinearKind> = new Set(['road', 'trail', 'railway']
 
 /**
  * Where to put the house of building hex `h` on a per-hex map: near the centre, parallel to and clear of any road through
- * the hex. Hexes of one multi-hex building also get a wing toward each other.
+ * the hex. The hexes of one multi-hex building make one building, with wings between them.
  */
 export function buildingFootprint(map: MapDef, h: HexId, pieces: LinearPiece[]): Block[] {
   const c = centre(h);
+  const id = map.building[h];
+  const mates = id !== undefined && id >= 0 ? SIDES.map((s) => neighbour(h, s)).filter((n): n is HexId => n !== null && map.building[n] === id) : [];
+  if (mates.length) {
+    // one building over several hexes (a château, a school): a block on each hex centre and a wing to each other part,
+    // all under the same roof
+    const seed = Math.floor(hash3(id, 99, 7) * 1e9);
+    const first = centre(mates[0]);
+    const out: Block[] = [{ x: c.x, y: c.y, len: 0.78, wid: 0.56, angle: Math.atan2(first.y - c.y, first.x - c.x), seed }];
+    for (const n of mates) {
+      if (n < h) continue; // each wing once
+      const cn = centre(n);
+      out.push({ x: (c.x + cn.x) / 2, y: (c.y + cn.y) / 2, len: Math.hypot(cn.x - c.x, cn.y - c.y), wid: 0.44, angle: Math.atan2(cn.y - c.y, cn.x - c.x), seed });
+    }
+    return out;
+  }
   const seed = Math.floor(hash3(h, 7, 31) * 1e9);
   const pts: Point[] = [];
   for (const p of pieces) if (PATH_KINDS.has(p.kind)) for (const q of p.points) if (len(sub(q, c)) < 1.1) pts.push(q);
   const hl = 0.31;
   const hw = 0.21;
-  const out: Block[] = [];
   if (!pts.length) {
     const angle = (hash3(h, 3, 9) - 0.5) * 0.6 + (hash3(h, 3, 5) < 0.3 ? Math.PI / 3 : 0);
-    out.push({ x: c.x, y: c.y, len: hl * 2.3, wid: hw * 2.3, angle, seed });
-  } else {
-    const clearOf = (p: Point) => Math.min(...pts.map((q) => len(sub(p, q))));
-    const need = hw + 0.13;
-    let best = c;
-    let bestScore = -Infinity;
-    for (const r of [0, 0.26, 0.36, 0.44]) {
-      for (let k = 0; k < (r ? 12 : 1); k++) {
-        const a = (k / 12) * Math.PI * 2 + hash3(h, k, 1) * 0.2;
-        const p = { x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r };
-        const d = clearOf(p);
-        // the nearest spot that clears the road; failing that, the clearest
-        const score = d >= need ? 10 - r : d - need;
-        if (score > bestScore) {
-          bestScore = score;
-          best = p;
-        }
+    return [{ x: c.x, y: c.y, len: hl * 2.3, wid: hw * 2.3, angle, seed }];
+  }
+  const clearOf = (p: Point) => Math.min(...pts.map((q) => len(sub(p, q))));
+  const need = hw + 0.13;
+  let best = c;
+  let bestScore = -Infinity;
+  for (const r of [0, 0.26, 0.36, 0.44]) {
+    for (let k = 0; k < (r ? 12 : 1); k++) {
+      const a = (k / 12) * Math.PI * 2 + hash3(h, k, 1) * 0.2;
+      const p = { x: c.x + Math.cos(a) * r, y: c.y + Math.sin(a) * r };
+      const d = clearOf(p);
+      // the nearest spot that clears the road; failing that, the clearest
+      const score = d >= need ? 10 - r : d - need;
+      if (score > bestScore) {
+        bestScore = score;
+        best = p;
       }
     }
-    // parallel to the nearest stretch of road
-    let qi = 0;
-    pts.forEach((q, i) => {
-      if (len(sub(q, best)) < len(sub(pts[qi], best))) qi = i;
-    });
-    const a = pts[Math.max(0, qi - 1)];
-    const b = pts[Math.min(pts.length - 1, qi + 1)];
-    const angle = Math.atan2(b.y - a.y, b.x - a.x);
-    const room = Math.min(1, Math.max(0.6, (clearOf(best) - 0.11) / hw));
-    out.push({ x: best.x, y: best.y, len: hl * 2, wid: hw * 2 * room, angle, seed });
   }
-  const id = map.building[h];
-  if (id !== undefined && id >= 0) {
-    for (const s of SIDES) {
-      const n = neighbour(h, s);
-      if (n === null || map.building[n] !== id) continue;
-      const cn = centre(n);
-      out.push({ x: (c.x + cn.x) / 2, y: (c.y + cn.y) / 2, len: 1.0, wid: 0.4, angle: Math.atan2(cn.y - c.y, cn.x - c.x), seed: seed + s });
-    }
-  }
-  return out;
+  // parallel to the nearest stretch of road
+  let qi = 0;
+  pts.forEach((q, i) => {
+    if (len(sub(q, best)) < len(sub(pts[qi], best))) qi = i;
+  });
+  const a = pts[Math.max(0, qi - 1)];
+  const b = pts[Math.min(pts.length - 1, qi + 1)];
+  const angle = Math.atan2(b.y - a.y, b.x - a.x);
+  const room = Math.min(1, Math.max(0.6, (clearOf(best) - 0.11) / hw));
+  return [{ x: best.x, y: best.y, len: hl * 2, wid: hw * 2 * room, angle, seed }];
 }
 
 /** Building blocks: from the mask's building cells, else one house per building hex (clear of its roads). */
 export function buildingBlocks(map: MapDef, f: TerrainField, pieces: LinearPiece[]): Block[] {
   if (!f.fromMask) return ALL_HEXES.filter((h) => map.terrain[h] === 'Building').flatMap((h) => buildingFootprint(map, h, pieces));
-  return blocksOfClass(f, MASK.building, 0.74);
+  return blocksOfClass(f, MASK.building, 0.62);
 }
 
 function blocksOfClass(f: TerrainField, k: number, compact: number): Block[] {
@@ -453,12 +456,14 @@ function blocksOfClass(f: TerrainField, k: number, compact: number): Block[] {
     const grid = new Uint8Array(bw * bh);
     for (const c of cells) grid[(Math.floor(c / w) - j0) * bw + (c % w) - i0] = 1;
     let left = cells.length;
-    for (let n = 0; n < 12 && left >= 3; n++) {
+    // (scraps of under a sixth of the building, or under 4 cells, are staircase edges, not wings)
+    const minArea = Math.max(4, Math.ceil(cells.length / 6));
+    for (let n = 0; n < 12 && left >= minArea; n++) {
       const r = largestRect(grid, bw, bh);
       if (!r) break;
       const [a, b, c, d] = r;
       const area = (c - a + 1) * (d - b + 1);
-      if (area < 3) break;
+      if (area < minArea) break;
       for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) grid[j * bw + i] = 0;
       left -= area;
       const x = f.x0 + (i0 + (a + c + 1) / 2) / res;

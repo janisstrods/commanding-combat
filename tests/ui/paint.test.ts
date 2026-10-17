@@ -1,11 +1,12 @@
 // The pure parts of the terrain painting: the terrain field, linear features and building blocks.
 import { describe, expect, it } from 'vitest';
-import { loadMap } from '../../src/engine/data';
-import { ALL_HEXES, centre, hexAt, parseHex } from '../../src/engine/hex';
+import { MAP_IDS, loadMap } from '../../src/engine/data';
+import { ALL_HEXES, centre, hexAt, hexsideKey, parseHex, type HexSide } from '../../src/engine/hex';
 import { MASK, type MapDef, type TerrainMask } from '../../src/engine/types';
 import { BOUNDS } from '../../src/ui/board/geometry';
 import { areaClasses, cellCentre, cellIndexAt, components, contourSegments, smoothLevels, terrainField, type TerrainField } from '../../src/ui/board/paint/field';
-import { allLinearPieces, buildingBlocks, linearPieces, orientedBox } from '../../src/ui/board/paint/features';
+import { allLinearPieces, bridgeBlocks, buildingBlocks, linearPieces, orientedBox } from '../../src/ui/board/paint/features';
+import { simulateMask } from '../../src/ui/board/paint/simulate';
 
 const near = (a: { x: number; y: number }, b: { x: number; y: number }, eps = 1e-6) => Math.hypot(a.x - b.x, a.y - b.y) < eps;
 
@@ -168,5 +169,51 @@ describe('buildings', () => {
     expect(blocks[0].len).toBeCloseTo(7 / res);
     expect(blocks[0].wid).toBeCloseTo(4 / res);
     expect(cellCentre(f, 13, 11).x).toBeCloseTo(blocks[0].x, 0);
+  });
+});
+
+describe('every map', () => {
+  const SIDES: HexSide[] = [1, 2, 3, 4, 5, 6];
+  for (const id of MAP_IDS) {
+    it(`map ${id}: a house in every building hex, a piece of road in every road hex, a bridge on every bridge`, () => {
+      const map: MapDef = { ...loadMap(id), mask: undefined };
+      const f = terrainField(map);
+      const pieces = allLinearPieces(map, f);
+      const blocks = buildingBlocks(map, f, pieces);
+      for (const h of ALL_HEXES.filter((x) => map.terrain[x] === 'Building')) {
+        expect(blocks.some((b) => hexAt(b.x, b.y) === h), `building ${h}`).toBe(true);
+      }
+      for (const kind of ['Road', 'Trail', 'Railway'] as const) {
+        const lk = kind.toLowerCase();
+        for (const h of ALL_HEXES) {
+          const crossed = SIDES.some((s) => map.paths[hexsideKey(h, s)] === kind);
+          if (!crossed) continue;
+          expect(pieces.some((p) => p.kind === lk && p.hex === h), `${kind} ${h}`).toBe(true);
+        }
+      }
+      const bridges = ALL_HEXES.filter((h) => map.terrain[h] === 'MajorBridge' || map.terrain[h] === 'MinorBridge');
+      expect(bridgeBlocks(map, f, pieces).length).toBe(bridges.length);
+    });
+  }
+
+  it('paints the same features from a mask as from the hexes (simulated mask of map 5)', () => {
+    const plain: MapDef = { ...loadMap('5'), mask: undefined };
+    const masked: MapDef = { ...plain, mask: simulateMask(plain) };
+    const f = terrainField(masked);
+    expect(f.fromMask).toBe(true);
+    const pieces = allLinearPieces(masked, f);
+    const plainPieces = allLinearPieces(plain, terrainField(plain));
+    for (const kind of ['road', 'stream'] as const) {
+      const a = pieces.filter((p) => p.kind === kind).flatMap((p) => p.points);
+      const b = plainPieces.filter((p) => p.kind === kind).flatMap((p) => p.points);
+      expect(a.length).toBeGreaterThan(0);
+      // every curve point drawn from the mask lies near the hex-graph curve the mask was made from
+      for (const q of a) expect(Math.min(...b.map((r) => Math.hypot(q.x - r.x, q.y - r.y))), kind).toBeLessThan(0.3);
+    }
+    const blocks = buildingBlocks(masked, f, pieces);
+    for (const h of ALL_HEXES.filter((x) => plain.terrain[x] === 'Building')) {
+      expect(blocks.some((b) => hexAt(b.x, b.y) === h), `building ${h}`).toBe(true);
+    }
+    expect(bridgeBlocks(masked, f, pieces).length).toBeGreaterThanOrEqual(1);
   });
 });

@@ -7,16 +7,21 @@ import { BOUNDS } from '../geometry';
 import { areaClasses, blur, cellCentre, components, contourSegments, maxLevel, smoothLevels, terrainField, type TerrainField } from './field';
 import { allLinearPieces, bridgeBlocks, buildingBlocks, type Block, type LinearPiece } from './features';
 import { clamp, fbm, hash3, rng, strHash, vnoise } from './noise';
-import { FIELDS, GROUND, HILL_LEVELS, LINE, ORCHARD_TREE, ROOFS, SHRUB, TREE, css, shadeRGB, type RGB } from './palette';
+import { SUMMER, css, paletteFor, shadeRGB, type Palette } from './palette';
 import type { Point } from '../../../engine/hex';
 
 export interface PaintResult {
   canvas: HTMLCanvasElement;
   /** Milliseconds spent painting. */
   ms: number;
+  /** The ground class painted at map point (x, y) (a MASK code; 255 off the canvas), for checks against the data. */
+  classAt: (x: number, y: number) => number;
 }
 
 const N_CLASSES = 16;
+
+/** The palette of the map being painted (painting is synchronous, one map at a time). */
+let P: Palette = SUMMER;
 
 /** Paint `map` at `ppu` pixels per hex-radius unit. */
 export function paintTerrain(map: MapDef, ppu: number): PaintResult {
@@ -29,6 +34,7 @@ export function paintTerrain(map: MapDef, ppu: number): PaintResult {
   canvas.height = H;
   const ctx = canvas.getContext('2d')!;
   const seed = strHash(`map-${map.id}`) % 100000;
+  P = paletteFor(map.id);
 
   const pixCls = paintGround(ctx, f, W, H, ppu, seed);
   const pieces = allLinearPieces(map, f);
@@ -62,7 +68,7 @@ export function paintTerrain(map: MapDef, ppu: number): PaintResult {
   paintBuildings(ctx, buildingBlocks(map, f, pieces));
 
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  return { canvas, ms: performance.now() - t0 };
+  return { canvas, ms: performance.now() - t0, classAt: clsAt };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -108,7 +114,7 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
   const fieldParams = Array.from({ length: fieldComp.count }, (_, k) => {
     const r = hash3(k, seed, 3);
     const a = hash3(k, seed, 9) * Math.PI;
-    return { color: FIELDS[Math.floor(r * FIELDS.length)], cos: Math.cos(a), sin: Math.sin(a), spacing: 0.07 + hash3(k, seed, 4) * 0.03 };
+    return { color: P.fields[Math.floor(r * P.fields.length)], cos: Math.cos(a), sin: Math.sin(a), spacing: 0.07 + hash3(k, seed, 4) * 0.03 };
   });
   const orchardComp = components(fw, fh, (i) => area[i] === MASK.orchard, true);
   const orchardAngle = Array.from({ length: orchardComp.count }, (_, k) => (hash3(k, seed, 21) - 0.5) * 0.8);
@@ -240,16 +246,16 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
         case MASK.field: {
           const comp = fieldComp.labels[nearestOf(fieldComp.labels, ia, ib, ic, id, wa, wb, wc, wd)];
           const fp = fieldParams[comp] ?? fieldParams[0];
-          const c = fp ? fp.color : FIELDS[0];
+          const c = fp ? fp.color : P.fields[0];
           const s = fp ? Math.sin(((x * fp.cos + y * fp.sin) * Math.PI * 2) / fp.spacing) : 0;
-          const furrow = 1 - 0.085 * (0.5 + 0.5 * s);
+          const furrow = 1 - P.furrow * (0.5 + 0.5 * s);
           r = c[0] * furrow + m1 * 18;
           g = c[1] * furrow + m1 * 16;
           b = c[2] * furrow + m1 * 8;
           break;
         }
         case MASK.brush: {
-          const c = GROUND.brush;
+          const c = P.ground.brush;
           const dot = hash3(px >> 1, py >> 1, seed + 7) > 0.83 ? 1 : 0;
           const patch = vnoise(x * 5, y * 5, seed + 11) > 0.62 ? 1 : 0;
           const d = dot ? 0.72 : patch ? 0.88 : 1;
@@ -259,7 +265,7 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
           break;
         }
         case MASK.woods: {
-          const c = GROUND.woods;
+          const c = P.ground.woods;
           const deep = woodsFrac[ia] * wa + woodsFrac[ib] * wb + woodsFrac[ic] * wc + woodsFrac[id] * wd;
           const d = 1 - 0.18 * clamp((deep - 0.5) * 2, 0, 1);
           r = c[0] * d + m1 * 14;
@@ -268,16 +274,16 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
           break;
         }
         case MASK.orchard: {
-          const c = GROUND.orchard;
+          const c = P.ground.orchard;
           r = c[0] + m1 * 16;
           g = c[1] + m1 * 18;
           b = c[2] + m1 * 8;
           break;
         }
         case MASK.marsh: {
-          const c = GROUND.marsh;
+          const c = P.ground.marsh;
           const pool = clamp((vnoise(x * 4.6, y * 4.6, seed + 17) + (vnoise(x * 11, y * 11, seed + 19) - 0.5) * 0.4 - 0.55) * 6, 0, 1);
-          const q = GROUND.marshPool;
+          const q = P.ground.marshPool;
           r = c[0] + (q[0] - c[0]) * pool + m1 * 10;
           g = c[1] + (q[1] - c[1]) * pool + m1 * 12;
           b = c[2] + (q[2] - c[2]) * pool + m1 * 8;
@@ -285,15 +291,15 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
         }
         case MASK.water: {
           const depth = clamp(((waterFrac[ia] * wa + waterFrac[ib] * wb + waterFrac[ic] * wc + waterFrac[id] * wd) - 0.5) * 2.2, 0, 1);
-          const a = GROUND.waterShallow;
-          const d = GROUND.waterDeep;
+          const a = P.ground.waterShallow;
+          const d = P.ground.waterDeep;
           const ripple = Math.sin(y * 34 + vnoise(x * 3, y * 3, seed + 23) * 9) > 0.93 ? 10 : 0;
           r = a[0] + (d[0] - a[0]) * depth + ripple;
           g = a[1] + (d[1] - a[1]) * depth + ripple;
           b = a[2] + (d[2] - a[2]) * depth + ripple;
           if (margin < 0.22) {
             const e = (1 - margin / 0.22) * 0.55;
-            const s = GROUND.bank;
+            const s = P.ground.bank;
             r += (s[0] * 0.8 - r) * e;
             g += (s[1] * 0.8 - g) * e;
             b += (s[2] * 0.8 - b) * e;
@@ -301,26 +307,27 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
           break;
         }
         default: {
-          const c = GROUND.open;
-          const h2 = GROUND.openHue;
+          const c = P.ground.open;
+          const h2 = P.ground.openHue;
           const t = clamp(0.5 + m2 * 1.6, 0, 1);
-          r = c[0] + (h2[0] - c[0]) * t + m1 * 22 + fine * 8;
-          g = c[1] + (h2[1] - c[1]) * t + m1 * 22 + fine * 9;
-          b = c[2] + (h2[2] - c[2]) * t + m1 * 12 + fine * 4;
+          const mo = P.mottle;
+          r = c[0] + (h2[0] - c[0]) * t + (m1 * 22 + fine * 8) * mo;
+          g = c[1] + (h2[1] - c[1]) * t + (m1 * 22 + fine * 9) * mo;
+          b = c[2] + (h2[2] - c[2]) * t + (m1 * 12 + fine * 4) * mo;
         }
       }
       // muddy bank on the land side of water
       if (k !== MASK.water && second === MASK.water && margin < 0.16) {
         const e = (1 - margin / 0.16) * 0.6;
-        const s = GROUND.bank;
+        const s = P.ground.bank;
         r += (s[0] - r) * e;
         g += (s[1] - g) * e;
         b += (s[2] - b) * e;
       }
       // hills: tinted plateaus, lit from the north-west
-      const lvl = Math.max(0, Math.min(HILL_LEVELS.length - 1, Math.floor(L + 0.5)));
+      const lvl = Math.max(0, Math.min(P.hills.length - 1, Math.floor(L + 0.5)));
       if (lvl > 0) {
-        const { color: hc, amount } = HILL_LEVELS[lvl];
+        const { color: hc, amount } = P.hills[lvl];
         const tAmt = amount * (k === MASK.water ? 0.2 : k === MASK.woods ? 0.6 : 1);
         r += (hc[0] - r) * tAmt;
         g += (hc[1] - g) * tAmt;
@@ -472,12 +479,12 @@ function paintContours(ctx: CanvasRenderingContext2D, f: TerrainField) {
     };
     ctx.save();
     ctx.translate(0.014, 0.02);
-    ctx.strokeStyle = LINE.contourShadow;
+    ctx.strokeStyle = P.line.contourShadow;
     ctx.lineWidth = 0.055;
     path();
     ctx.stroke();
     ctx.restore();
-    ctx.strokeStyle = LINE.contour;
+    ctx.strokeStyle = P.line.contour;
     ctx.lineWidth = 0.024;
     path();
     ctx.stroke();
@@ -488,11 +495,11 @@ function paintGullies(ctx: CanvasRenderingContext2D, pieces: LinearPiece[]) {
   if (!pieces.length) return;
   // a ravine: a soft shadow, earthen banks lit from the north-west, a dark grassy bed, scrub along the rims
   strokePieces(ctx, pieces, 'rgba(70, 58, 30, 0.28)', 0.5);
-  strokePieces(ctx, pieces, LINE.gullyBand, 0.36);
+  strokePieces(ctx, pieces, P.line.gullyBand, 0.36);
   strokePieces(ctx, pieces, 'rgba(196, 176, 126, 0.55)', 0.1, { x: -0.07, y: -0.08 });
   strokePieces(ctx, pieces, 'rgba(72, 60, 36, 0.75)', 0.1, { x: 0.05, y: 0.06 });
-  strokePieces(ctx, pieces, LINE.gullyBed, 0.13);
-  strokePieces(ctx, pieces, 'rgba(84, 104, 58, 0.8)', 0.06);
+  strokePieces(ctx, pieces, P.line.gullyBed, 0.13);
+  strokePieces(ctx, pieces, P.line.gullyGrass, 0.06);
   const R = rng(4242);
   const dark = new Path2D();
   const light = new Path2D();
@@ -513,17 +520,17 @@ function paintGullies(ctx: CanvasRenderingContext2D, pieces: LinearPiece[]) {
       }
     });
   }
-  ctx.fillStyle = css(SHRUB.dark);
+  ctx.fillStyle = css(P.shrub.dark);
   ctx.fill(dark);
-  ctx.fillStyle = css(SHRUB.light, 0.8);
+  ctx.fillStyle = css(P.shrub.light, 0.8);
   ctx.fill(light);
 }
 
 function paintStreams(ctx: CanvasRenderingContext2D, pieces: LinearPiece[]) {
   if (!pieces.length) return;
-  strokePieces(ctx, pieces, LINE.streamBank, 0.21);
-  strokePieces(ctx, pieces, LINE.stream, 0.13);
-  strokePieces(ctx, pieces, LINE.streamLight, 0.028, { x: -0.018, y: -0.02 });
+  strokePieces(ctx, pieces, P.line.streamBank, 0.21);
+  strokePieces(ctx, pieces, P.line.stream, 0.13);
+  strokePieces(ctx, pieces, P.line.streamLight, 0.028, { x: -0.018, y: -0.02 });
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -549,21 +556,21 @@ function paintShrubs(ctx: CanvasRenderingContext2D, clsAt: ClsAt, clear: Clearan
     shrubs.push({ x: p.x, y: p.y, r: 0.024 + p.r() * 0.03 });
   }
   if (!shrubs.length) return;
-  ctx.fillStyle = SHRUB.shadow;
+  ctx.fillStyle = P.shrub.shadow;
   ctx.beginPath();
   for (const s of shrubs) {
     ctx.moveTo(s.x + 0.018 + s.r, s.y + 0.022);
     ctx.arc(s.x + 0.018, s.y + 0.022, s.r, 0, Math.PI * 2);
   }
   ctx.fill();
-  ctx.fillStyle = css(SHRUB.dark);
+  ctx.fillStyle = css(P.shrub.dark);
   ctx.beginPath();
   for (const s of shrubs) {
     ctx.moveTo(s.x + s.r, s.y);
     ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
   }
   ctx.fill();
-  ctx.fillStyle = css(SHRUB.light, 0.8);
+  ctx.fillStyle = css(P.shrub.light, 0.8);
   ctx.beginPath();
   for (const s of shrubs) {
     const r = s.r * 0.45;
@@ -642,21 +649,21 @@ function paintOrchards(ctx: CanvasRenderingContext2D, f: TerrainField, clsAt: Cl
     }
   }
   if (!trees.length) return;
-  ctx.fillStyle = ORCHARD_TREE.shadow;
+  ctx.fillStyle = P.orchardTree.shadow;
   ctx.beginPath();
   for (const t of trees) {
     ctx.moveTo(t.x + 0.03 + t.r, t.y + 0.036);
     ctx.ellipse(t.x + 0.03, t.y + 0.036, t.r, t.r * 0.8, 0, 0, Math.PI * 2);
   }
   ctx.fill();
-  ctx.fillStyle = css(ORCHARD_TREE.dark);
+  ctx.fillStyle = css(P.orchardTree.dark);
   ctx.beginPath();
   for (const t of trees) {
     ctx.moveTo(t.x + t.r, t.y);
     ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
   }
   ctx.fill();
-  ctx.fillStyle = css(ORCHARD_TREE.light, 0.85);
+  ctx.fillStyle = css(P.orchardTree.light, 0.85);
   ctx.beginPath();
   for (const t of trees) {
     const r = t.r * 0.48;
@@ -674,7 +681,7 @@ function paintWoods(ctx: CanvasRenderingContext2D, clsAt: ClsAt, clear: Clearanc
   }
   if (!crowns.length) return;
   crowns.sort((a, b) => a.y - b.y);
-  ctx.fillStyle = TREE.shadow;
+  ctx.fillStyle = P.tree.shadow;
   ctx.beginPath();
   for (const c of crowns) {
     ctx.moveTo(c.x + 0.035 + c.r, c.y + 0.045);
@@ -684,7 +691,7 @@ function paintWoods(ctx: CanvasRenderingContext2D, clsAt: ClsAt, clear: Clearanc
   for (const c of crowns) {
     const lift = 1 + c.lvl * 0.06 + (c.tone - 0.5) * 0.16;
     const R = rng(c.s);
-    ctx.fillStyle = css(shadeRGB(TREE.dark, lift));
+    ctx.fillStyle = css(shadeRGB(P.tree.dark, lift));
     ctx.beginPath();
     for (let k = 0; k < 3; k++) {
       const a = (k / 3) * Math.PI * 2 + R() * 2;
@@ -696,11 +703,11 @@ function paintWoods(ctx: CanvasRenderingContext2D, clsAt: ClsAt, clear: Clearanc
       ctx.arc(x, y, rr, 0, Math.PI * 2);
     }
     ctx.fill();
-    ctx.fillStyle = css(shadeRGB(TREE.mid, lift));
+    ctx.fillStyle = css(shadeRGB(P.tree.mid, lift));
     ctx.beginPath();
     ctx.arc(c.x - c.r * 0.16, c.y - c.r * 0.2, c.r * 0.58, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = css(shadeRGB(TREE.light, lift), 0.75);
+    ctx.fillStyle = css(shadeRGB(P.tree.light, lift), 0.75);
     ctx.beginPath();
     ctx.arc(c.x - c.r * 0.34, c.y - c.r * 0.38, c.r * 0.26, 0, Math.PI * 2);
     ctx.fill();
@@ -719,12 +726,12 @@ function paintPaths(ctx: CanvasRenderingContext2D, pieces: LinearPiece[]) {
   const trails = pieces.filter((p) => p.kind === 'trail');
   const rails = pieces.filter((p) => p.kind === 'railway');
   // verges first: the corridor shows through woods and orchards
-  strokePieces(ctx, rails, LINE.verge, 0.3);
-  strokePieces(ctx, roads, LINE.verge, 0.26);
-  strokePieces(ctx, trails, LINE.verge, 0.12);
+  strokePieces(ctx, rails, P.line.verge, 0.3);
+  strokePieces(ctx, roads, P.line.verge, 0.26);
+  strokePieces(ctx, trails, P.line.verge, 0.12);
   if (rails.length) {
-    strokePieces(ctx, rails, LINE.ballast, 0.17);
-    ctx.strokeStyle = LINE.tie;
+    strokePieces(ctx, rails, P.line.ballast, 0.17);
+    ctx.strokeStyle = P.line.tie;
     ctx.lineWidth = 0.022;
     ctx.lineCap = 'butt';
     ctx.beginPath();
@@ -743,19 +750,19 @@ function paintPaths(ctx: CanvasRenderingContext2D, pieces: LinearPiece[]) {
         const ps = resample(piece.points, 0.03);
         return { ...piece, points: offsetLine(ps, normals(ps), side * 0.036) };
       });
-      strokePieces(ctx, lines, LINE.rail, 0.014);
+      strokePieces(ctx, lines, P.line.rail, 0.014);
     }
   }
-  strokePieces(ctx, roads, LINE.roadEdge, 0.165);
-  strokePieces(ctx, roads, LINE.road, 0.125);
+  strokePieces(ctx, roads, P.line.roadEdge, 0.165);
+  strokePieces(ctx, roads, P.line.road, 0.125);
   for (const side of [-1, 1]) {
     const ruts = roads.map((piece) => {
       const ps = resample(piece.points, 0.03);
       return { ...piece, points: offsetLine(ps, normals(ps), side * 0.026) };
     });
-    strokePieces(ctx, ruts, LINE.rut, 0.012);
+    strokePieces(ctx, ruts, P.line.rut, 0.012);
   }
-  strokePieces(ctx, trails, LINE.trail, 0.045, undefined, [0.075, 0.05]);
+  strokePieces(ctx, trails, P.line.trail, 0.045, undefined, [0.075, 0.05]);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -829,7 +836,7 @@ function paintBuildings(ctx: CanvasRenderingContext2D, blocks: Block[]) {
     ctx.restore();
   }
   for (const b of blocks) {
-    const roof = ROOFS[b.seed % ROOFS.length];
+    const roof = P.roofs[b.seed % P.roofs.length];
     const ca = Math.cos(b.angle);
     const sa = Math.sin(b.angle);
     const at = (u: number, v: number): Point => ({ x: b.x + u * ca - v * sa, y: b.y + u * sa + v * ca });

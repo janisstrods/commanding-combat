@@ -47,7 +47,7 @@ export function App() {
   const route = useRoute();
   return (
     <ErrorBoundary key={route.kind} onReset={() => navigate({ kind: 'menu' })}>
-      <Suspense fallback={null}>{screenFor(route)}</Suspense>
+      <Suspense fallback={<div className="kit-desk app-loading">Loading…</div>}>{screenFor(route)}</Suspense>
     </ErrorBoundary>
   );
 }

@@ -1,6 +1,6 @@
 // A stack of counters in a hex: drawn bottom to top with a diagonal offset, or fanned out in a grid when expanded.
 // The board knows nothing about game pieces: the caller passes ready-made nodes (e.g. Task 5's Counter), each drawn
-// centred on (0, 0) at `size` hex units.
+// centred on (0, 0) at `size` hex units (default 0.8: a counter about half a hex across).
 import type { ReactNode } from 'react';
 import type { Point } from '../../engine/hex';
 
@@ -11,8 +11,8 @@ export interface StackItem {
 
 /** Offsets of the items of a stack of `n` (index 0 = bottom), centred on the hex centre. */
 export function stackOffsets(n: number, opts: { size?: number; step?: number; expanded?: boolean } = {}): Point[] {
-  const size = opts.size ?? 0.62;
-  const step = opts.step ?? 0.075;
+  const size = opts.size ?? 0.8;
+  const step = opts.step ?? 0.08;
   if (n <= 0) return [];
   if (!opts.expanded) {
     const mid = (n - 1) / 2;
@@ -31,7 +31,7 @@ export function stackOffsets(n: number, opts: { size?: number; step?: number; ex
 
 export function StackView(p: { items: readonly StackItem[]; size?: number; step?: number; expanded?: boolean }) {
   const offs = stackOffsets(p.items.length, p);
-  const size = p.size ?? 0.62;
+  const size = p.size ?? 0.8;
   return (
     <g className={`board-stack ${p.expanded ? 'is-expanded' : ''}`}>
       {p.expanded && p.items.length > 1 ? (

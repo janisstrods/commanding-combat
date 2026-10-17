@@ -111,6 +111,9 @@ export const HexsideLayer = memo(function HexsideLayer({ map, rotate180 }: { map
     return { seg, hedgeLeaves, hedgeLight, cliffTeeth };
   }, [map, rotate180]);
   const { seg } = paths;
+  // the snow map: hedges are bare and dusted, walls and fences darker against the snow
+  const winter = /w$/.test(map.id);
+  const hedge = winter ? { base: '#3a4234', leaves: '#4c5444', light: '#e6ebee' } : { base: '#2f4320', leaves: '#3f5a2a', light: '#6f8c48' };
   return (
     <g className="board-hexsides" pointerEvents="none" strokeLinecap="round">
       {seg.Cliff && (
@@ -136,9 +139,9 @@ export const HexsideLayer = memo(function HexsideLayer({ map, rotate180 }: { map
       {seg.Hedge && (
         <>
           <path d={seg.Hedge} stroke="rgba(16, 26, 8, 0.4)" strokeWidth={0.13} fill="none" transform="translate(0.018 0.024)" />
-          <path d={seg.Hedge} stroke="#2f4320" strokeWidth={0.1} fill="none" />
-          <path d={paths.hedgeLeaves} fill="#3f5a2a" />
-          <path d={paths.hedgeLight} fill="#6f8c48" opacity={0.85} />
+          <path d={seg.Hedge} stroke={hedge.base} strokeWidth={0.1} fill="none" />
+          <path d={paths.hedgeLeaves} fill={hedge.leaves} />
+          <path d={paths.hedgeLight} fill={hedge.light} opacity={0.85} />
         </>
       )}
     </g>
