@@ -119,8 +119,8 @@ export interface FateCard {
   trigger: Trigger | null;
   /** The Random Hex printed on the card. */
   hex: HexId;
-  /** Breeze wind direction printed on the card (map compass 1..6). */
-  breeze: HexSide;
+  /** Breeze wind direction (map compass 1..6): printed only on the six Breeze cards of each deck, null on the rest. */
+  breeze: HexSide | null;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
