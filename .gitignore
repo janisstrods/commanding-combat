@@ -4,3 +4,4 @@ dist
 .DS_Store
 # local copy of the VASSAL module and other reference sources: never committed, never shipped
 reference/
+__pycache__/
