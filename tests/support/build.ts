@@ -357,3 +357,58 @@ export function script(answers: Answer[], fallback: Responder = passive): Respon
     return undefined;
   };
 }
+
+/** Re-roll and reaction decisions answered passively; anything else is left for the test to answer. */
+export const autoPass: Responder = (d) => {
+  if (d.kind === 'reroll') return { kind: 'reroll', yes: false };
+  if (d.kind === 'react') return { kind: 'done' };
+  return undefined;
+};
+
+export interface Stepper {
+  s: GameState;
+  events: GameEvent[];
+  /** Every decision asked so far (including the auto-answered ones). */
+  decisions: Decision[];
+  /** The decision waiting for the test, or null when the flow finished. */
+  readonly pending: Decision | null;
+  /** Answer the pending decision (checked with answerError first; a refusal throws), then run on to the next one. */
+  answer(a: Answer): Stepper;
+}
+
+/** Start `make(ctx)` on `s` and run it until a decision `auto` does not answer (default: `autoPass`). */
+export function start(s: GameState, make: (ctx: FlowCtx) => Gen<unknown>, auto: Responder = autoPass): Stepper {
+  const events: GameEvent[] = [];
+  const decisions: Decision[] = [];
+  const gen = make(makeCtx(events));
+  let r = gen.next();
+  const give = (a: Answer) => {
+    const d = r.value as Decision;
+    const err = answerError(s, d, a);
+    if (err) throw new Error(`Refused answer ${JSON.stringify(a)} to ${d.kind}: ${err}`);
+    r = gen.next(a);
+  };
+  const advance = () => {
+    while (!r.done) {
+      const d = r.value;
+      decisions.push(d);
+      const a = auto(d, s);
+      if (!a) return;
+      give(a);
+    }
+  };
+  const self: Stepper = {
+    s, events, decisions,
+    get pending() {
+      return r.done ? null : r.value;
+    },
+    answer(a) {
+      if (r.done) throw new Error('The flow has finished.');
+      give(a);
+      advance();
+      return self;
+    },
+  };
+  advance();
+  return self;
+}

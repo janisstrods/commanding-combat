@@ -3,6 +3,7 @@
 import { activationError, commandRadius } from './activation';
 import { answerError } from './decisions';
 import { fireOptions } from './fire';
+import { moveAnswers } from './orders/move';
 import { isLeader } from './state';
 import type { Answer, Decision, GameState } from './types';
 
@@ -61,6 +62,13 @@ function make(s: GameState, d: Decision, rnd: Rand): Answer {
       const opts = [...fireOptions(s, d.pieces, d.mode, d.target).values()].flat();
       if (!opts.length || (!d.mustFire && rnd() < 0.2)) return { kind: 'done' };
       return { kind: 'fire', spec: pick(opts, rnd) };
+    }
+    case 'move': {
+      const all = moveAnswers(s, d);
+      const steps = all.filter((a) => a.kind === 'moveStep' || a.kind === 'exit');
+      // mostly keep moving; sometimes transfer, play or stop
+      if (steps.length && rnd() < 0.75) return pick(steps, rnd);
+      return pick(all, rnd);
     }
     case 'react': {
       if (rnd() < 0.5) return { kind: 'done' };

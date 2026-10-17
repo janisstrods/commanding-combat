@@ -191,6 +191,33 @@ describe('surrender and annihilation (§6.3, R-40, R-48)', () => {
   });
 });
 
+describe('the game ending mid-resolution (plan Review Focus 2)', () => {
+  it('an overstack elimination can make the owner surrender: the flow stops, the winner is recorded', () => {
+    const s = build({
+      pieces: [{ type: 'German/Rifle Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E8' }, { type: 'American/Line Squad', hex: 'G5' }],
+      axis: { discard: 0, surrender: 1 },
+    });
+    const r = run(s, (ctx) => gameFlow(s, ctx), script([{ kind: 'choose', items: [] }, { kind: 'choose', items: [0] }]));
+    expect(r.pending).toBeNull();
+    expect(s).toMatchObject({ phase: 'over', winner: 'allied', endReason: 'surrender' });
+  });
+
+  it('both players overstacked into surrender at the end of one Turn: the Initiative holder wins', () => {
+    const s = build({
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E8' },
+        { type: 'American/Line Squad', hex: 'G5' }, { type: 'American/Line Squad', hex: 'G5' }, { type: 'American/Line Squad', hex: 'G8' },
+      ],
+      axis: { discard: 0, surrender: 1 },
+      allied: { surrender: 1 },
+      initiative: 'axis',
+    });
+    const r = run(s, (ctx) => gameFlow(s, ctx), (d, st) => (d.kind === 'choose' && d.reason === 'overstackDeploy' ? { kind: 'choose', items: [] } : passive(d, st)));
+    expect(r.decisions.filter((d) => d.kind === 'choose' && d.reason === 'overstackEliminate').map((d) => d.side)).toEqual(['allied', 'axis']);
+    expect(s).toMatchObject({ phase: 'over', winner: 'axis', endReason: 'surrender' });
+  });
+});
+
 describe('exit off the enemy edge (§7.2.1, R-30)', () => {
   it('scores the units\' VP for their owner and puts them on a Time Track space ahead of the marker', () => {
     const s = build({
