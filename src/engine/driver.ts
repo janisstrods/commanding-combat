@@ -12,6 +12,8 @@ export interface QueuedEvent {
 
 export interface DriverOptions {
   snapshots?: boolean;
+  /** Emit a 'window' event for every reaction window opened for a side (FlowCtx.windows; the UI's driver). */
+  windows?: boolean;
 }
 
 /** Events that show somebody something new (a card, a chit, a deck order): no undo past them. */
@@ -45,6 +47,7 @@ export class GameDriver {
       invalid: (m) => {
         this.lastError = m;
       },
+      ...(opts.windows ? { windows: true } : {}),
     };
     this.gen = gameFlow(this.state, this.ctx);
     const r = this.gen.next();
@@ -96,7 +99,7 @@ export class GameDriver {
   }
 
   static replay(initial: GameState, answers: Answer[], opts: DriverOptions = {}): GameDriver {
-    const d = new GameDriver(initial, { snapshots: false });
+    const d = new GameDriver(initial, { snapshots: false, windows: opts.windows });
     for (const a of answers) {
       if (!d.pending) break;
       if (!d.answer(a)) throw new Error(`Replay failed: ${d.lastError}`);

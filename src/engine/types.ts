@@ -777,7 +777,13 @@ export type GameEvent =
   | { kind: 'initiative'; side: Side }
   /** A unit replaced by others in its hex (Light Wounds, Deploy); `piece` went back to the counter mix. */
   | { kind: 'replace'; piece: PieceId; by: PieceId[] }
-  | { kind: 'gameOver'; winner: Side; reason: EndReason };
+  | { kind: 'gameOver'; winner: Side; reason: EndReason }
+  /**
+   * A reaction window opened for `side` (reactions.ts `reactFor`), whether or not he has an Action to play in it.
+   * Emitted only when the flow's ctx has `windows` set (the UI's driver: it pauses the same for every window of the
+   * computer, so the timing never shows whether it held a playable card).
+   */
+  | { kind: 'window'; window: WindowKind; side: Side };
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Flow plumbing
@@ -793,4 +799,6 @@ export interface FlowCtx {
   depth?: number;
   /** Set by casualties.ts `simultaneously`: sides that lost (surrender / annihilation) during it, judged at its end. */
   losers?: Side[];
+  /** Emit a 'window' event whenever a reaction window opens for a side (the UI's GameDriver sets it; off elsewhere). */
+  windows?: boolean;
 }

@@ -33,6 +33,7 @@ export function* window(s: GameState, ctx: FlowCtx, w: WindowKind, info: WindowI
 
 /** One player's turn in window `w` (the window's order is the caller's business, e.g. a single-player window). */
 export function* reactFor(s: GameState, ctx: FlowCtx, side: Side, w: WindowKind, info: WindowInfo): Gen {
+  if (ctx.windows) ctx.emit({ kind: 'window', window: w, side });
   for (;;) {
     const options = optionsFor(s, side, w, info);
     if (!options.length) return;
