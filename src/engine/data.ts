@@ -110,7 +110,7 @@ interface MapHexJson {
   crest?: boolean;
   /** Building id (hexes of one drawn building share it); absent for non-building hexes. */
   building?: number;
-  /** Path depictions in the hex. */
+  /** Path depictions in the hex (Road −1 Cover, §T93); crossings are in `MapJson.paths`. */
   paths?: PathKind[];
 }
 
@@ -210,11 +210,8 @@ function convertMap(j: MapJson): MapDef {
     hexsides[hexsideKey(a, side)] = s.feature;
   }
   const paths: Record<number, PathKind> = {};
-  for (const p of j.paths) {
-    paths[pathKey(p)] = p.kind;
-    if ('between' in p) p.between.forEach((l) => markPath(p.kind, parseHex(l)));
-    else markPath(p.kind, parseHex(p.hex));
-  }
+  // pathHexes come from the hexes' own depictions only: some crossings are spurs that fade out at the hexside
+  for (const p of j.paths) paths[pathKey(p)] = p.kind;
   const def: MapDef = {
     id: j.id,
     terrain,

@@ -4,10 +4,12 @@
 //   npx vite-node scripts/build-data.ts maps       (only some parts: cards counters scenarios maps rsg)
 //
 // src/data keeps hex labels ("F6"); src/engine/data.ts converts them to HexIds when loading.
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildCards } from './data/cards';
 import { buildCounters } from './data/counters';
 import { readJson, writeJson } from './data/json';
+import { buildMaps, mapNotes } from './data/maps';
 import { updateNotesSection } from './data/notes';
 import { buildScenarios, scenarioConversionNotes } from './data/scenarios';
 
@@ -56,4 +58,13 @@ if (want('scenarios')) {
     '',
     ...built.flatMap(([n, scn]) => (scn.special.notes ?? []).map((t) => `- Scenario ${n} (${scn.name}): ${t}`)),
   ]);
+}
+
+if (want('maps')) {
+  const auditPath = join(DESIGN, 'masks-audit.json');
+  const audit = existsSync(auditPath) ? readJson(auditPath) : null;
+  const { maps, reports, missing } = buildMaps(DESIGN, audit);
+  for (const m of maps) write(`maps/${m.id}.json`, m);
+  notes('maps', 'Maps (src/data/maps/<id>.json)', mapNotes(reports, missing, audit !== null));
+  if (missing.length) console.log(`maps not transcribed yet (skipped): ${missing.join(', ')}`);
 }
