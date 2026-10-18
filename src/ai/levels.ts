@@ -30,9 +30,12 @@ export interface LevelCfg {
   lookahead: boolean;
   /** Then play the opponent's reply Turn (greedy) before judging. */
   reply: boolean;
-  /** The look-ahead's own Orders may be Moves too (a narrow Move plan), not only Fire, Recover or the end of the Turn. */
+  /**
+   * The look-ahead's own Orders may be Moves too (a narrow Move plan), not only Fire, Recover or the end of the Turn;
+   * and the opponent's simulated reply Turn may give Move Orders too. Elite: with both it beat Line far more often than
+   * without (design/ai-balance.md).
+   */
   rolloutMoves: boolean;
-  /** The opponent's simulated reply Turn may give Move Orders too (a narrow Move plan). */
   replyMoves: boolean;
   /** Fraction of the live candidates kept after each round once every one has `minSims` worlds. */
   keep: number;
@@ -62,7 +65,7 @@ export const LEVELS: Record<AiLevel, LevelCfg> = {
   },
   elite: {
     level: 'elite', budgetMs: 20000, worlds: 256, minSims: 12, maxCands: 26, fireActs: 7, moveActs: 12, moveVariants: 4,
-    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: true, rolloutMoves: false, replyMoves: false,
+    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: true, rolloutMoves: true, replyMoves: true,
     keep: 0.6, clear: 3, even: 0.3, battlePlan: true, planWeight: 0.5, planZone: 4,
   },
 };

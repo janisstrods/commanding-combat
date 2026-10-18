@@ -2,6 +2,10 @@
 import { describe, expect, it } from 'vitest';
 import { planDeployment } from '../../src/ai/deploy';
 import { chooseAnswer, newMemory } from '../../src/ai/index';
+import { LEVELS } from '../../src/ai/levels';
+import { newPolicyCtx, quickTurn } from '../../src/ai/policies';
+import { Rng } from '../../src/ai/rand';
+import { turnFlow } from '../../src/engine/flow';
 import { scenario } from '../../src/engine/data';
 import { answerError } from '../../src/engine/decisions';
 import { distance } from '../../src/engine/hex';
@@ -9,7 +13,7 @@ import { setupHexes } from '../../src/engine/setup';
 import { figures } from '../../src/engine/stats';
 import { isUnit, isWeapon, newGame, redact, typeOf } from '../../src/engine/state';
 import type { Answer, Decision, GameState, Side } from '../../src/engine/types';
-import { H, build, card, cardsWhere } from '../support/build';
+import { H, build, card, cardsWhere, run } from '../support/build';
 
 const ask = (s: GameState, d: Decision, side: Side = d.side): Answer => {
   const a = chooseAnswer(redact(s, side), d, { side, level: 'line', seed: 1, deterministic: true }, newMemory(1)).answer;
@@ -166,6 +170,24 @@ describe('the Initiative re-roll of Fire Attack and Defense rolls (judged on the
 
   it('keeps the same low Attack Roll when its FP is so high that the total still eliminates them', () => {
     expect(attack(3, 20)).toEqual({ kind: 'reroll', yes: false });
+  });
+});
+
+describe('quick Turns inside simulations (Elite: look-ahead and reply)', () => {
+  it('with Move plans, a quick Turn moves toward an unheld Objective instead of passing', () => {
+    const s = build({
+      map: { objectives: ['E3', 'A1', 'B1', 'C1', 'D1'] },
+      control: ['allied', null, null, null, null],
+      openChits: ['A'],
+      axis: { hand: [card('German', { order: 'Move' })] },
+      pieces: [{ type: 'German/Rifle Squad', hex: 'E8' }, { type: 'American/Line Squad', hex: 'O1' }],
+    });
+    const d = run(s, (ctx) => turnFlow(s, ctx), () => undefined).pending as Extract<Decision, { kind: 'turn' }>;
+    const plain = quickTurn(s, d, newPolicyCtx('axis', LEVELS.elite, new Rng(1)));
+    expect(plain.kind).toBe('pass');
+    const pc = { ...newPolicyCtx('axis', LEVELS.elite, new Rng(1)), quickMoves: 'narrow' as const };
+    expect(quickTurn(s, d, pc)).toMatchObject({ kind: 'order', order: 'Move' });
+    expect(pc.plan?.dest?.p0).toBeDefined();
   });
 });
 
