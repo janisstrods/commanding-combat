@@ -19,6 +19,7 @@ import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controll
 import { NATION_PLURAL, sideName } from './names';
 import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
 import { PromptPanel } from './PromptPanel';
+import { ThinkingIndicator } from './ThinkingIndicator';
 import { NO_SEL, clickCard, clickHex, clickPiece, promptFor, type ClickResult, type PromptButton, type Sel } from './prompts';
 import { REROLL_LABEL, REROLL_POLICIES, type RerollPolicy } from './reroll';
 import { piecesIn } from './preview';
@@ -328,6 +329,7 @@ export function GameScreen({
           onCard={onCard}
           onHoverPieces={setHoverPieces}
         />
+        <ThinkingIndicator view={view} controller={controller} />
         {wide ? (
           <LogPanel log={view.log} s={s} human={human} />
         ) : (

@@ -1,13 +1,14 @@
 // Move Orders: planning (which units to activate and where each group goes) and carrying a plan out step by step.
-// Destinations are scored with the static evaluation on a working copy (cover, fields of fire, exposure, objectives),
-// less the Op Fire risk along the least-risk path that fits the group's MP; the planner then plays the best plans
-// through the real engine (Op Fire reactions and all) before choosing.
+// Destinations are scored with the static evaluation on a working copy (cover, fields of fire, exposure, objectives,
+// the battle plan), less the Op Fire risk along the least-risk path that fits the group's MP; the planner then plays
+// the best plans through the real engine (Op Fire reactions and all) before choosing.
 import { activationCandidates, commandRadius } from '../engine/activation';
 import { ALL_HEXES, distance, neighbours } from '../engine/hex';
 import { shooter, type Shooter } from '../engine/fire';
 import { moveAnswerError, moveAnswers } from '../engine/orders/move';
 import { cloneState, isLeader, isUnit } from '../engine/state';
 import type { Answer, Decision, GameState, HexId, Piece, PieceId, Side } from '../engine/types';
+import { planTerm, type BattlePlan } from './battleplan';
 import { other } from '../engine/types';
 import { cohesionOf, evaluate, meleeThreat, objectiveTerm, weightsFor, type Weights } from './evaluate';
 import type { LevelCfg } from './levels';
@@ -85,15 +86,16 @@ interface Board {
   w: Weights;
   enemyFire: HexFire[];
   enemyStacks: { hex: HexId; units: Piece[] }[];
+  battle: BattlePlan | null;
 }
 
-function board(s: GameState, me: Side, w: Weights): Board {
+function board(s: GameState, me: Side, w: Weights, battle: BattlePlan | null): Board {
   const opp = other(me);
   const shooters = sideShooters(s, opp);
   const enemyFire = ALL_HEXES.map((h) => fireOn(s, shooters, h));
   const stacks = new Map<HexId, Piece[]>();
   for (const u of unitsOnMap(s, opp)) stacks.set(u.hex, [...(stacks.get(u.hex) ?? []), u]);
-  return { me, w, enemyFire, enemyStacks: [...stacks].map(([hex, units]) => ({ hex, units })) };
+  return { me, w, enemyFire, enemyStacks: [...stacks].map(([hex, units]) => ({ hex, units })), battle };
 }
 
 /**
@@ -133,7 +135,8 @@ function localScore(work: GameState, group: Piece[], b: Board): number {
     w.threat * 0.8 * (t1 + 0.3 * t2) +
     w.objective * objectiveTerm(work, b.me) +
     w.cohesion * cohesionOf(work, b.me) +
-    (w.melee ? w.melee * (meleeThreat(work, b.me) - meleeThreat(work, other(b.me))) : 0)
+    (w.melee ? w.melee * (meleeThreat(work, b.me) - meleeThreat(work, other(b.me))) : 0) +
+    (b.battle && w.plan ? w.plan * planTerm(work, b.me, b.battle) : 0)
   );
 }
 
@@ -165,7 +168,7 @@ function destinations(work: GameState, group: Piece[], b: Board, risk: ReturnTyp
  * units), each hex group greedily gets its best destination (given the groups planned before it); variants swap the
  * main group's destination for its runners-up. Sorted by static gain.
  */
-export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Partial<Weights>): MovePlan[] {
+export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Partial<Weights>, battle: BattlePlan | null = null): MovePlan[] {
   const firsts = activationCandidates(s, me, 'Move');
   if (!firsts.length) return [];
   const w = weightsFor(s, me, patch);
@@ -176,8 +179,8 @@ export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Parti
     return isLeader(p) ? 3 + commandRadius(s, p).length : pieceValue(s, p);
   };
   const tried = firsts.slice().sort((a, b) => prior(b) - prior(a)).slice(0, level.moveActs);
-  const base = evaluate(s, me, w, { hand: false });
-  const b = board(s, me, w);
+  const base = evaluate(s, me, w, { hand: false, battle });
+  const b = board(s, me, w, battle);
   const plans: MovePlan[] = [];
   for (const first of tried) {
     const p = s.pieces[first];
@@ -203,7 +206,7 @@ export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Parti
       });
       if (!moved) break;
       if (!isLeader(p) && plan.dest[first] === undefined) break;
-      plan.gain = evaluate(work, me, w, { hand: false }) - base - totalRisk;
+      plan.gain = evaluate(work, me, w, { hand: false, battle }) - base - totalRisk;
       const key = JSON.stringify(plan.dest);
       if (!plans.some((x) => JSON.stringify(x.dest) === key)) plans.push(plan);
     }

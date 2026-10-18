@@ -1,0 +1,32 @@
+/* The "thinking…" indicator (ThinkingIndicator.tsx): under the prompt panel while the computer plans an Order. */
+.ti {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-top: 3px solid var(--kit-olive);
+  border-radius: var(--kit-radius-md);
+  animation: ti-in .25s ease-out;
+}
+.ti__mark { flex: 0 0 34px; width: 34px; height: 34px; }
+.ti__dial { fill: var(--kit-paper-light); stroke: var(--kit-ink-soft); stroke-width: 1.5; }
+.ti__ticks { stroke: var(--kit-ink-soft); stroke-width: 1.5; stroke-linecap: round; }
+.ti__north { fill: var(--kit-red); }
+.ti__south { fill: var(--kit-ink-soft); }
+.ti__pin { fill: var(--kit-ink); }
+.ti__needle { transform-origin: 16px 16px; animation: ti-swing 2.4s ease-in-out infinite; }
+.ti__body { flex: 1 1 auto; min-width: 0; }
+.ti__title { margin: 0; font-family: var(--kit-font-title); font-size: 14px; letter-spacing: .02em; color: var(--kit-ink); }
+.ti__dots::after { content: '…'; display: inline-block; width: 1.2em; text-align: left; animation: ti-dots 1.2s steps(4, end) infinite; overflow: hidden; vertical-align: bottom; }
+.ti__bar { height: 5px; margin: 6px 0 4px; border-radius: 3px; background: var(--kit-paper-dark); overflow: hidden; }
+.ti__bar > span { display: block; height: 100%; background: var(--kit-olive); transform-origin: left center; transition: transform .1s linear; }
+.ti__meta { margin: 0; font-size: 12px; color: var(--kit-ink-soft); font-variant-numeric: tabular-nums; }
+
+@keyframes ti-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes ti-swing { 0%, 100% { transform: rotate(-28deg); } 50% { transform: rotate(34deg); } }
+@keyframes ti-dots { from { width: 0; } to { width: 1.2em; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ti, .ti__needle, .ti__dots::after { animation: none; }
+  .ti__bar > span { transition: none; }
+}

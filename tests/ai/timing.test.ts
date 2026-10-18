@@ -1,7 +1,9 @@
-// Decisions are quick: at the default level (Line, 2.5 s budget) an own-Turn decision in a mid-game position of a big
-// scenario stays within a few seconds, and the small decisions take milliseconds.
+// Decisions keep to their time: at the default level (Line, 8 s budget at most) an own-Turn decision in a mid-game
+// position of a big scenario stays within its budget (plus the candidates' set-up), and the small decisions take
+// milliseconds.
 import { describe, expect, it } from 'vitest';
 import { chooseAnswer, newMemory } from '../../src/ai/index';
+import { LEVELS } from '../../src/ai/levels';
 import { scenario } from '../../src/engine/data';
 import { GameDriver } from '../../src/engine/driver';
 import { randomAnswer } from '../../src/engine/random';
@@ -21,14 +23,14 @@ function midGame(id: string, seed: number): GameDriver {
 }
 
 describe('AI timing', () => {
-  it('a Line Turn decision in a mid-game position takes at most ~3 s', () => {
+  it('a Line Turn decision in a mid-game position keeps to its budget', () => {
     const d = midGame('9', 4);
     const p = d.pending!;
     const mem = newMemory(1);
     const t0 = performance.now();
     chooseAnswer(redact(d.state, p.side), p, { side: p.side, level: 'line' }, mem);
     const ms = performance.now() - t0;
-    expect(ms).toBeLessThan(3200);
+    expect(ms).toBeLessThan(LEVELS.line.budgetMs + 2500);
     expect(mem.last?.sims).toBeGreaterThan(0);
   });
 
