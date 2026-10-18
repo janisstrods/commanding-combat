@@ -43,6 +43,7 @@ cnc-claude (`~/Gamemaking/cnc-ancients`): same stack and conventions.
   map painter. `design/data/masks-audit.json` feeds type upgrades, crest hexes and multi-hex buildings into the maps.
 - **Hidden information:** the AI gets only `redact(state, side)`; the UI filters events for the human
   (`src/ui/game`), and pauses uniformly at the opponent's reaction windows.
+- **Backlog:** `design/backlog.md` (planned AI, visual and UX improvements; not started).
 - **Reference material:** `reference/` (git-ignored) holds the VASSAL module and GMT's public rules PDFs. Never import
   from it, never commit or ship it.
 
