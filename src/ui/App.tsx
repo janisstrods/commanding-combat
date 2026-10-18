@@ -1,15 +1,33 @@
 // The app shell: hash routes to screens. Dev galleries load lazily (the art gallery only once Task 5's file exists).
-import { lazy, Suspense, type ComponentType } from 'react';
+// The main menu needs none of the engine: the scenario picker, the battle and the Random Battle screens load lazily
+// too, and are fetched in the background once the first screen is up, so the first click does not wait.
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import { ErrorBoundary } from './ErrorBoundary';
 import './kit';
 import { navigate, useRoute, type Route } from './routes';
 import { Credits } from './screens/Credits';
 import { MainMenu } from './screens/MainMenu';
-import { BattleRoute } from './game/BattleRoute';
 import { NotFound } from './screens/Placeholders';
-import { ScenarioPicker } from './screens/ScenarioPicker';
 
-const RsgScreen = lazy(() => import('./screens/rsg/RsgScreen').then((m) => ({ default: m.RsgScreen })));
+type LazyScreen<P> = ComponentType<P> & { prefetch(): void };
+
+/** A lazily loaded screen; once its code is here (`prefetch`), it renders at once instead of the Suspense fallback. */
+function lazyScreen<P extends object>(load: () => Promise<ComponentType<P>>): LazyScreen<P> {
+  let loaded: ComponentType<P> | null = null;
+  const get = () => load().then((c) => (loaded = c));
+  // typed by `Screen`'s props (React's lazy types do not follow a generic P)
+  const Lazy: ComponentType<any> = lazy(() => get().then((c) => ({ default: c as ComponentType<any> })));
+  function Screen(p: P) {
+    // fixed for the life of the screen, so it never remounts
+    const [{ C }] = useState(() => ({ C: (loaded as ComponentType<any> | null) ?? Lazy }));
+    return <C {...p} />;
+  }
+  return Object.assign(Screen, { prefetch: () => void get().catch(() => undefined) });
+}
+
+const ScenarioPicker = lazyScreen(() => import('./screens/ScenarioPicker').then((m) => m.ScenarioPicker));
+const BattleRoute = lazyScreen(() => import('./game/BattleRoute').then((m) => m.BattleRoute));
+const RsgScreen = lazyScreen(() => import('./screens/rsg/RsgScreen').then((m) => m.RsgScreen));
 const MapGallery = lazy(() => import('../dev/MapGallery').then((m) => ({ default: m.MapGallery })));
 
 type ArtView = 'counters' | 'cards';
@@ -46,8 +64,24 @@ function screenFor(route: Route) {
   }
 }
 
+/** Fetch the lazy screens' code while the browser is idle (a failure shows when that screen is opened). */
+function usePrefetchScreens(): void {
+  useEffect(() => {
+    const fetchAll = () => {
+      for (const screen of [ScenarioPicker, BattleRoute, RsgScreen]) screen.prefetch();
+    };
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(fetchAll, { timeout: 2000 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(fetchAll, 500);
+    return () => clearTimeout(id);
+  }, []);
+}
+
 export function App() {
   const route = useRoute();
+  usePrefetchScreens();
   return (
     <ErrorBoundary key={route.kind === 'play' || route.kind === 'continue' ? 'battle' : route.kind} onReset={() => navigate({ kind: 'menu' })}>
       <Suspense fallback={<div className="kit-desk app-loading">Loading…</div>}>{screenFor(route)}</Suspense>

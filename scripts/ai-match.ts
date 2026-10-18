@@ -8,6 +8,7 @@
 // <green|line|elite|random> (default line), --seed <n> (default 1), --budget <ms per own-Turn decision> (default: the
 // level's), --scale <x> (each level's own budget times x), --swap (also play every game with the sides' players swapped), --max <decisions per game> (default 20000),
 // --verbose (one line per Order). Players: green, line, elite, random, greedy (policies only, no simulations).
+import './all-maps';
 import { chooseAnswer, newMemory, type AiLevel, type AiMemory } from '../src/ai/index';
 import { newPolicyCtx, policyAnswer } from '../src/ai/policies';
 import { LEVELS } from '../src/ai/levels';

@@ -8,6 +8,7 @@
 //   npx vite-node scripts/fuzz.ts -- --seed 1000                (first seed; game i uses seed + i)
 //   options: --max-answers N (default 20000), --tiny-every K (default 3, 0 = never), --fast (invariants at Turn starts
 //   only), --no-replay, --quiet (failures and the summary only)
+import './all-maps';
 import { FUZZ_SCENARIOS, fuzzGame, reproduce, type FuzzResult } from './fuzzlib';
 
 const argv = process.argv.slice(2).filter((a) => a !== '--');

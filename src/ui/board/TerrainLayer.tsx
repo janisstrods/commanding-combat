@@ -9,6 +9,8 @@ import { BOUNDS, TURN_CENTRE, fmt, hexPoints } from './geometry';
 export const DEFAULT_PPU = 84;
 
 const cache = new Map<string, Promise<string>>();
+/** The finished paintings, by the same key: a board of a map painted before shows its terrain from the first frame. */
+const painted = new Map<string, string>();
 
 /** A cheap fingerprint of everything the painting depends on (so an edited map repaints). */
 export function mapFingerprint(map: MapDef): string {
@@ -41,9 +43,13 @@ export function terrainImage(map: MapDef, ppu = DEFAULT_PPU): Promise<string> {
         try {
           const { paintTerrain } = await import('./paint/painter');
           const { canvas } = paintTerrain(map, ppu);
+          const done = (url: string) => {
+            painted.set(key, url);
+            resolve(url);
+          };
           canvas.toBlob((blob) => {
-            if (blob) resolve(URL.createObjectURL(blob));
-            else resolve(canvas.toDataURL('image/png'));
+            if (blob) done(URL.createObjectURL(blob));
+            else done(canvas.toDataURL('image/png'));
           }, 'image/png');
         } catch (e) {
           cache.delete(key);
@@ -54,6 +60,11 @@ export function terrainImage(map: MapDef, ppu = DEFAULT_PPU): Promise<string> {
     cache.set(key, p);
   }
   return p;
+}
+
+/** The painted terrain of `map` if it is painted already (`terrainImage` has resolved), else null. */
+export function paintedTerrain(map: MapDef, ppu = DEFAULT_PPU): string | null {
+  return painted.get(`${mapFingerprint(map)}@${ppu}`) ?? null;
 }
 
 export function useTerrainImage(map: MapDef, ppu = DEFAULT_PPU): string | null {
@@ -69,7 +80,7 @@ export function useTerrainImage(map: MapDef, ppu = DEFAULT_PPU): string | null {
       live = false;
     };
   }, [key, map, ppu]);
-  return url && url.key === key ? url.url : null;
+  return url && url.key === key ? url.url : (painted.get(key) ?? null);
 }
 
 /** Flat colours per terrain type: the stand-in while the painting is made, and the legend. */

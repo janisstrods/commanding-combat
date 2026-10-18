@@ -1,12 +1,13 @@
 // Small pieces of the Random Battle screens: dice, the coin, the VP track, Objective chits, rows of counters and the map
 // preview with set-up areas.
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Counter, Marker } from '../../../art';
-import { COUNTERS, OBJECTIVE_CHITS, areaHexes, loadMap } from '../../../engine/data';
+import { COUNTERS, OBJECTIVE_CHITS, areaHexes } from '../../../engine/data';
 import type { HexId } from '../../../engine/hex';
-import type { Edge, FortKind, MapDef, Nation, Side } from '../../../engine/types';
+import type { Edge, FortKind, Nation, Side } from '../../../engine/types';
 import { Board, hexPoints } from '../../board';
 import { SIDE_LABEL } from '../../kit';
+import { MapLoading, usePreparedMap } from '../../maps';
 import { HIDDEN_CHIT } from './view';
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -217,17 +218,6 @@ export function Forts({ contents, minefield, size = 34 }: { contents: Partial<Re
 // ---------------------------------------------------------------------------------------------------------------------
 // Map preview
 
-export function useMap(id: string | null): MapDef | null {
-  return useMemo(() => {
-    if (!id) return null;
-    try {
-      return loadMap(id);
-    } catch {
-      return null;
-    }
-  }, [id]);
-}
-
 export interface Tint {
   hexes: readonly HexId[];
   tone: 'mine' | 'theirs' | 'pick';
@@ -246,8 +236,10 @@ export function MapPreview(p: {
   className?: string;
   children?: ReactNode;
 }) {
-  const map = useMap(p.map);
-  if (!map) return <div className="rsg-map-missing">Map {p.map}</div>;
+  const ppu = p.ppu ?? 20;
+  // shown once the map is loaded and painted (src/ui/maps.tsx)
+  const { map, error } = usePreparedMap(p.map, ppu);
+  if (!map) return <MapLoading id={p.map} error={error} className={p.className} />;
   const rotate = p.rotate180 ?? false;
   return (
     <Board
@@ -260,7 +252,7 @@ export function MapPreview(p: {
       showObjectives={p.objectives ?? true}
       edgeLabels={p.edgeLabels}
       marginScale={p.marginScale ?? 2}
-      ppu={p.ppu ?? 20}
+      ppu={ppu}
       title={`Map ${p.map}`}
       hovered={null}
     >
