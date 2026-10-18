@@ -2,6 +2,10 @@
 import { describe, expect, it } from 'vitest';
 import { planDeployment } from '../../src/ai/deploy';
 import { chooseAnswer, newMemory } from '../../src/ai/index';
+import { LEVELS } from '../../src/ai/levels';
+import { newPolicyCtx, quickTurn } from '../../src/ai/policies';
+import { Rng } from '../../src/ai/rand';
+import { turnFlow } from '../../src/engine/flow';
 import { scenario } from '../../src/engine/data';
 import { answerError } from '../../src/engine/decisions';
 import { distance } from '../../src/engine/hex';
@@ -9,7 +13,7 @@ import { setupHexes } from '../../src/engine/setup';
 import { figures } from '../../src/engine/stats';
 import { isUnit, isWeapon, newGame, redact, typeOf } from '../../src/engine/state';
 import type { Answer, Decision, GameState, Side } from '../../src/engine/types';
-import { H, build, card, cardsWhere } from '../support/build';
+import { H, build, card, cardsWhere, run } from '../support/build';
 
 const ask = (s: GameState, d: Decision, side: Side = d.side): Answer => {
   const a = chooseAnswer(redact(s, side), d, { side, level: 'line', seed: 1, deterministic: true }, newMemory(1)).answer;
@@ -104,6 +108,86 @@ describe('the Initiative re-roll', () => {
   });
   it('lets the game end while it is winning', () => {
     expect(sd(4)).toEqual({ kind: 'reroll', yes: false });
+  });
+});
+
+describe('the Initiative re-roll of Fire Attack and Defense rolls (judged on the totals)', () => {
+  // German Rifle Squad: Morale 7 (6 broken), in the open (Cover 0); the AI (Axis) holds the Initiative
+  const defense = (sum: number, against: number, broken = true, side: Side = 'axis') => {
+    const nation = side === 'axis' ? 'German' : 'American';
+    const roll = card(nation, { sum, trigger: null });
+    const s = build({
+      initiative: 'axis',
+      [side]: { discards: [roll] },
+      pieces: [
+        { type: side === 'axis' ? 'German/Rifle Squad' : 'American/Line Squad', hex: 'E5', broken },
+        { type: side === 'axis' ? 'American/Line Squad' : 'German/Rifle Squad', hex: 'E8' },
+      ],
+    });
+    const base = 6 + (broken ? 0 : 1);
+    return ask(s, { kind: 'reroll', side: 'axis', roll: { side, card: roll, purpose: 'defense' }, stake: { base, against, unit: 'p0' } }, 'axis');
+  };
+
+  it('re-rolls its own Defense roll that eliminates a broken Squad when a fresh roll would likely save it', () => {
+    // 6 + 3 = 9 against 12: eliminated; a fresh roll holds on 7+ (21/36)
+    expect(defense(3, 12)).toEqual({ kind: 'reroll', yes: true });
+  });
+
+  it('keeps the same low roll when the attack total is so high that a fresh roll would fail as well', () => {
+    // against 19: only 13+ holds, which 2d6 cannot roll
+    expect(defense(3, 19)).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  it('keeps the same low roll when the attack total is so low that it already holds', () => {
+    // 6 + 3 = 9 against 7: holds
+    expect(defense(3, 7)).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  it("re-rolls the enemy's lucky Defense roll that saved a broken Squad an average roll would have eliminated", () => {
+    // the broken American Line Squad (Morale + Cover 6) rolls 11 against 15: 6 + 11 = 17 holds; a fresh roll eliminates
+    // it on 8 or less — but not against 9, where only 2 does
+    expect(defense(11, 15, true, 'allied')).toEqual({ kind: 'reroll', yes: true });
+    expect(defense(11, 9, true, 'allied')).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  const attack = (sum: number, fpBase: number) => {
+    const roll = card('German', { sum, trigger: null });
+    const s = build({
+      initiative: 'axis',
+      axis: { discards: [roll] },
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5' },
+        { type: 'American/Line Squad', hex: 'E8', broken: true },
+        { type: 'American/Line Squad', hex: 'E8', broken: true },
+      ],
+    });
+    return ask(s, { kind: 'reroll', side: 'axis', roll: { side: 'axis', card: roll, purpose: 'fireAttack' }, stake: { base: fpBase, pieces: ['p0'], hexes: [H('E8')] } }, 'axis');
+  };
+
+  it('re-rolls its own low Attack Roll when an average roll would eliminate two broken Squads', () => {
+    expect(attack(3, 9)).toEqual({ kind: 'reroll', yes: true });
+  });
+
+  it('keeps the same low Attack Roll when its FP is so high that the total still eliminates them', () => {
+    expect(attack(3, 20)).toEqual({ kind: 'reroll', yes: false });
+  });
+});
+
+describe('quick Turns inside simulations (Elite: look-ahead and reply)', () => {
+  it('with Move plans, a quick Turn moves toward an unheld Objective instead of passing', () => {
+    const s = build({
+      map: { objectives: ['E3', 'A1', 'B1', 'C1', 'D1'] },
+      control: ['allied', null, null, null, null],
+      openChits: ['A'],
+      axis: { hand: [card('German', { order: 'Move' })] },
+      pieces: [{ type: 'German/Rifle Squad', hex: 'E8' }, { type: 'American/Line Squad', hex: 'O1' }],
+    });
+    const d = run(s, (ctx) => turnFlow(s, ctx), () => undefined).pending as Extract<Decision, { kind: 'turn' }>;
+    const plain = quickTurn(s, d, newPolicyCtx('axis', LEVELS.elite, new Rng(1)));
+    expect(plain.kind).toBe('pass');
+    const pc = { ...newPolicyCtx('axis', LEVELS.elite, new Rng(1)), quickMoves: 'narrow' as const };
+    expect(quickTurn(s, d, pc)).toMatchObject({ kind: 'order', order: 'Move' });
+    expect(pc.plan?.dest?.p0).toBeDefined();
   });
 });
 

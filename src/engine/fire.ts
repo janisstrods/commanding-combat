@@ -309,8 +309,8 @@ export function* fireAttack(s: GameState, ctx: FlowCtx, side: Side, spec: FireSp
   }
   ctx.emit(firePowerEvent(s, attack));
   const defenders = attack.targets.map((h) => unitsAt(s, h, other(side)));
-  const r = yield* roll(s, ctx, side, 'fireAttack');
   const airburst = attack.mortarOrArtillery && attack.targets.some((h) => s.map.terrain[h] === 'Woods') ? 2 : 0;
+  const r = yield* roll(s, ctx, side, 'fireAttack', { base: fp + airburst, pieces: attack.pieces.slice(), hexes: attack.targets.slice() });
   attack.total = fp + r.sum + airburst - nightPenalty(s, firers, attack.targets, ctx);
   ctx.emit({
     kind: 'fireAttack', side, pieces: attack.pieces.slice(), target: spec.target, fp, total: attack.total,
@@ -382,8 +382,8 @@ export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackI
   ctx.emit(defendingEvent(s, id, attack, firers));
   const morale = currentStats(s, id).morale + cover(s, id, { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover });
   const w = watchReplacements(ctx);
-  const r = yield* roll(s, w.ctx, p.side, 'defense');
   const against = (attack.total ?? 0) - attack.reduction;
+  const r = yield* roll(s, w.ctx, p.side, 'defense', { base: morale, against, unit: id });
   const targets = pendingTargets(s, id, w.by);
   if (!targets.length) return;
   const total = morale + r.sum;

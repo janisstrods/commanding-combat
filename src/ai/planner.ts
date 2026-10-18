@@ -4,14 +4,16 @@
 // favour it, Recover / Rout when worth it, Artillery when it has a Radio and a Spotter, ending the Turn, or a pass with
 // discards of its weakest cards — and scores each by playing it through the real engine on several determinised copies
 // of the game (the opponent's reactions answered by policies.ts as his stand-in), evaluating the outcome. Candidates
-// share the same sampled worlds (common random numbers); the weaker half is dropped after each round (successive
-// halving) until the time budget or the world count runs out.
+// share the same sampled worlds (common random numbers); the weaker part is dropped after each round (successive
+// halving) until the choice is clear, or the time budget or the world count runs out. A battle plan (battleplan.ts),
+// when the AI keeps one, adds its terms to the evaluation and to the Move destinations.
 import { activationCandidates, commandRadius } from '../engine/activation';
 import { distance, neighbours } from '../engine/hex';
 import { enterBlock } from '../engine/terrain';
 import { nextTurn, turnFlow } from '../engine/flow';
 import { cloneState, isLeader, radioOf } from '../engine/state';
 import { type Answer, type CardId, type Decision, type GameState, type OrderName, type Piece, type PieceId, type Side, other } from '../engine/types';
+import type { BattlePlan } from './battleplan';
 import { avgDraw, cardCtx, keepValue, weakestFirst } from './cards';
 import { determinize } from './determinize';
 import { evaluate, weightsFor, type Weights } from './evaluate';
@@ -40,12 +42,16 @@ export interface PlanResult {
   sims: number;
   /** Candidates with their mean scores, best first (diagnostics). */
   scores: { label: string; score: number; n: number }[];
+  /** Why the search stopped. */
+  stop: StopReason;
 }
 
 const now = (): number => (globalThis.performance ? globalThis.performance.now() : Date.now());
 
 /** The candidate plans for the Turn decision `d` in view `s`. */
-export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard = false, tune?: Partial<Weights>): Candidate[] {
+export function candidates(
+  s: GameState, d: TurnD, level: LevelCfg, mustDiscard = false, tune?: Partial<Weights>, battle: BattlePlan | null = null,
+): Candidate[] {
   const me = d.side;
   const cc = cardCtx(s, me);
   const turn = s.turn.number;
@@ -66,7 +72,7 @@ export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard 
         break;
       }
       case 'Move': {
-        const plans = planMoves(s, me, level, tune);
+        const plans = planMoves(s, me, level, tune, battle);
         for (const p of plans.slice(0, level.moveActs)) {
           out.push(mk(card, 'Move', `Move ${Object.keys(p.dest).length} unit(s)`, p.gain, { units: p.units, dest: p.dest, paths: p.paths }));
         }
@@ -254,14 +260,20 @@ interface Scored {
   c: Candidate;
   sum: number;
   n: number;
+  /** Score per world (the worlds are shared: index i is the same sampled game for every candidate). */
+  scores: number[];
 }
 
 /** Play candidate `c` on world `w` (a determinised game) and score the result for `me`. */
-function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: number, weights: Weights): number {
+function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: number, weights: Weights, battle: BattlePlan | null): number {
   const s = cloneState(w);
   const rng = new Rng(seed);
   const mine: PolicyCtx = newPolicyCtx(me, level, rng);
   mine.plan = c.plan;
+  if (level.rolloutMoves) {
+    mine.quickMoves = 'narrow';
+    mine.battle = battle;
+  }
   const theirs: PolicyCtx = newPolicyCtx(other(me), level, rng, true);
   let first = true;
   const policy = (st: GameState, d: Decision): Answer => {
@@ -284,6 +296,7 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
       // Elite: play the opponent's reply too (his greedy Turn: his best Fire, else a pass), then judge
       const opp = other(me);
       const his: PolicyCtx = newPolicyCtx(opp, level, rng);
+      if (level.replyMoves) his.quickMoves = 'narrow';
       const reply = (st: GameState, d: Decision): Answer =>
         d.kind === 'turn' && d.side === opp ? quickTurn(st, d, his) : policyAnswer(st, d, d.side === me ? mine : his);
       mine.plan = null;
@@ -291,22 +304,67 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
       if (r2.done && s.phase === 'play') nextTurn(s);
     }
   }
-  return evaluate(s, me, weights);
+  return evaluate(s, me, weights, { battle });
+}
+
+export interface PlanOpts {
+  /** Thinking time, ms: the clock is read before every simulation. */
+  budgetMs: number;
+  /** Effort mode (match scripts): stop after this many simulations instead of by the clock. */
+  simBudget?: number;
+  /** Ignore the clock: the level's world counts (and the early stop) only — reproducible for a seed (tests). */
+  deterministic?: boolean;
+  /** Both players passed without discarding since the AI's last Turn: a pass must discard. */
+  mustDiscard?: boolean;
+  /** Tuning experiments: factors on the evaluation weights. */
+  tune?: Partial<Weights>;
+  /** The battle plan the evaluation follows (battleplan.ts). */
+  battle?: BattlePlan | null;
+}
+
+/** Why a search stopped (diagnostics). */
+export type StopReason = 'single' | 'clock' | 'sims' | 'worlds' | 'clear' | 'even';
+
+/**
+ * Spread (VP) assumed on top of the observed one when judging a difference: a few worlds may not yet show an outcome
+ * that is rare but large (an Op Fire, a lost melee), so a small sample of near-equal results is not taken as proof.
+ */
+const PRIOR_SD = 1;
+
+/**
+ * The paired comparison of the two best candidates over the worlds both have played (common random numbers): the mean
+ * score difference and its standard error (with the prior spread).
+ */
+export function paired(a: { scores: number[] }, b: { scores: number[] }): { diff: number; se: number; n: number } {
+  const n = Math.min(a.scores.length, b.scores.length);
+  if (n < 2) return { diff: 0, se: Infinity, n };
+  let sum = 0;
+  let sq = 0;
+  for (let i = 0; i < n; i++) {
+    const x = a.scores[i] - b.scores[i];
+    sum += x;
+    sq += x * x;
+  }
+  const diff = sum / n;
+  const variance = Math.max(0, (sq - n * diff * diff) / (n - 1));
+  return { diff, se: Math.sqrt((variance + PRIOR_SD * PRIOR_SD) / n), n };
 }
 
 /**
  * Choose the AI's answer to its Turn decision `d` in view `view`: candidates, then simulations within the budget.
- * `deterministic` replaces the clock by the level's simulation counts (reproducible for a seed).
+ * Successive halving: every live candidate gets its next world before any gets another; after `minSims` worlds each,
+ * every round drops the weaker part. The search ends early when the choice is clear — after 2 × `minSims` worlds, the
+ * best candidate is ahead of the runner-up by `clear` standard errors of their paired difference — or does not matter
+ * (after 4 × `minSims`, the two are even within `even`); else when the worlds, the simulation budget or the time run
+ * out.
  */
-export function planTurn(
-  view: GameState, d: TurnD, level: LevelCfg, rng: Rng, budgetMs: number, deterministic = false, mustDiscard = false,
-  tune?: Partial<Weights>,
-): PlanResult {
+export function planTurn(view: GameState, d: TurnD, level: LevelCfg, rng: Rng, o: PlanOpts): PlanResult {
   const t0 = now();
   const me = d.side;
-  const cands = candidates(view, d, level, mustDiscard, tune);
-  const weights = weightsFor(view, me, tune);
-  if (cands.length === 1) return { answer: cands[0].first, plan: cands[0].plan, label: cands[0].label, sims: 0, scores: [] };
+  const battle = o.battle ?? null;
+  const cands = candidates(view, d, level, o.mustDiscard, o.tune, battle);
+  const weights = weightsFor(view, me, o.tune);
+  if (cands.length === 1) return { answer: cands[0].first, plan: cands[0].plan, label: cands[0].label, sims: 0, scores: [], stop: 'single' };
   const worlds: GameState[] = [];
   const seeds: number[] = [];
   const world = (i: number) => {
@@ -316,25 +374,44 @@ export function planTurn(
     }
     return worlds[i];
   };
-  let live: Scored[] = cands.map((c) => ({ c, sum: 0, n: 0 }));
+  let live: Scored[] = cands.map((c) => ({ c, sum: 0, n: 0, scores: [] }));
   const all = live.slice();
   let sims = 0;
-  const over = () => !deterministic && now() - t0 > budgetMs;
-  // breadth first: every live candidate gets its next world before any gets another; after `minSims` worlds each,
-  // every round drops the weaker part
+  let stop: StopReason = 'worlds';
+  const over = (): StopReason | null => {
+    if (o.simBudget) return sims >= o.simBudget ? 'sims' : null;
+    return !o.deterministic && now() - t0 > o.budgetMs ? 'clock' : null;
+  };
   let target = 1;
   outer: for (;;) {
     for (const x of live) {
       if (x.n >= Math.min(target, level.worlds)) continue;
-      if (sims > 0 && over()) break outer;
-      x.sum += simulate(world(x.n), me, x.c, level, seeds[x.n], weights);
+      const why = sims > 0 ? over() : null;
+      if (why) {
+        stop = why;
+        break outer;
+      }
+      const v = simulate(world(x.n), me, x.c, level, seeds[x.n], weights, battle);
+      x.scores.push(v);
+      x.sum += v;
       x.n++;
       sims++;
     }
     if (live.length === 1 || live.every((x) => x.n >= level.worlds)) break;
     if (target >= level.minSims) {
       live.sort((a, b) => b.sum / b.n - a.sum / a.n);
-      live = live.slice(0, Math.max(2, Math.ceil(live.length * 0.6)));
+      if (level.clear > 0) {
+        const p = paired(live[0], live[1]);
+        if (p.n >= 2 * level.minSims && p.diff > level.clear * p.se) {
+          stop = 'clear';
+          break;
+        }
+        if (p.n >= 4 * level.minSims && Math.abs(p.diff) + 2 * p.se < level.even) {
+          stop = 'even';
+          break;
+        }
+      }
+      live = live.slice(0, Math.max(2, Math.ceil(live.length * level.keep)));
       if (live.length === 2 && live.every((x) => x.n >= level.worlds)) break;
     }
     target++;
@@ -350,5 +427,6 @@ export function planTurn(
     label: best.c.label,
     sims,
     scores: all.map((x) => ({ label: x.c.label, score: mean(x), n: x.n })).sort((a, b) => b.score - a.score),
+    stop,
   };
 }

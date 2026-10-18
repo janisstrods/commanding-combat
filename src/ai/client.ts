@@ -6,7 +6,7 @@
 import { redact } from '../engine/state';
 import type { Answer, Decision, GameState, Side } from '../engine/types';
 import type { AiMemory, AiOptions } from './index';
-import type { AiLevel } from './levels';
+import { LEVELS, type AiLevel } from './levels';
 import type { WorkerRequest, WorkerResponse } from './worker';
 
 /** The battle screen's opponent interface (same shape as src/ui/game/opponent.ts `Opponent`). */
@@ -20,8 +20,13 @@ export interface AiResult {
   say?: string;
 }
 
-/** Worker answers slower than this are answered in-thread instead (the AI's own budget is at most ~4 s). */
-const WORKER_TIMEOUT_MS = 20000;
+/**
+ * Worker answers slower than the AI's own-Turn budget (at most 20 s, Elite) plus this are answered in-thread instead
+ * (the battle screen gives up on a decision after 60 s).
+ */
+const WORKER_SLACK_MS = 20000;
+/** A decision made in the page's own thread (no worker, or it is stuck) thinks at most this long: the page stays live. */
+const INLINE_BUDGET_MS = 3000;
 /** A timer firing this much later than scheduled means the page was frozen (e.g. a backgrounded tab). */
 const FREEZE_SLACK_MS = 2000;
 /** After a freeze, give the worker this long to deliver an answer it probably already has. */
@@ -76,6 +81,11 @@ export class AiOpponent implements Opponent {
     if (this.useWorker) this.spawnWorker();
   }
 
+  /** The own-Turn thinking time, ms. */
+  get budgetMs(): number {
+    return this.opts.timeBudgetMs ?? (LEVELS[this.opts.level] ?? LEVELS.line).budgetMs;
+  }
+
   /** True while decisions run in a Web Worker (false after a fallback). */
   get usingWorker(): boolean {
     return !!this.worker;
@@ -95,7 +105,7 @@ export class AiOpponent implements Opponent {
     return new Promise<AiResult>((resolve, reject) => {
       const p: Pending = { resolve, reject, view, decision, timer: null, worker };
       this.pending.set(id, p);
-      this.arm(id, p, WORKER_TIMEOUT_MS);
+      this.arm(id, p, this.budgetMs + WORKER_SLACK_MS);
       const msg: WorkerRequest = { id, type: 'decide', gameId: this.gameId, view, decision, opts: this.opts };
       if (this.keepPosted) this.posted.push(msg);
       try {
@@ -209,6 +219,6 @@ export class AiOpponent implements Opponent {
     await new Promise((r) => setTimeout(r, 0));
     if (this.disposed) throw new Error('AiOpponent disposed');
     this.mem ??= newMemory(this.opts.seed);
-    return chooseAnswer(view, decision, this.opts, this.mem);
+    return chooseAnswer(view, decision, { ...this.opts, timeBudgetMs: Math.min(this.budgetMs, INLINE_BUDGET_MS) }, this.mem);
   }
 }

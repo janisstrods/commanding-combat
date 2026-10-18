@@ -8,12 +8,15 @@
 //  - exposure (enemy fire with LOS and range on each friendly stack against its Morale and Cover) and threat (ours on
 //    theirs), counted for as many stacks as the side to act can attack before the other replies;
 //  - objective proximity by posture;
-//  - hand quality (own hand; the opponent's only when known, i.e. in a simulation).
+//  - hand quality (own hand; the opponent's only when known, i.e. in a simulation);
+//  - the battle plan, when the AI follows one (battleplan.ts planTerm: main effort closing on its target, support group
+//    in firing positions).
 import { CARDS, OBJECTIVE_CHITS } from '../engine/data';
 import { distance } from '../engine/hex';
 import { chitValue, objectiveValue } from '../engine/objectives';
 import { isLeader, isUnit, typeOf } from '../engine/state';
 import { type GameState, type HexId, type Piece, type Posture, type Side, UNKNOWN_CARD, other } from '../engine/types';
+import { planTerm, type BattlePlan } from './battleplan';
 import { HAND_WEIGHT, cardCtx, handValue } from './cards';
 import { contestOdds } from './dice';
 import { fireOn, meleeStrength, pHolds, sideShooters, stackLoss } from './tactics';
@@ -33,6 +36,7 @@ export interface Weights {
   cohesion: number;
   initiative: number;
   melee: number;
+  plan: number;
 }
 
 const BASE: Weights = {
@@ -47,6 +51,7 @@ const BASE: Weights = {
   cohesion: 0.12,
   initiative: 0.6,
   melee: 0.3,
+  plan: 1,
 };
 
 /** Posture changes: attackers push for objectives, defenders guard against exposure. */
@@ -54,9 +59,9 @@ const POSTURE: Record<Posture, Partial<Weights>> = {
   // attackers: Objectives first, fire-and-move (threat), more Op Fire risk accepted, card cycling not feared (Line vs
   // Line over the attack/defend scenarios: attackers won 13 of 36 with these, 12 of 36 with objective 1.4, exposure
   // 0.35, threat 0.3, time 2)
-  attack: { objective: 1.96, exposure: 0.26, threat: 0.39, time: 1 },
+  attack: { objective: 1.96, exposure: 0.26, threat: 0.39, time: 1, plan: 1.2 },
   recon: { objective: 1.1 },
-  defend: { objective: 0.8, exposure: 0.45 },
+  defend: { objective: 0.8, exposure: 0.45, plan: 0.7 },
 };
 
 /**
@@ -108,11 +113,14 @@ export interface EvalParts {
   cohesion: number;
   initiative: number;
   melee: number;
+  plan: number;
 }
 
 export interface EvalOpts {
   /** Score the hands (default true). Positional searches leave them out: moving units does not change them. */
   hand?: boolean;
+  /** The battle plan to score progress on (none: no plan term). */
+  battle?: BattlePlan | null;
 }
 
 /** Score position `s` for `me`. */
@@ -126,7 +134,7 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
     const won = s.winner === me;
     const m = projectedMargin(s, me);
     const total = (won ? GAME_SCORE : -GAME_SCORE) + 0.5 * m;
-    return { total, margin: m, material: 0, surrender: 0, time: 0, exposure: 0, threat: 0, objective: 0, hand: 0, cohesion: 0, initiative: 0, melee: 0 };
+    return { total, margin: m, material: 0, surrender: 0, time: 0, exposure: 0, threat: 0, objective: 0, hand: 0, cohesion: 0, initiative: 0, melee: 0, plan: 0 };
   }
   const margin = projectedMargin(s, me);
   const material = materialOf(s, me) - materialOf(s, opp);
@@ -152,6 +160,7 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
     opts.hand === false ? 0 : handValue(s, me, cardCtx(s, me)) - (knowsHand(s, opp) ? 0.5 * handValue(s, opp, cardCtx(s, opp)) : 0);
   const cohesion = cohesionOf(s, me) - cohesionOf(s, opp);
   const initiative = s.initiative === me ? 1 : -1;
+  const plan = opts.battle && w.plan ? planTerm(s, me, opts.battle) : 0;
 
   const total =
     w.vp * margin +
@@ -164,8 +173,9 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
     w.melee * melee +
     w.hand * hand +
     w.cohesion * cohesion +
-    w.initiative * initiative;
-  return { total, margin, material, surrender, time, exposure, threat, objective, hand, cohesion, initiative, melee };
+    w.initiative * initiative +
+    w.plan * plan;
+  return { total, margin, material, surrender, time, exposure, threat, objective, hand, cohesion, initiative, melee, plan };
 }
 
 function knowsHand(s: GameState, side: Side): boolean {

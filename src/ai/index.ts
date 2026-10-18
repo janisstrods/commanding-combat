@@ -3,17 +3,19 @@
 // chooseAnswer() answers any engine Decision for the AI's side from `redact(state, side)` alone — the opponent's hand,
 // both draw piles' order and the opponent's secret chits are unknowns there, so the AI cannot cheat. Its own Turn is
 // planned by simulation (planner.ts: candidate Orders played through the real engine on determinised copies, re-planned
-// before every Order); everything else is answered by quick expected-value policies (policies.ts, choose.ts, moves.ts,
-// deploy.ts). Every answer is checked with the engine's own validator (`answerError`) before it is returned; a refused
-// or failed one is replaced by a safe legal answer and counted in the memory (`fallbacks`, an AI bug when not 0).
+// before every Order), within a battle plan it keeps across Turns (battleplan.ts; Line and Elite); everything else is
+// answered by quick expected-value policies (policies.ts, choose.ts, moves.ts, deploy.ts). Every answer is checked
+// with the engine's own validator (`answerError`) before it is returned; a refused or failed one is replaced by a safe
+// legal answer and counted in the memory (`fallbacks`, an AI bug when not 0).
 import { answerError } from '../engine/decisions';
 import { redact } from '../engine/state';
 import type { Answer, Decision, GameState, HexId, PieceId, Side } from '../engine/types';
+import { describePlan, makePlan, replanReason, type BattlePlan } from './battleplan';
 import type { DeployMemo } from './deploy';
 import type { Weights } from './evaluate';
 import { isViewFor } from './determinize';
-import { LEVELS, type AiLevel } from './levels';
-import { planTurn } from './planner';
+import { LEVELS, type AiLevel, type LevelCfg } from './levels';
+import { planTurn, type StopReason } from './planner';
 import { newPolicyCtx, policyAnswer, type Plan } from './policies';
 import { Rng, entropySeed } from './rand';
 import { safeAnswer } from './sim';
@@ -25,7 +27,7 @@ export { planDeployment, type Placement } from './deploy';
 export interface AiOptions {
   side: Side;
   level: AiLevel;
-  /** Thinking time for an own-Turn decision, ms (default: the level's — Green 0.6 s, Line 2.5 s, Elite 4 s). */
+  /** Thinking time for an own-Turn decision, ms (default: the level's — Green 0.6 s, Line 8 s, Elite 20 s, at most). */
   timeBudgetMs?: number;
   /** Seed of the AI's private RNG (default: from Math.random on first use). */
   seed?: number;
@@ -33,6 +35,13 @@ export interface AiOptions {
   deterministic?: boolean;
   /** Tuning experiments: factors on the evaluation weights (evaluate.ts Weights). */
   tune?: Partial<Weights>;
+  /**
+   * Effort mode (scripts): stop an own-Turn search after this many simulations instead of by the clock, so match
+   * results do not depend on the machine's load (and repeat for a seed).
+   */
+  simBudget?: number;
+  /** Experiments (match scripts): fields of the level's configuration replaced. */
+  patch?: Partial<LevelCfg>;
 }
 
 /** Per-game memory of one AI player: plain data (structured-clone safe), kept by the caller between decisions. */
@@ -45,7 +54,14 @@ export interface AiMemory {
   /** Answers replaced by a safe one because the AI's was refused or it threw (an AI bug when not 0). */
   fallbacks: number;
   /** Diagnostics of the last decision. */
-  last: { kind: Decision['kind']; ms: number; sims?: number; label?: string; alternatives?: { label: string; score: number; n: number }[] } | null;
+  last: {
+    kind: Decision['kind'];
+    ms: number;
+    sims?: number;
+    label?: string;
+    stop?: StopReason;
+    alternatives?: { label: string; score: number; n: number }[];
+  } | null;
   /** Turn number of the last line said (one flavour line per Turn at most). */
   saidTurn: number;
   /**
@@ -53,10 +69,14 @@ export interface AiMemory {
    * discarding in between — the AI then discards when it passes, so the game cannot stall.
    */
   turnSig: string;
+  /** The battle plan kept across Turns (battleplan.ts), made from the AI's own view only; null before the first. */
+  battle: BattlePlan | null;
+  /** Battle-plan log lines not yet read (the match scripts print them; the browser ignores them). */
+  log: string[];
 }
 
 export function newMemory(seed?: number): AiMemory {
-  return { rngState: seed ?? 0, plan: null, lastFire: null, opFireHex: null, deploy: null, fallbacks: 0, last: null, saidTurn: -1, turnSig: '' };
+  return { rngState: seed ?? 0, plan: null, lastFire: null, opFireHex: null, deploy: null, fallbacks: 0, last: null, saidTurn: -1, turnSig: '', battle: null, log: [] };
 }
 
 export interface AiResult {
@@ -80,7 +100,7 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
   const v = viewFor(view, me);
   if (!mem.rngState) mem.rngState = (opts.seed ?? entropySeed()) >>> 0 || 1;
   const rng = new Rng(mem.rngState);
-  const level = LEVELS[opts.level] ?? LEVELS.line;
+  const level: LevelCfg = opts.patch ? { ...(LEVELS[opts.level] ?? LEVELS.line), ...opts.patch } : LEVELS[opts.level] ?? LEVELS.line;
   const pc = newPolicyCtx(me, level, rng);
   pc.plan = mem.plan;
   pc.lastFire = mem.lastFire;
@@ -91,6 +111,7 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
   let sims: number | undefined;
   let label: string | undefined;
   let alternatives: { label: string; score: number; n: number }[] | undefined;
+  let stop: StopReason | undefined;
   try {
     if (d.side !== me) throw new Error(`decision for ${d.side}, AI plays ${me}`);
     if (d.kind === 'turn') {
@@ -100,11 +121,16 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
         stalled = sig === mem.turnSig;
         mem.turnSig = sig;
       }
-      const r = planTurn(v, d, level, rng, opts.timeBudgetMs ?? level.budgetMs, opts.deterministic, stalled, opts.tune);
+      if (level.battlePlan) keepPlan(v, me, mem, level);
+      const r = planTurn(v, d, level, rng, {
+        budgetMs: opts.timeBudgetMs ?? level.budgetMs, simBudget: opts.simBudget, deterministic: opts.deterministic,
+        mustDiscard: stalled, tune: levelTune(level, opts.tune), battle: level.battlePlan ? mem.battle : null,
+      });
       answer = r.answer;
       pc.plan = r.plan;
       sims = r.sims;
       label = r.label;
+      stop = r.stop;
       alternatives = r.scores.slice(0, 6);
       say = speak(v, r.answer, mem, rng);
     } else {
@@ -124,8 +150,26 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
   mem.opFireHex = pc.opFireHex;
   mem.deploy = pc.deploy;
   mem.rngState = rng.state;
-  mem.last = { kind: d.kind, ms: now() - t0, sims, label, alternatives };
+  mem.last = { kind: d.kind, ms: now() - t0, sims, label, stop, alternatives };
   return say ? { answer, say } : { answer };
+}
+
+/** The evaluation's weight factors for this level (the battle plan's weight). */
+function levelTune(level: LevelCfg, tune?: Partial<Weights>): Partial<Weights> | undefined {
+  if (level.planWeight === 1) return tune;
+  return { ...tune, plan: (tune?.plan ?? 1) * level.planWeight };
+}
+
+/** Make the battle plan at the first own Turn, and again when a re-plan trigger fires (logged in the memory). */
+function keepPlan(v: GameState, me: Side, mem: AiMemory, level: LevelCfg): void {
+  const why = mem.battle ? replanReason(v, me, mem.battle) : 'first plan';
+  if (!why) return;
+  const prev = mem.battle;
+  const plan = makePlan(v, me, why, prev, level.planZone);
+  if (!plan) return;
+  mem.battle = plan;
+  mem.log.push(describePlan(v, me, plan, prev));
+  if (mem.log.length > 200) mem.log.splice(0, mem.log.length - 200);
 }
 
 /** An occasional one-line remark at the start of an Order (British spelling; at most one per Turn). */

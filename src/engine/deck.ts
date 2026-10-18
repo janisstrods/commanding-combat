@@ -17,7 +17,7 @@ import { shuffle } from './rng';
 import { afterEvent, checkFixedWeapons, entryHexes, eventBlocked, onTimeAdvance, sniperExtraTargets } from './scenarioRules';
 import { figures, stackLimit, unitFigures } from './stats';
 import { GameOver, cardOf, hasUnitOf, isImpassableHex, isUnit, radioOf, removeSmoke, typeOf } from './state';
-import { type FateCard, type FlowCtx, type GameState, type HexId, type Piece, type RevealPurpose, type Side, SIDES, type Edge, other } from './types';
+import { type FateCard, type FlowCtx, type GameState, type HexId, type Piece, type RevealPurpose, type RollStake, type Side, SIDES, type Edge, other } from './types';
 
 export type { Gen } from './decisions';
 
@@ -63,7 +63,7 @@ export function* reveal(s: GameState, ctx: FlowCtx, side: Side, purpose: RevealP
  * card then passes to the opponent, who may do the same); then the trigger resolves unless `ctx.depth > 0`. The caller
  * applies the roll's result after this returns (§1.9.1 rule 1). Jammed! is returned for the caller to act on.
  */
-export function* roll(s: GameState, ctx: FlowCtx, side: Side, purpose: RevealPurpose): Gen<Roll> {
+export function* roll(s: GameState, ctx: FlowCtx, side: Side, purpose: RevealPurpose, stake?: RollStake): Gen<Roll> {
   for (;;) {
     const card = takeTop(s, side);
     const last = s.players[side].deck.length === 0;
@@ -73,7 +73,7 @@ export function* roll(s: GameState, ctx: FlowCtx, side: Side, purpose: RevealPur
     if (last) yield* advanceTime(s, ctx, side);
     s.lastRoll = { side, card: card.id, purpose };
     const holder = s.initiative;
-    const a = yield* ask(s, ctx, { kind: 'reroll', side: holder, roll: { side, card: card.id, purpose } });
+    const a = yield* ask(s, ctx, { kind: 'reroll', side: holder, roll: { side, card: card.id, purpose }, ...(stake ? { stake } : {}) });
     if (a.kind === 'reroll' && a.yes) {
       s.initiative = other(holder);
       ctx.emit({ kind: 'reroll', side, by: holder });
