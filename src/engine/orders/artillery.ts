@@ -167,7 +167,7 @@ function* barrage(s: GameState, ctx: FlowCtx, side: Side, radio: Piece, fp: numb
 function* fireForEffect(s: GameState, ctx: FlowCtx, side: Side, card: FateCard, radio: Piece): Gen {
   const units = spotters(s, side);
   if (!units.length) return;
-  const a = yield* ask(s, ctx, { kind: 'activate', side, order: 'Artillery Request', card: card.id, units });
+  const a = yield* ask(s, ctx, { kind: 'activate', side, order: 'Artillery Request', card: card.id, units, alone: 'Spotter' });
   const spotter = (a as Extract<Answer, { kind: 'activate' }>).units[0];
   markActivated(s, ctx, side, [spotter], 'Artillery Request');
   const from = s.pieces[spotter].hex;

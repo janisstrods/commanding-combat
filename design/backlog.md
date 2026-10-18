@@ -130,7 +130,9 @@ Effect. Add an Artillery Box for each side to the panels next to Victory, Time a
 - a tooltip with what it allows: Fire for Effect when unbroken and a Spotter is free, Battery Access when broken.
 Both boxes are open information (`redact` does not hide them).
 
-**Status: not started.**
+**Status (v1.1.0): done.** An Artillery panel after Objectives (`ArtilleryPanel` in `panels.tsx`, `artillery.ts`)
+shows each side's Radio counter (broken face when broken), calibre and FP, Ready / No Spotter free / Broken, or
+"No Radio", with what it allows in the tooltip.
 
 **Artillery Request: clicking a Leader selects only him.** Fire for Effect activates the Spotter alone
 (`activationError` in `orders/artillery.ts`), but the activate prompt treats him like any Leader: a click selects him
@@ -140,7 +142,9 @@ off. For Artillery Request, select the Leader alone, show no radius, and say he 
 engine than by the Order name (e.g. a field on the `activate` decision saying the first unit activates alone), so any
 other one-unit activation gets the same; one test in `tests/ui`.
 
-**Status: not started.**
+**Status (v1.1.0): done.** The `activate` decision has an optional `alone` role (Fire For Effect sends 'Spotter');
+the prompt then selects only the Leader clicked, shows no radius and says he is the Spotter
+(`tests/ui/game/spotter.test.ts`).
 
 ## 4. Other known issues from v1.0.0
 

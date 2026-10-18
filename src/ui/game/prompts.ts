@@ -242,11 +242,16 @@ function activatePrompt(s: GameState, d: D<'activate'>, sel: Sel): PromptModel {
   const what = d.order === 'Op Fire' ? 'Op Fire' : `${d.order} Order`;
   const first = sel.pieces[0];
   const fp = first ? s.pieces[first] : undefined;
-  const leader = !!fp && isLeader(fp) && d.units.includes(first);
+  // a unit activated alone (the Spotter) brings nobody, whatever his Command
+  const leader = !d.alone && !!fp && isLeader(fp) && d.units.includes(first);
   const radius = leader ? commandRadius(s, fp!) : [];
   const m = blank('activate', `${what}: activate`, '');
   if (!d.units.length && d.players?.length) {
     m.text = d.order === 'Recover' ? 'Recover: remove your Suppressed markers and roll to rally each broken unit.' : 'Rout: choose the player whose broken units you roll for.';
+  } else if (d.alone && !first) {
+    m.text = `Click a Leader to make him the ${d.alone}: he is activated alone.`;
+  } else if (d.alone) {
+    m.text = `${pieceName(s, first)} is the ${d.alone}, activated alone.`;
   } else if (!first) {
     m.text = 'Click a unit to activate it. A Leader can bring the units within his Command radius.';
   } else if (leader) {
@@ -282,6 +287,10 @@ function activatePrompt(s: GameState, d: D<'activate'>, sel: Sel): PromptModel {
 function activateClickPiece(s: GameState, d: D<'activate'>, sel: Sel, id: PieceId): ClickResult {
   const first = sel.pieces[0];
   const fp = first ? s.pieces[first] : undefined;
+  if (d.alone) {
+    if (!d.units.includes(id)) return { notice: `Only an unbroken Leader not yet activated can be the ${d.alone}.` };
+    return { sel: { ...sel, pieces: first === id ? [] : [id] } };
+  }
   if (fp && isLeader(fp) && commandRadius(s, fp).includes(id)) {
     const on = sel.pieces.includes(id);
     return { sel: { ...sel, pieces: on ? sel.pieces.filter((x) => x !== id) : [...sel.pieces, id] } };
@@ -298,7 +307,7 @@ function activateClickHex(s: GameState, d: D<'activate'>, sel: Sel, hex: HexId):
   const here = piecesIn(s, hex).filter((id) => isUnit(s.pieces[id]));
   const first = sel.pieces[0];
   const fp = first ? s.pieces[first] : undefined;
-  if (fp && isLeader(fp)) {
+  if (fp && isLeader(fp) && !d.alone) {
     const radius = commandRadius(s, fp).filter((id) => here.includes(id));
     if (radius.length) {
       const allOn = radius.every((id) => sel.pieces.includes(id));

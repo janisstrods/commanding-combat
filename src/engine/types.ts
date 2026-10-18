@@ -759,6 +759,8 @@ export type Decision =
       units: PieceId[];
       /** For Recover / Rout: players that may be activated. */
       players?: Side[];
+      /** The chosen unit is activated alone, in this role (Artillery Request: 'Spotter'): no Leader brings others. */
+      alone?: string;
     }
   /** Fire: the next Fire Attack among the activated pieces, or done. */
   | {
