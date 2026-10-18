@@ -96,26 +96,32 @@ function Markers({ size }: { size: number }) {
 function States({ size }: { size: number }) {
   const squad = COUNTERS['German/Rifle Squad'] ?? Object.values(COUNTERS)[0];
   const leader = COUNTERS['American/Lt Wray'] ?? Object.values(COUNTERS).find((c) => c.kind === 'leader')!;
+  const team = COUNTERS['Russian/Line Team'] ?? squad;
+  const ussquad = COUNTERS['American/Paratroop Squad'] ?? squad;
+  const states: { label: string; type: CounterType; broken?: boolean; suppressed?: boolean; veteran?: boolean; selected?: boolean; dim?: boolean }[] = [
+    { label: 'suppressed', type: squad, suppressed: true },
+    { label: 'veteran', type: squad, veteran: true },
+    { label: 'suppressed and veteran', type: ussquad, suppressed: true, veteran: true },
+    { label: 'broken, suppressed', type: squad, broken: true, suppressed: true },
+    { label: 'broken, both', type: team, broken: true, suppressed: true, veteran: true },
+    { label: 'leader, veteran', type: leader, veteran: true },
+    { label: 'leader, broken, suppressed', type: leader, broken: true, suppressed: true },
+    { label: 'selected', type: leader, selected: true },
+    { label: 'dim', type: leader, dim: true },
+  ];
   return (
     <section>
       <h2 style={h2}>States</h2>
       <div style={grid}>
-        <Item label="suppressed">
-          <Counter type={squad} size={size} suppressed />
-        </Item>
-        <Item label="veteran">
-          <Counter type={squad} size={size} veteran />
-        </Item>
-        <Item label="both, broken">
-          <Counter type={squad} size={size} suppressed veteran broken />
-        </Item>
-        <Item label="selected">
-          <Counter type={leader} size={size} selected />
-        </Item>
-        <Item label="dim">
-          <Counter type={leader} size={size} dim />
-        </Item>
-        <Item label={`${counterLabel(squad)} at 48 px`}>
+        {states.map((st) => (
+          <Item key={st.label} label={st.label}>
+            <Counter type={st.type} size={size} broken={st.broken} suppressed={st.suppressed} veteran={st.veteran} selected={st.selected} dim={st.dim} />
+          </Item>
+        ))}
+        <Item label={`${counterLabel(squad)} at 36 and 48 px`}>
+          <Counter type={squad} size={36} />
+          <Counter type={squad} size={36} broken suppressed />
+          <Counter type={leader} size={36} veteran />
           <Counter type={squad} size={48} />
           <Counter type={leader} size={48} />
         </Item>
@@ -132,7 +138,7 @@ function CountersView() {
         <label style={{ fontSize: 13 }}>
           size{' '}
           <select value={size} onChange={(e) => setSize(Number(e.target.value))}>
-            {[48, 64, 80, 120].map((s) => (
+            {[48, 64, 80, 120, 160, 240].map((s) => (
               <option key={s} value={s}>
                 {s} px
               </option>

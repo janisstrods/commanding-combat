@@ -163,6 +163,12 @@ function Sandbags({ cx, cy, rx, ry, n, fill, edge }: { cx: number; cy: number; r
   return <>{out}</>;
 }
 
+/** A few tufts of grass (one path). */
+function Tufts({ pts, ink }: { pts: [number, number][]; ink: string }) {
+  const d = pts.map(([x, y]) => `M${x - 2.4} ${y} L${x - 1.4} ${y - 3} M${x} ${y} L${x} ${y - 3.8} M${x + 2.4} ${y} L${x + 1.4} ${y - 3}`).join('');
+  return <path d={d} stroke={ink} strokeWidth={1.1} strokeLinecap="round" fill="none" opacity={0.75} />;
+}
+
 function Flames({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
@@ -243,14 +249,18 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       art = (
         <>
           <Title text="FOXHOLES" ink={lk.ink} />
+          <Tufts pts={[[14, 62], [84, 56], [70, 70], [20, 34]]} ink="#6b6a3a" />
           {[
             [32, 42],
             [66, 38],
             [46, 62],
           ].map(([x, y], i) => (
             <g key={i}>
-              <Sandbags cx={x} cy={y} rx={12} ry={7.5} n={9} fill="#b49d6a" edge="#5a4a2a" />
-              <ellipse cx={x} cy={y} rx={8.5} ry={4.6} fill="#3a2e1d" />
+              <ellipse cx={x + 1.2} cy={y + 2.4} rx={14} ry={8.6} fill="#000" opacity={0.16} />
+              <Sandbags cx={x} cy={y} rx={12} ry={7.5} n={9} fill="#b8a26e" edge="#4a3c22" />
+              <ellipse cx={x} cy={y} rx={8.5} ry={4.6} fill="#2e2416" stroke="#1c160d" strokeWidth={0.9} />
+              <ellipse cx={x} cy={y + 1.2} rx={6.4} ry={2.8} fill="#1a140c" />
+              {i === 1 ? <path d={`M${x - 4} ${y + 0.6} C${x - 4} ${y - 4.4} ${x + 4} ${y - 4.4} ${x + 4} ${y + 0.6} Z`} fill="#4a5247" stroke="#1c160d" strokeWidth={0.8} /> : null}
             </g>
           ))}
           <CoverBadge v={3} ink={lk.ink} paper={lk.light} />
@@ -262,9 +272,13 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       art = (
         <>
           <Title text="TRENCH" ink={lk.ink} />
-          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#8c7a4c" strokeWidth={17} strokeLinejoin="miter" />
-          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#3a2e1d" strokeWidth={9} strokeLinejoin="miter" />
-          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#5a4a2a" strokeWidth={1.2} strokeDasharray="3 3" transform="translate(0 -6.5)" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#3b301d" strokeWidth={19.6} strokeLinejoin="miter" opacity={0.25} transform="translate(1 2)" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#4a3c22" strokeWidth={19} strokeLinejoin="miter" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#9a8656" strokeWidth={16.4} strokeLinejoin="miter" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#2e2416" strokeWidth={9} strokeLinejoin="miter" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#6b5530" strokeWidth={1.6} strokeDasharray="1.6 2.6" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#c9b27a" strokeWidth={3.4} strokeDasharray="5 1.4" strokeLinecap="round" transform="translate(0 -7.2)" />
+          <path d="M6 54 L22 38 L38 56 L56 36 L74 54 L94 38" fill="none" stroke="#4a3c22" strokeWidth={0.8} strokeDasharray="5 1.4" transform="translate(0 -5.4)" />
           <CoverBadge v={4} ink={lk.ink} paper={lk.light} />
         </>
       );
@@ -273,11 +287,15 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       art = (
         <>
           <Title text="PILLBOX" ink={lk.ink} />
-          <ellipse cx={50} cy={64} rx={36} ry={6} fill="#000" opacity={0.18} />
-          <path d="M18 64 L24 38 L76 38 L82 64 Z" fill="#a4a39a" stroke="#4a4a44" strokeWidth={1.6} />
-          <path d="M22 38 L30 30 L70 30 L78 38 Z" fill="#c2c1b8" stroke="#4a4a44" strokeWidth={1.6} />
-          <path d="M50 38 L50 64" stroke="#7a7a72" strokeWidth={1.2} />
-          <rect x={30} y={45} width={40} height={5.5} rx={1.5} fill="#1e1e1c" />
+          <ellipse cx={51} cy={65} rx={38} ry={6.4} fill="#000" opacity={0.2} />
+          <path d="M18 64 L24 38 L50 38 L50 64 Z" fill="#a9a89f" stroke="#3e3e39" strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M50 64 L50 38 L76 38 L82 64 Z" fill="#8e8d85" stroke="#3e3e39" strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M22 38 L30 30 L70 30 L78 38 Z" fill="#cbcac1" stroke="#3e3e39" strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M31 32.4 L69 32.4" stroke="#e4e3da" strokeWidth={1.4} />
+          <path d="M28 44 L72 44 L70 52 L30 52 Z" fill="#55554e" />
+          <rect x={31} y={45.6} width={38} height={5} rx={1.2} fill="#141412" />
+          <path d="M26 57 L30 60 L29 63 M71 41 L68 45 M60 57 L63 61" stroke="#5e5d56" strokeWidth={0.9} fill="none" />
+          <Tufts pts={[[14, 64], [86, 63]]} ink="#6b6a3a" />
           <CoverBadge v={5} ink={lk.ink} paper={lk.light} />
         </>
       );
@@ -286,11 +304,18 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       art = (
         <>
           <Title text="BUNKER" ink={lk.ink} />
-          <path d="M8 66 C14 36 30 28 50 28 C70 28 86 36 92 66 Z" fill="#7f8c4e" stroke="#3d4524" strokeWidth={1.6} />
-          {[36, 42, 48].map((y, i) => (
-            <path key={i} d={`M${22 + i * 2} ${y} L${78 - i * 2} ${y}`} stroke="#5b4a2c" strokeWidth={4} strokeLinecap="round" />
+          <ellipse cx={51} cy={66} rx={42} ry={5} fill="#000" opacity={0.2} />
+          <path d="M8 66 C14 36 30 28 50 28 C70 28 86 36 92 66 Z" fill="#7f8c4e" stroke="#33391e" strokeWidth={1.6} />
+          <path d="M18 44 C24 34 36 31 50 31 C62 31 72 33 78 38" fill="none" stroke="#a3ae6c" strokeWidth={2.2} strokeLinecap="round" opacity={0.8} />
+          <path d="M26 48 L74 48 L72 62 L28 62 Z" fill="#5b4a2c" stroke="#33391e" strokeWidth={1.2} />
+          {[30, 38, 46, 54, 62, 70].map((x) => (
+            <g key={x}>
+              <circle cx={x} cy={50.6} r={3.4} fill="#8a6c40" stroke="#3a2a14" strokeWidth={0.9} />
+              <circle cx={x} cy={50.6} r={1.4} fill="none" stroke="#5b4426" strokeWidth={0.6} />
+            </g>
           ))}
-          <rect x={30} y={53} width={40} height={6} rx={1.5} fill="#1e1e1c" />
+          <rect x={32} y={55.4} width={36} height={5} rx={1.2} fill="#141412" />
+          <Tufts pts={[[22, 41], [44, 30], [64, 32], [84, 54]]} ink="#4d5a28" />
           <CoverBadge v={6} ink={lk.ink} paper={lk.light} />
         </>
       );
@@ -306,6 +331,8 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
           <path d="M12 30 L12 70 M88 30 L88 70" stroke="#5b4a2c" strokeWidth={4} strokeLinecap="round" />
           {loops}
           <path d="M12 37 L88 37 M12 63 L88 63" stroke="#2f2f2f" strokeWidth={1.2} />
+          <path d={[18, 30, 42, 54, 66, 78].map((x) => `M${x - 1.6} 35.4 L${x + 1.6} 38.6 M${x + 1.6} 35.4 L${x - 1.6} 38.6 M${x + 4} 61.4 L${x + 7.2} 64.6 M${x + 7.2} 61.4 L${x + 4} 64.6`).join('')} stroke="#2f2f2f" strokeWidth={1} />
+          <path d="M12 30 L12 70 M88 30 L88 70" stroke="#c9b27a" strokeWidth={1.2} strokeLinecap="round" opacity={0.6} transform="translate(-1 0)" />
           <text x={50} y={91} fontFamily={FONT.title} fontWeight={600} fontSize={11} fill={lk.ink} textAnchor="middle" letterSpacing={0.3} {...fit('−1 FP · RANGE · MORALE', 11, 86, 'title', 0.3)}>
             −1 FP · RANGE · MORALE
           </text>
@@ -329,6 +356,9 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
               <rect x={x - 2.4} y={y - 10} width={4.8} height={4} rx={1} fill="#1e221a" />
             </g>
           ))}
+          <path d="M87 74 L87 56" stroke="#5b4a2c" strokeWidth={2.4} strokeLinecap="round" />
+          <path d="M87 41 L96 56 L78 56 Z" fill="#e8d24a" stroke="#2b2418" strokeWidth={1.4} strokeLinejoin="round" />
+          <path d="M87 46 L87 51 M87 53.2 L87 53.4" stroke="#2b2418" strokeWidth={2.2} strokeLinecap="round" />
           <Big v={v} x={60} y={94} size={26} ink={lk.ink} anchor="end" />
           <text x={63} y={94} fontFamily={FONT.title} fontWeight={600} fontSize={14} fill={lk.ink}>
             FP
@@ -369,6 +399,9 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       lk = look(INK.suppressed, '#1f1408');
       art = (
         <>
+          <rect x={7} y={7} width={86} height={14} rx={6} fill={lighten(INK.suppressed, 0.35)} opacity={0.55} />
+          <rect x={4.5} y={4.5} width={91} height={91} rx={4.5} fill="none" stroke={darken(INK.suppressed, 0.45)} strokeWidth={1.6} opacity={0.7} />
+          <path d="M24 22 L50 40 L76 22 M24 44 L50 62 L76 44" fill="none" stroke={darken(INK.suppressed, 0.5)} strokeWidth={9} strokeLinejoin="round" strokeLinecap="round" transform="translate(1.2 1.8)" opacity={0.5} />
           <path d="M24 22 L50 40 L76 22 M24 44 L50 62 L76 44" fill="none" stroke="#fff" strokeWidth={9} strokeLinejoin="round" strokeLinecap="round" />
           <Title text="SUPPRESSED" ink={lk.ink} y={91} size={15} max={88} />
         </>
@@ -378,7 +411,8 @@ export function MarkerBody({ kind, value, nation, side, selected, dim }: Omit<Ma
       lk = look(INK.veteran, '#f6f0dc');
       art = (
         <>
-          <path d={starPath(50, 44, 28)} fill={INK.gold} stroke={darken(INK.goldDark, 0.3)} strokeWidth={1.5} />
+          <path d="M26 14 L74 14 L74 44 C74 58 62 66 50 72 C38 66 26 58 26 44 Z" fill={darken(INK.veteran, 0.25)} stroke={INK.gold} strokeWidth={2.6} strokeLinejoin="round" />
+          <path d={starPath(50, 42, 20)} fill={INK.gold} stroke={darken(INK.goldDark, 0.3)} strokeWidth={1.4} />
           <Title text="VETERAN" ink={lk.ink} y={91} size={15} />
         </>
       );
