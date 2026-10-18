@@ -4,8 +4,8 @@
 //
 // General rules every handler follows (§E42): the receiver makes the choices unless the Event names someone else; what
 // is impossible is skipped; "a unit" means a unit of either side unless the Event says friendly or enemy; anything an
-// Event brings into play comes from the counter mix (pieces on the Track Display are in play). Counter-mix limits are
-// not in the game data (design/data-notes.md), so only the named Leaders (Heroes and Privates included) are unique.
+// Event brings into play comes from the counter mix (pieces on the Track Display are in play); what the mix has none
+// left of is not brought in (mix.ts, R-56).
 import { simultaneously, eliminate } from '../casualties';
 import { randomHex } from '../deck';
 import { COUNTERS, RSG } from '../data';
@@ -14,9 +14,10 @@ import { resolveMelees } from '../flow';
 import { distance, neighbours } from '../hex';
 import { withHolders } from '../melee';
 import { objectiveHexes, relocate } from '../objectives';
+import { FORT_NAMES, fortsLeft, mixHas, mixLeft } from '../mix';
 import { figures, stackLimit, FIGURES } from '../stats';
 import {
-  attachWeapon, counterType, hasUnitOf, isImpassableHex, isUnit, isWater, newPiece, placeFort, removeFort, removeSmoke,
+  attachWeapon, counterType, hasUnitOf, isImpassableHex, isUnit, isWater, placeFort, removeFort, removeSmoke, takeFromMix,
 } from '../state';
 import { enterBlock } from '../terrain';
 import { type FlowCtx, type FortKind, type GameState, type HexId, type Piece, type PieceId, type Side, other } from '../types';
@@ -92,35 +93,7 @@ export function* eventMelees(s: GameState, ctx: FlowCtx, holders: Holders): Gen 
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// The counter mix
-
-/** Counter types that exist once (§E42 counter-mix limits): the named Leaders, Heroes and Privates included. */
-export function isUnique(type: string): boolean {
-  return counterType(type).kind === 'leader';
-}
-
-/** Is a unique counter of `type` in play (anywhere but the counter mix: map, Time Track, Casualty Track, ...)? */
-export function inPlay(s: GameState, type: string): boolean {
-  for (const id in s.pieces) if (s.pieces[id].type === type && s.pieces[id].where !== 'mix') return true;
-  return false;
-}
-
-/**
- * A fresh piece of `type` for `side` taken from the counter mix (where 'mix', nowhere yet): a unique counter that is
- * back in the mix is reused; null if a unique counter is in play.
- */
-export function fromMix(s: GameState, type: string, side: Side): Piece | null {
-  if (isUnique(type)) {
-    if (inPlay(s, type)) return null;
-    for (const id in s.pieces) {
-      const p = s.pieces[id];
-      if (p.type !== type) continue;
-      Object.assign(p, { side, where: 'mix', hex: -1, space: -1, broken: false, suppressed: false, veteran: false, weapon: null, carrier: null });
-      return p;
-    }
-  }
-  return newPiece(s, type, side, 'mix');
-}
+// The counter mix (mix.ts)
 
 /** The counter type of `side`'s Hero (`hero`) or Private (`private`) in his nation's counter mix, or null. */
 export function specialLeader(s: GameState, side: Side, which: 'hero' | 'private'): string | null {
@@ -143,6 +116,11 @@ export function putUnit(s: GameState, ctx: FlowCtx, p: Piece, hex: HexId): void 
  * holds a Fortification, the marker is placed there. Units already in the hex are not affected now.
  */
 export function* fortEvent(s: GameState, ctx: FlowCtx, receiver: Side, name: string, kind: FortKind): Gen {
+  // R-56: with no marker left in the counter mix the Event does nothing (no Random Hex: it only says where it goes)
+  if (fortsLeft(s, kind) < 1) {
+    note(ctx, receiver, `${name}: the counter mix has no ${FORT_NAMES[kind]} left.`);
+    return;
+  }
   const hex = yield* randomHex(s, ctx, receiver);
   if (!placeFort(s, ctx, hex, kind)) note(ctx, receiver, `${name}: nothing can be placed in the Random Hex.`);
 }
@@ -215,8 +193,9 @@ export interface SupportOption {
 }
 
 /**
- * The items of `side`'s Support Table column `roll` available in the scenario year: Radios only if `radios`; named
- * Leaders only while they are in the counter mix (each Leader of an "A or B" row is a separate option).
+ * The items of `side`'s Support Table column `roll` available in the scenario year: Radios only if `radios`; only
+ * items whose every counter the mix still has (mix.ts, R-56: named Leaders not in play; each Leader of an "A or B" row
+ * is a separate option).
  */
 export function supportOptions(s: GameState, side: Side, roll: number, radios: boolean): SupportOption[] {
   const table = RSG.support[s.players[side].nation];
@@ -229,16 +208,18 @@ export function supportOptions(s: GameState, side: Side, roll: number, radios: b
     if (item.kind === 'radio') {
       if (!radios) continue;
       const radio = Object.keys(item.pieces)[0];
-      if (radio) out.push({ item: item.id, label: item.label, types: [radio], radio });
+      if (radio && mixLeft(s, radio) > 0) out.push({ item: item.id, label: item.label, types: [radio], radio });
       continue;
     }
     if (item.kind === 'leaderEither') {
-      for (const l of item.oneOf ?? []) if (!inPlay(s, l)) out.push({ item: item.id, label: counterType(l).name, types: [l] });
+      for (const l of item.oneOf ?? []) {
+        if (mixLeft(s, l) > 0) out.push({ item: item.id, label: counterType(l).name, types: [l] });
+      }
       continue;
     }
     const types: string[] = [];
     for (const [t, n] of Object.entries(item.pieces)) for (let i = 0; i < n; i++) types.push(t);
-    if (types.some((t) => isUnique(t) && inPlay(s, t))) continue;
+    if (!mixHas(s, types)) continue;
     const units = types.filter((t) => counterType(t).kind !== 'weapon');
     const weapons = types.filter((t) => counterType(t).kind === 'weapon');
     const o: SupportOption = { item: item.id, label: item.label, types: [...units, ...weapons] };
@@ -256,20 +237,23 @@ export function optionFigures(o: SupportOption): number {
   return typeFigures(o.types.filter((t) => counterType(t).kind !== 'weapon'));
 }
 
-/** Bring in an option's unit(s) in `hex`, the Weapon carried by its carrier. Returns the new pieces (units first). */
+/**
+ * Bring in an option's unit(s) in `hex`, the Weapon carried by its carrier, all taken from the counter mix (the
+ * option was offered because the mix has them, `supportOptions`). Returns the new pieces (units first).
+ */
 export function bringIn(s: GameState, ctx: FlowCtx, side: Side, o: SupportOption, hex: HexId): Piece[] {
   const made: Piece[] = [];
   let carrier: Piece | null = null;
   for (const t of o.types) {
     if (counterType(t).kind === 'weapon') continue;
-    const p = fromMix(s, t, side);
+    const p = takeFromMix(s, t, side);
     if (!p) continue;
     putUnit(s, ctx, p, hex);
     made.push(p);
     if (!carrier && t === o.carrier) carrier = p;
   }
-  if (o.weapon && carrier) {
-    const w = newPiece(s, o.weapon, side, 'carried');
+  const w = o.weapon && carrier ? takeFromMix(s, o.weapon, side, 'carried') : null;
+  if (w && carrier) {
     attachWeapon(s, w, carrier);
     made.push(w);
     ctx.emit({ kind: 'place', piece: w.id, hex });

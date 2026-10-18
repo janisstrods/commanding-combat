@@ -3,6 +3,7 @@
 // this one (stats, deck, casualties, objectives, fire, flow ...).
 import { CARDS, COUNTERS, OBJECTIVE_CHITS, SMOKE_MIX, deckOf, loadMap } from './data';
 import { NUM_HEXES } from './hex';
+import { fortsLeft, mixLeft } from './mix';
 import { shuffle } from './rng';
 import {
   type CardId,
@@ -185,6 +186,25 @@ export function newPiece(s: GameState, type: string, side: Side, where: Where = 
   return p;
 }
 
+/**
+ * A counter of `type` for `side` taken from the counter mix into `where` (default: still 'mix', for the caller to
+ * place), or null when the mix has none left (mix.ts, R-56). A named Leader back in the mix is the same counter again;
+ * any other type gets a fresh piece.
+ */
+export function takeFromMix(s: GameState, type: string, side: Side, where: Where = 'mix'): Piece | null {
+  if (mixLeft(s, type) < 1) return null;
+  if (counterType(type).kind === 'leader') {
+    for (const id in s.pieces) {
+      const p = s.pieces[id];
+      if (p.type !== type || p.where !== 'mix') continue;
+      const fresh = { hex: -1, space: -1, broken: false, suppressed: false, veteran: false, weapon: null, carrier: null };
+      Object.assign(p, { side, where, ...fresh });
+      return p;
+    }
+  }
+  return newPiece(s, type, side, where);
+}
+
 /** Put Weapon `w` in the hands of `unit` (which must have none). */
 export function attachWeapon(s: GameState, w: Piece, unit: Piece): void {
   if (w.carrier && s.pieces[w.carrier]) s.pieces[w.carrier].weapon = null;
@@ -258,9 +278,9 @@ export function canHoldFort(s: GameState, hex: HexId): boolean {
   return s.fort[hex] === null && !isWater(s.map, hex) && !s.blaze[hex];
 }
 
-/** Place a Fortification if the hex may hold it; returns whether it was placed. */
+/** Place a Fortification if the hex may hold it and the counter mix has one left (R-56); true if it was placed. */
 export function placeFort(s: GameState, ctx: FlowCtx, hex: HexId, kind: FortKind): boolean {
-  if (!canHoldFort(s, hex)) return false;
+  if (!canHoldFort(s, hex) || fortsLeft(s, kind) < 1) return false;
   s.fort[hex] = kind;
   ctx.emit({ kind: 'place', hex, marker: kind });
   return true;

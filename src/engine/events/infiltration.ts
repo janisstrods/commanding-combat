@@ -1,7 +1,7 @@
 // Infiltration (§E59): the receiver rolls on his Support Table (a roll inside an Event: it can be re-rolled with the
-// Initiative, it never triggers), takes one item of that column free (no Radio; available in the scenario year; a named
-// Leader only from the counter mix), then a Random Hex: the unit (with its Weapon) goes in or adjacent to it, stacking
-// observed, not impassable (an enemy-occupied hex is allowed: the melee comes at the end of the Event).
+// Initiative, it never triggers), takes one item of that column free (no Radio; available in the scenario year; only
+// what the counter mix still has, mix.ts / R-56), then a Random Hex: the unit (with its Weapon) goes in or adjacent to
+// it, stacking observed, not impassable (an enemy-occupied hex is allowed: the melee comes at the end of the Event).
 // Ruling: with no item to take, no Random Hex is determined (it only says where the item goes).
 import { randomHex, roll } from '../deck';
 import { choose } from '../decisions';

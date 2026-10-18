@@ -9,6 +9,7 @@ import { deployWithSplit } from './events/deploy';
 import { refill } from './deck';
 import { ask, choose, type Gen } from './decisions';
 import { resolveMelee } from './melee';
+import { teamsLeft } from './mix';
 import { window } from './reactions';
 import { ORDERS } from './registry';
 import { checkFixedWeapons } from './scenarioRules';
@@ -147,8 +148,9 @@ export function* endOfTurn(s: GameState, ctx: FlowCtx): Gen {
 
 /**
  * Overstacking (§8.2, R-48): in every hex where a player has more figures than the limit he may first Deploy one Squad
- * there for free, then eliminates units of his choice until the hex is legal. The inactive player first. These are real
- * eliminations (VP, Casualty Track, Surrender), judged together (both may surrender at once).
+ * there for free (if the counter mix has two Teams for it, R-56), then eliminates units of his choice until the hex is
+ * legal. The inactive player first. These are real eliminations (VP, Casualty Track, Surrender), judged together (both
+ * may surrender at once).
  */
 function* overstack(s: GameState, ctx: FlowCtx): Gen {
   yield* simultaneously(s, ctx, function* (c) {
@@ -161,7 +163,7 @@ function* overstack(s: GameState, ctx: FlowCtx): Gen {
       for (const hex of [...hexes].sort((a, b) => a - b)) {
         if (figures(s, hex, side) <= stackLimit(s, hex)) continue;
         const squads = here(s, hex, side).filter((p) => typeOf(p).kind === 'squad');
-        if (squads.length) {
+        if (squads.length && teamsLeft(s, side) >= 2) {
           const pick = yield* choose(s, c, side, 'overstackDeploy', squads.map((p) => ({ piece: p.id })), 0, 1, { hex });
           if (pick.length) yield* deployWithSplit(s, c, side, squads[pick[0]].id);
         }
