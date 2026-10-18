@@ -1,4 +1,5 @@
-// The pure parts of the terrain painting: the terrain field, linear features and building blocks.
+// The pure parts of the terrain painting: the terrain field, linear features and building blocks, and the ground and
+// vegetation of a painting (the same in any part of it: the zoomed-in board's tiles).
 import { describe, expect, it } from 'vitest';
 import { MAP_IDS, loadMap } from '../../src/engine/data';
 import { ALL_HEXES, centre, hexAt, hexsideKey, parseHex, type HexSide } from '../../src/engine/hex';
@@ -6,7 +7,9 @@ import { MASK, type MapDef, type TerrainMask } from '../../src/engine/types';
 import { BOUNDS } from '../../src/ui/board/geometry';
 import { areaClasses, cellCentre, cellIndexAt, components, contourSegments, smoothLevels, terrainField, type TerrainField } from '../../src/ui/board/paint/field';
 import { allLinearPieces, blockCovers, bridgeBlocks, buildingBlocks, linearPieces, orientedBox, type Block } from '../../src/ui/board/paint/features';
+import { groundPixels, preparePainting, sceneOf } from '../../src/ui/board/paint/painter';
 import { simulateMask } from '../../src/ui/board/paint/simulate';
+import { paintingSize, type PixelRect } from '../../src/ui/board/paint/tiles';
 
 const near = (a: { x: number; y: number }, b: { x: number; y: number }, eps = 1e-6) => Math.hypot(a.x - b.x, a.y - b.y) < eps;
 
@@ -265,4 +268,48 @@ describe('every map', () => {
       }
     });
   }
+});
+
+describe('painting in parts', () => {
+  /** Rows of the part `r` of a whole-painting buffer of width `w` (`n` bytes per pixel). */
+  const partOf = (whole: ArrayLike<number>, w: number, r: PixelRect, n: number) => {
+    const out: number[] = [];
+    for (let y = r.y; y < r.y + r.h; y++) for (let i = (y * w + r.x) * n; i < (y * w + r.x + r.w) * n; i++) out.push(whole[i]);
+    return out;
+  };
+
+  it('paints any rectangle of the ground as that part of the whole ground', () => {
+    for (const map of [loadMap('7'), loadMap('5w'), { ...loadMap('2'), mask: undefined }]) {
+      const g = preparePainting(map);
+      const ppu = 12;
+      const { w, h } = paintingSize(ppu);
+      const whole = groundPixels(g, ppu, { x: 0, y: 0, w, h });
+      for (const r of [
+        { x: 0, y: 0, w: 40, h: 30 },
+        { x: 101, y: 57, w: 64, h: 64 },
+        { x: w - 33, y: h - 20, w: 33, h: 20 },
+      ]) {
+        const part = groundPixels(g, ppu, r);
+        expect(Array.from(part.data), `map ${map.id} ${r.x},${r.y}`).toEqual(partOf(whole.data, w, r, 4));
+        expect(Array.from(part.cls)).toEqual(partOf(whole.cls, w, r, 1));
+      }
+    }
+  });
+
+  it('places the vegetation by the ground classes, whether or not the whole ground was painted first', () => {
+    const kinds = { shrubs: 0, reeds: 0, orchardTrees: 0, crowns: 0 };
+    const ppu = 16;
+    const { w, h } = paintingSize(ppu);
+    for (const map of [...MAP_IDS.map((id) => loadMap(id)), { ...loadMap('9'), mask: undefined }]) {
+      const g = preparePainting(map);
+      const painted = sceneOf(g, ppu, groundPixels(g, ppu, { x: 0, y: 0, w, h }).cls);
+      const worked = sceneOf(g, ppu);
+      for (const k of Object.keys(kinds) as (keyof typeof kinds)[]) {
+        expect(worked[k], `map ${map.id} ${k}`).toEqual(painted[k]);
+        kinds[k] += painted[k].length;
+      }
+      expect(worked.classAt(3.3, 4.4)).toBe(painted.classAt(3.3, 4.4));
+    }
+    for (const n of Object.values(kinds)) expect(n).toBeGreaterThan(0);
+  });
 });
