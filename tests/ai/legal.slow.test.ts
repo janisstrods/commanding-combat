@@ -42,6 +42,19 @@ describe('the AI answers legally', () => {
     for (const k of ['turn', 'activate', 'fire', 'move', 'react', 'reroll', 'choose', 'deploy'] as const) expect(kinds.has(k)).toBe(true);
   });
 
+  it('at Elite (look-ahead and the opponent\'s reply in its simulations) and Green', () => {
+    const d = new GameDriver(newGame(scenario('2'), 9));
+    const mem: Record<Side, AiMemory> = { axis: newMemory(5), allied: newMemory(6) };
+    const level = { axis: 'elite', allied: 'green' } as const;
+    for (let n = 0; d.pending && n < 400; n++) {
+      const p = d.pending;
+      const a = chooseAnswer(redact(d.state, p.side), p, { side: p.side, level: level[p.side], timeBudgetMs: 80, seed: 3 }, mem[p.side]).answer;
+      expect(answerError(d.state, p, a)).toBeNull();
+      expect(d.answer(a)).toBe(true);
+    }
+    expect(mem.axis.fallbacks + mem.allied.fallbacks).toBe(0);
+  });
+
   it('in a whole game it plays against itself (Line on both sides, short budget)', () => {
     const d = new GameDriver(newGame(scenario('1'), 5));
     const mem: Record<Side, AiMemory> = { axis: newMemory(3), allied: newMemory(4) };

@@ -9,7 +9,7 @@ import { moveAnswerError, moveAnswers } from '../engine/orders/move';
 import { cloneState, isLeader, isUnit } from '../engine/state';
 import type { Answer, Decision, GameState, HexId, Piece, PieceId, Side } from '../engine/types';
 import { other } from '../engine/types';
-import { cohesionOf, evaluate, objectiveTerm, weightsFor, type Weights } from './evaluate';
+import { cohesionOf, evaluate, meleeThreat, objectiveTerm, weightsFor, type Weights } from './evaluate';
 import type { LevelCfg } from './levels';
 import { fireOn, fitsStack, isFireAction, pHolds, reachable, sideShooters, stackLoss, unitsOnMap, type HexFire } from './tactics';
 import { pieceValue } from './values';
@@ -128,7 +128,13 @@ function localScore(work: GameState, group: Piece[], b: Board): number {
     }
   }
   const w = b.w;
-  return -w.exposure * 1.1 * exposure + w.threat * 0.8 * (t1 + 0.3 * t2) + w.objective * objectiveTerm(work, b.me) + w.cohesion * cohesionOf(work, b.me);
+  return (
+    -w.exposure * 1.1 * exposure +
+    w.threat * 0.8 * (t1 + 0.3 * t2) +
+    w.objective * objectiveTerm(work, b.me) +
+    w.cohesion * cohesionOf(work, b.me) +
+    (w.melee ? w.melee * (meleeThreat(work, b.me) - meleeThreat(work, other(b.me))) : 0)
+  );
 }
 
 /** The best destinations for `group` (in `work`), each scored by `localScore` − path risk; `stay` is the score now. */

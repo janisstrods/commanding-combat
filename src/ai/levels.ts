@@ -27,19 +27,21 @@ export interface LevelCfg {
   reroll: boolean;
   /** Play the rest of the Turn (greedy) after the candidate Order in each simulation. */
   lookahead: boolean;
+  /** Then play the opponent's reply Turn (greedy) before judging. */
+  reply: boolean;
 }
 
 export const LEVELS: Record<AiLevel, LevelCfg> = {
   green: {
-    level: 'green', budgetMs: 600, worlds: 3, minSims: 1, maxCands: 6, fireActs: 2, moveActs: 3, moveVariants: 1,
-    noise: 2, sloppy: 0.4, reroll: false, lookahead: false,
+    level: 'green', budgetMs: 600, worlds: 1, minSims: 1, maxCands: 4, fireActs: 2, moveActs: 2, moveVariants: 1,
+    noise: 4, sloppy: 0.6, reroll: false, lookahead: false, reply: false,
   },
   line: {
-    level: 'line', budgetMs: 2500, worlds: 32, minSims: 4, maxCands: 12, fireActs: 4, moveActs: 6, moveVariants: 2,
-    noise: 0, sloppy: 0, reroll: true, lookahead: false,
+    level: 'line', budgetMs: 2500, worlds: 48, minSims: 6, maxCands: 12, fireActs: 4, moveActs: 6, moveVariants: 2,
+    noise: 0, sloppy: 0, reroll: true, lookahead: false, reply: false,
   },
   elite: {
-    level: 'elite', budgetMs: 4000, worlds: 48, minSims: 6, maxCands: 18, fireActs: 6, moveActs: 9, moveVariants: 3,
-    noise: 0, sloppy: 0, reroll: true, lookahead: true,
+    level: 'elite', budgetMs: 4000, worlds: 96, minSims: 10, maxCands: 18, fireActs: 6, moveActs: 9, moveVariants: 3,
+    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: true,
   },
 };

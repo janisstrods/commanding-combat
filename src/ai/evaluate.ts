@@ -15,8 +15,9 @@ import { chitValue, objectiveValue } from '../engine/objectives';
 import { isLeader, isUnit, typeOf } from '../engine/state';
 import { type GameState, type HexId, type Piece, type Posture, type Side, UNKNOWN_CARD, other } from '../engine/types';
 import { HAND_WEIGHT, cardCtx, handValue } from './cards';
-import { fireOn, sideShooters, stackLoss } from './tactics';
-import { GAME_SCORE, materialOf, surrenderPressure } from './values';
+import { contestOdds } from './dice';
+import { fireOn, meleeStrength, pHolds, sideShooters, stackLoss } from './tactics';
+import { GAME_SCORE, materialOf, pieceValue, surrenderPressure } from './values';
 
 export { surrenderPressure } from './values';
 
@@ -31,6 +32,7 @@ export interface Weights {
   hand: number;
   cohesion: number;
   initiative: number;
+  melee: number;
 }
 
 const BASE: Weights = {
@@ -44,6 +46,7 @@ const BASE: Weights = {
   hand: HAND_WEIGHT,
   cohesion: 0.12,
   initiative: 0.6,
+  melee: 0.3,
 };
 
 /** Posture changes: attackers push for objectives, defenders guard against exposure. */
@@ -58,14 +61,16 @@ const POSTURE: Record<Posture, Partial<Weights>> = {
  * and a side that is behind on VP pushes harder for the objectives, and minds exposure less, as time runs out.
  */
 export function weightsFor(s: GameState, me: Side, patch?: Partial<Weights>): Weights {
-  const w = { ...BASE, ...POSTURE[s.players[me].posture], ...patch };
+  const w = { ...BASE, ...POSTURE[s.players[me].posture] };
   const margin = projectedMargin(s, me);
-  if (margin < 0 && !patch) {
+  if (margin < 0) {
     const late = Math.max(0, Math.min(1, (s.time + 1) / Math.max(1, s.suddenDeath)));
     const behind = Math.min(1, -margin / 8);
     w.objective *= 1 + 0.6 * late * behind;
     w.exposure *= 1 - 0.3 * late * behind;
   }
+  // a patch (tuning experiments) multiplies the weights
+  if (patch) for (const k of Object.keys(patch) as (keyof Weights)[]) w[k] *= patch[k]!;
   return w;
 }
 
@@ -99,6 +104,7 @@ export interface EvalParts {
   hand: number;
   cohesion: number;
   initiative: number;
+  melee: number;
 }
 
 export interface EvalOpts {
@@ -117,7 +123,7 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
     const won = s.winner === me;
     const m = projectedMargin(s, me);
     const total = (won ? GAME_SCORE : -GAME_SCORE) + 0.5 * m;
-    return { total, margin: m, material: 0, surrender: 0, time: 0, exposure: 0, threat: 0, objective: 0, hand: 0, cohesion: 0, initiative: 0 };
+    return { total, margin: m, material: 0, surrender: 0, time: 0, exposure: 0, threat: 0, objective: 0, hand: 0, cohesion: 0, initiative: 0, melee: 0 };
   }
   const margin = projectedMargin(s, me);
   const material = materialOf(s, me) - materialOf(s, opp);
@@ -138,6 +144,7 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
   const threat = th * (myTurnLeft ? 1.25 : 0.8);
 
   const objective = objectiveTerm(s, me) - objectiveTerm(s, opp);
+  const melee = w.melee ? meleeThreat(s, me) - meleeThreat(s, opp) * (myTurnLeft ? 0.7 : 1) : 0;
   const hand =
     opts.hand === false ? 0 : handValue(s, me, cardCtx(s, me)) - (knowsHand(s, opp) ? 0.5 * handValue(s, opp, cardCtx(s, opp)) : 0);
   const cohesion = cohesionOf(s, me) - cohesionOf(s, opp);
@@ -151,10 +158,11 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
     w.exposure * exposure +
     w.threat * threat +
     w.objective * objective +
+    w.melee * melee +
     w.hand * hand +
     w.cohesion * cohesion +
     w.initiative * initiative;
-  return { total, margin, material, surrender, time, exposure, threat, objective, hand, cohesion, initiative };
+  return { total, margin, material, surrender, time, exposure, threat, objective, hand, cohesion, initiative, melee };
 }
 
 function knowsHand(s: GameState, side: Side): boolean {
@@ -219,6 +227,7 @@ export function objectiveTerm(s: GameState, side: Side): number {
     let v = base + Math.max(0, objectiveValue(s, i + 1));
     for (const c of s.players[side].secretChits) v += chitValue(c, i + 1);
     // the nearest unit counts fully, the next one a third: holding it in strength, or closing in with more than one
+    // (A/B: counting a third unit as well lost 9-17)
     let c1 = 0;
     let c2 = 0;
     for (const u of units) {
@@ -249,4 +258,38 @@ export function cohesionOf(s: GameState, side: Side): number {
   let n = 0;
   for (const u of others) if (leaders.some((l) => distance(l.hex, u.hex) <= typeOf(l).front.command)) n++;
   return n;
+}
+
+/**
+ * What `side` threatens by melee: for each enemy stack next to its good-order units, the expected gain of an Advance
+ * into it (win chance × what the enemy loses, less the risk to the attackers), when positive, times the chance it holds
+ * an Advance card.
+ */
+export function meleeThreat(s: GameState, side: Side): number {
+  const opp = other(side);
+  const pAdv = pHolds(s, side, (c) => CARDS[c]?.order === 'Advance');
+  if (pAdv <= 0) return 0;
+  const enemy = new Map<HexId, Piece[]>();
+  const mine: Piece[] = [];
+  for (const id in s.pieces) {
+    const p = s.pieces[id];
+    if (p.where !== 'map' || !isUnit(p)) continue;
+    if (p.side === opp) enemy.set(p.hex, [...(enemy.get(p.hex) ?? []), p]);
+    else if (!p.broken) mine.push(p);
+  }
+  let best = 0;
+  let total = 0;
+  for (const [hex, foes] of enemy) {
+    const ours = mine.filter((u) => distance(u.hex, hex) === 1 && !enemy.has(u.hex));
+    if (!ours.length) continue;
+    const o = contestOdds(meleeStrength(s, ours), meleeStrength(s, foes));
+    const win = o.win + 0.5 * o.tie;
+    const gain = win * foes.reduce((n, f) => n + pieceValue(s, f) + 2, 0) - (1 - win) * 0.6 * ours.reduce((n, f) => n + pieceValue(s, f) + 2, 0);
+    if (gain > 0) {
+      total += gain;
+      best = Math.max(best, gain);
+    }
+  }
+  // one Advance a Turn, mostly: the best one counts fully, the others a little
+  return pAdv * (best + 0.25 * (total - best));
 }

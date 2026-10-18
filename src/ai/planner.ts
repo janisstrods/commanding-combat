@@ -45,7 +45,7 @@ export interface PlanResult {
 const now = (): number => (globalThis.performance ? globalThis.performance.now() : Date.now());
 
 /** The candidate plans for the Turn decision `d` in view `s`. */
-export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard = false): Candidate[] {
+export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard = false, tune?: Partial<Weights>): Candidate[] {
   const me = d.side;
   const cc = cardCtx(s, me);
   const turn = s.turn.number;
@@ -66,7 +66,7 @@ export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard 
         break;
       }
       case 'Move': {
-        const plans = planMoves(s, me, level);
+        const plans = planMoves(s, me, level, tune);
         for (const p of plans.slice(0, level.moveActs)) {
           out.push(mk(card, 'Move', `Move ${Object.keys(p.dest).length} unit(s)`, p.gain, { units: p.units, dest: p.dest, paths: p.paths }));
         }
@@ -278,7 +278,19 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
   const stop = (d: Decision) => d.kind === 'turn' && !first && (d.side !== me || !level.lookahead);
   const r = drive(s, (ctx) => turnFlow(s, ctx), policy, rng, { stop, maxSteps: 600 });
   // the Turn is over: the opponent acts next (the evaluation weighs his fire first)
-  if (r.done && s.phase === 'play') nextTurn(s);
+  if (r.done && s.phase === 'play') {
+    nextTurn(s);
+    if (level.reply) {
+      // Elite: play the opponent's reply too (his greedy Turn: his best Fire, else a pass), then judge
+      const opp = other(me);
+      const his: PolicyCtx = newPolicyCtx(opp, level, rng);
+      const reply = (st: GameState, d: Decision): Answer =>
+        d.kind === 'turn' && d.side === opp ? quickTurn(st, d, his) : policyAnswer(st, d, d.side === me ? mine : his);
+      mine.plan = null;
+      const r2 = drive(s, (ctx) => turnFlow(s, ctx), reply, rng, { maxSteps: 500 });
+      if (r2.done && s.phase === 'play') nextTurn(s);
+    }
+  }
   return evaluate(s, me, weights);
 }
 
@@ -288,11 +300,12 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
  */
 export function planTurn(
   view: GameState, d: TurnD, level: LevelCfg, rng: Rng, budgetMs: number, deterministic = false, mustDiscard = false,
+  tune?: Partial<Weights>,
 ): PlanResult {
   const t0 = now();
   const me = d.side;
-  const cands = candidates(view, d, level, mustDiscard);
-  const weights = weightsFor(view, me);
+  const cands = candidates(view, d, level, mustDiscard, tune);
+  const weights = weightsFor(view, me, tune);
   if (cands.length === 1) return { answer: cands[0].first, plan: cands[0].plan, label: cands[0].label, sims: 0, scores: [] };
   const worlds: GameState[] = [];
   const seeds: number[] = [];

@@ -10,6 +10,7 @@ import { answerError } from '../engine/decisions';
 import { redact } from '../engine/state';
 import type { Answer, Decision, GameState, HexId, PieceId, Side } from '../engine/types';
 import type { DeployMemo } from './deploy';
+import type { Weights } from './evaluate';
 import { isViewFor } from './determinize';
 import { LEVELS, type AiLevel } from './levels';
 import { planTurn } from './planner';
@@ -30,6 +31,8 @@ export interface AiOptions {
   seed?: number;
   /** Limit the search by simulation counts only, not by the clock (reproducible decisions for a seed; tests). */
   deterministic?: boolean;
+  /** Tuning experiments: factors on the evaluation weights (evaluate.ts Weights). */
+  tune?: Partial<Weights>;
 }
 
 /** Per-game memory of one AI player: plain data (structured-clone safe), kept by the caller between decisions. */
@@ -97,13 +100,13 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
         stalled = sig === mem.turnSig;
         mem.turnSig = sig;
       }
-      const r = planTurn(v, d, level, rng, opts.timeBudgetMs ?? level.budgetMs, opts.deterministic, stalled);
+      const r = planTurn(v, d, level, rng, opts.timeBudgetMs ?? level.budgetMs, opts.deterministic, stalled, opts.tune);
       answer = r.answer;
       pc.plan = r.plan;
       sims = r.sims;
       label = r.label;
       alternatives = r.scores.slice(0, 6);
-      say = speak(v, d, r.answer, mem, rng);
+      say = speak(v, r.answer, mem, rng);
     } else {
       answer = policyAnswer(v, d, pc);
     }
@@ -126,7 +129,7 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
 }
 
 /** An occasional one-line remark at the start of an Order (British spelling; at most one per Turn). */
-function speak(s: GameState, d: Extract<Decision, { kind: 'turn' }>, a: Answer, mem: AiMemory, rng: Rng): string | undefined {
+function speak(s: GameState, a: Answer, mem: AiMemory, rng: Rng): string | undefined {
   if (mem.saidTurn === s.turn.number || !rng.chance(0.25)) return undefined;
   mem.saidTurn = s.turn.number;
   const lines: Record<string, string[]> = {
@@ -140,6 +143,5 @@ function speak(s: GameState, d: Extract<Decision, { kind: 'turn' }>, a: Answer, 
   };
   const key = a.kind === 'order' ? a.order : a.kind === 'pass' ? 'pass' : '';
   const list = lines[key];
-  void d;
   return list ? rng.pick(list) : undefined;
 }
