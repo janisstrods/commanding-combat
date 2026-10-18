@@ -233,6 +233,21 @@ describe('exit off the enemy edge (§7.2.1, R-30)', () => {
     expect(s.pieces.p1.broken).toBe(false);
   });
 
+  it('an exited Hero goes back to the counter mix: no VP, no Time Track space (§3.4, audit)', () => {
+    const s = build({ pieces: [{ type: 'German/Dietel (Hero)', hex: 'E1', weapon: 'German/LMG' }, { type: 'German/Rifle Squad', hex: 'H5' }, { type: 'American/Line Squad', hex: 'J5' }] });
+    const r = run(s, (ctx) => exitUnits(s, ctx, ['p0']), passive);
+    expect(r.decisions.filter((d) => d.kind === 'choose')).toEqual([]);
+    expect(s.pieces.p0).toMatchObject({ where: 'mix', space: -1 });
+    expect(s.pieces.p1).toMatchObject({ where: 'mix', carrier: null });
+    expect(s.vp).toBe(0);
+    // with other units: they go to the Time Track, the Hero does not
+    const t = build({ pieces: [{ type: 'German/Dietel (Hero)', hex: 'E1' }, { type: 'German/Rifle Squad', hex: 'E1' }, { type: 'German/Rifle Squad', hex: 'H5' }], time: 1 });
+    run(t, (ctx) => exitUnits(t, ctx, ['p0', 'p1']), script([{ kind: 'choose', items: [0] }]));
+    expect(t.pieces.p0.where).toBe('mix');
+    expect(t.pieces.p1).toMatchObject({ where: 'time', space: 2 });
+    expect(t.vp).toBe(2);
+  });
+
   it('the last unit exiting ends the game: scored, VP decide', () => {
     const s = build({ pieces: [{ type: 'German/Rifle Squad', hex: 'E1' }, { type: 'American/Line Squad', hex: 'G5' }], vp: -1, allied: { secretChits: ['A'] }, control: ['allied', null, null, null, null] });
     expect(over(s, (ctx) => exitUnits(s, ctx, ['p0']))).toEqual({ winner: 'axis', reason: 'exit' });

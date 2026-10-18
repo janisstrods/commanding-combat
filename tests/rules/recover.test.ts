@@ -7,7 +7,8 @@ import { activationCandidates } from '../../src/engine/activation';
 import { CARDS } from '../../src/engine/data';
 import { routTargets } from '../../src/engine/orders/rout';
 import type { Decision, GameEvent } from '../../src/engine/types';
-import { build, card, cardsWhere, rolls, start, type BuildSpec, type Stepper } from '../support/build';
+import { rallyRoll } from '../../src/engine/orders/recover';
+import { build, card, cardsWhere, rolls, run, script, start, type BuildSpec, type Stepper } from '../support/build';
 
 const G = 'German';
 const RECOVER = cardsWhere(G, { order: 'Recover' });
@@ -98,5 +99,18 @@ describe('Recover (§O22)', () => {
     const s = build({ pieces: [{ type: 'German/Rifle Squad', hex: 'E5', broken: true }], axis: { hand: [ROUT, RECOVER[0]] } });
     s.turn.playerActivations.push('axis>axis');
     expect(orderOptions(s, 'axis')).toEqual([]);
+  });
+});
+
+describe('a Squad Deployed by its own Rally roll\'s Event (R-53, audit)', () => {
+  it('the pending Rally applies to both Teams', () => {
+    // broken German Rifle Squad in Woods: Morale 7 + 2; the roll is 7 with Event!, the Event Deploys the Squad
+    const trig = card(G, { sum: 7, trigger: 'Event' });
+    const dep = card(G, { event: 'Deploy' }, [trig]);
+    const s = build({ map: { terrain: { E5: 'Woods' } }, pieces: [{ type: 'German/Rifle Squad', hex: 'E5', broken: true }], axis: { top: [trig, dep] } });
+    run(s, (ctx) => rallyRoll(s, ctx, 'p0'), script([{ kind: 'choose', items: [0] }]));
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    expect(teams).toHaveLength(2);
+    expect(teams.map((t) => [t.where, t.broken])).toEqual([['map', false], ['map', false]]);
   });
 });

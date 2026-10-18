@@ -1,11 +1,11 @@
 // Commissar (§E50, Russian deck only): the Russian player must pick one of his broken units and roll for it (a roll
-// inside an Event: it can be re-rolled with the Initiative, it never triggers): above its current Morale it is
-// eliminated, otherwise it rallies.
+// inside an Event: it can be re-rolled with the Initiative, it never triggers): above its current Morale (with the Cover
+// of its hex, which counts for every purpose, §T78.3; taken at the roll) it is eliminated, otherwise it rallies.
 import { eliminate, rally } from '../casualties';
 import { roll } from '../deck';
 import { choose } from '../decisions';
 import type { EventHandler } from '../registry';
-import { currentStats } from '../stats';
+import { rollMorale } from '../orders/recover';
 import { mapUnits, note } from './helpers';
 
 export const commissarEvent: EventHandler = function* (s, ctx, receiver) {
@@ -20,9 +20,10 @@ export const commissarEvent: EventHandler = function* (s, ctx, receiver) {
   }
   const [i] = yield* choose(s, ctx, receiver, 'commissar', units.map((p) => ({ piece: p.id })), 1, 1);
   const id = units[i].id;
+  const morale = rollMorale(s, id);
   const r = yield* roll(s, ctx, receiver, 'eventRoll');
   const p = s.pieces[id];
   if (p.where !== 'map' || !p.broken) return; // a Time advance on the last card may have ended in a melee
-  if (r.sum > currentStats(s, id).morale) yield* eliminate(s, ctx, id, 'event');
+  if (r.sum > morale) yield* eliminate(s, ctx, id, 'event');
   else rally(s, ctx, id);
 };

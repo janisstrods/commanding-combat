@@ -17,7 +17,7 @@ import { window } from './reactions';
 import { meleeBonus } from './scenarioRules';
 import { currentStats } from './stats';
 import { isUnit, typeOf } from './state';
-import { type FlowCtx, type GameState, type HexId, type PieceId, type Side, other } from './types';
+import { type FlowCtx, type GameState, type HexId, type PieceId, type Side, SIDES, other } from './types';
 
 /** What melee.ts carries in the flow ctx (FlowCtx is spread into every deeper ctx, so these travel with it). */
 export interface MeleeCtx extends FlowCtx {
@@ -82,8 +82,22 @@ export function* resolveMelee(s: GameState, ctx: FlowCtx, hex: HexId): Gen {
   }
   const fp: Record<Side, number> = { axis: meleeFp(s, parts.axis), allied: meleeFp(s, parts.allied) };
   const totals: Record<Side, number> = { ...fp };
+  // a participant replaced during the rolls (Light Wounds after a trigger's break, a Deploy Event) is still in the
+  // melee as its replacement(s) (§E52, §A36)
+  const rolling: MeleeCtx = {
+    ...c,
+    emit: (e) => {
+      if (e.kind === 'replace') {
+        for (const side of SIDES) {
+          const i = parts[side].indexOf(e.piece);
+          if (i >= 0) parts[side].splice(i, 1, ...e.by);
+        }
+      }
+      c.emit(e);
+    },
+  };
   for (const side of [other(s.active), s.active]) {
-    const r = yield* roll(s, c, side, 'melee');
+    const r = yield* roll(s, rolling, side, 'melee');
     totals[side] = fp[side] + r.sum + meleeBonus(s, side);
     if (!stillIn(s, parts.axis, hex).length || !stillIn(s, parts.allied, hex).length) {
       ctx.emit({ kind: 'log', text: `The melee in ${where} is over: one side has no units left (R-05).` });

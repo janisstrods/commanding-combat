@@ -278,3 +278,47 @@ describe('a Squad Deployed by an Event during its own Defense roll (R-53, §E52)
     expect(teams.map((t) => [t.broken, t.suppressed])).toEqual([[false, false], [false, false]]);
   });
 });
+
+describe('the Defense result is fixed at the roll, before its trigger (§1.9.1 rule 1, audit)', () => {
+  // the Allied Line Squad (FP 6) + 8 = 14 against the German Rifle Squad (Morale 7, open) + 7 (a 3-4 with Event!) = 14
+  const setup = (event: 'Battle Harden' | 'Cower' | 'Blaze', defenderHex = 'E2', attack: [number, number] = [2, 6]) => {
+    const ev = card(G, { white: 3, red: 4, trigger: 'Event' });
+    const e = card(G, { event }, [ev]);
+    const top = [ev, e];
+    if (event === 'Blaze') top.push(card(G, { hex: defenderHex }, top));
+    return build({
+      pieces: [{ type: 'American/Line Squad', hex: 'E6' }, { type: 'German/Rifle Squad', hex: defenderHex }],
+      allied: { top: rolls(A, [attack]) },
+      axis: { top },
+      active: 'allied',
+    });
+  };
+  const fire = (s: GameState, target: string) =>
+    run(s, (ctx) => fireAttack(s, ctx, 'allied', { pieces: ['p0'], target: H(target) }, 'order'), (d, st) =>
+      d.kind === 'choose' ? { kind: 'choose', items: Array.from({ length: Math.max(1, d.min) }, (_, i) => i) } : passive(d, st));
+
+  it('Battle Harden in the trigger (Veteran, Morale +1) does not turn a tie into a hold', () => {
+    const s = setup('Battle Harden');
+    const r = fire(s, 'E2');
+    expect(s.pieces.p1.veteran).toBe(true);
+    expect(r.events.find((e) => e.kind === 'defense')).toMatchObject({ total: 14, attack: 14, result: 'suppress' });
+    expect(s.pieces.p1).toMatchObject({ suppressed: true, broken: false });
+  });
+
+  it('Cower in the trigger (Suppressed, Morale −1) does not turn a tie into a break', () => {
+    const s = setup('Cower');
+    const r = fire(s, 'E2');
+    expect(r.events.find((e) => e.kind === 'defense')).toMatchObject({ total: 14, attack: 14, result: 'suppress' });
+    expect(s.pieces.p1.broken).toBe(false);
+  });
+
+  it('a unit a Blaze moves out of the hex during its roll still takes its result where it is now', () => {
+    const s = setup('Blaze', 'E3', [3, 6]); // 6 + 9 = 15 > 14
+    const r = fire(s, 'E3');
+    expect(s.blaze[H('E3')]).toBe(true);
+    expect(s.pieces.p1.where).toBe('map');
+    expect(s.pieces.p1.hex).not.toBe(H('E3'));
+    expect(r.events.find((e) => e.kind === 'defense')).toMatchObject({ total: 14, attack: 15, result: 'break' });
+    expect(s.pieces.p1.broken).toBe(true);
+  });
+});

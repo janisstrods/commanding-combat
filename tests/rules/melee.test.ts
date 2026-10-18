@@ -9,7 +9,8 @@ import { meleeFp, resolveMelee, withHolders } from '../../src/engine/melee';
 import { relocate } from '../../src/engine/objectives';
 import { ACTIONS, EVENTS } from '../../src/engine/registry';
 import type { EventName, GameEvent, GameState, Side, WindowInfo } from '../../src/engine/types';
-import { H, build, card, cardsWhere, passive, rolls, run, start, type BuildSpec, type Responder } from '../support/build';
+import { mixedHexes } from '../../src/engine/state';
+import { H, build, card, cardsWhere, passive, rolls, run, script, start, type BuildSpec, type Responder } from '../support/build';
 
 const G = 'German';
 const A = 'American';
@@ -207,5 +208,64 @@ describe('melee (§O16.4)', () => {
     const s = build(pair({ axis: { surrender: 1, top: rolls(G, [6]) }, allied: { surrender: 1, top: rolls(A, [4]) }, initiative: 'allied' }));
     run(s, (ctx) => guard(s, ctx, resolveMelees(s, ctx)), passive);
     expect(s).toMatchObject({ phase: 'over', winner: 'allied', endReason: 'surrender' });
+  });
+});
+
+describe('a participant replaced during the melee rolls (audit)', () => {
+  // Germans in E5 against an American Elite Squad; the Allies are active, so the Germans roll first: a 2-5 with Event!
+  // whose Event is Deploy — the German Squad becomes two Line Teams in the middle of the melee
+  const deploySetup = (withLeader: boolean) => {
+    const trig = card('German', { white: 2, red: 5, trigger: 'Event' });
+    const dep = card('German', { event: 'Deploy' }, [trig]);
+    const pieces: NonNullable<BuildSpec['pieces']> = [{ type: 'German/Rifle Squad', hex: 'E5' }, { type: 'American/Elite Squad', hex: 'E5' }];
+    if (withLeader) pieces.push({ type: 'German/Cpl Winkler', hex: 'E5' });
+    pieces.push({ type: 'German/Rifle Squad', hex: 'O10' }, { type: 'American/Line Squad', hex: 'A1' });
+    return build({ pieces, axis: { top: [trig, dep] }, allied: { top: rolls('American', [[5, 6]]) }, active: 'allied' });
+  };
+  const fight = (s: GameState, respond: Responder = script([{ kind: 'choose', items: [0] }])) => run(s, (ctx) => resolveMelees(s, ctx), respond);
+
+  it('a Squad Deployed by its own melee roll\'s Event fights on as its two Teams (not "no units left")', () => {
+    const s = deploySetup(false);
+    const r = fight(s);
+    const melee = r.events.find((e) => e.kind === 'melee') as Extract<GameEvent, { kind: 'melee' }>;
+    expect(melee).toBeTruthy();
+    expect(mixedHexes(s)).toEqual([]);
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    expect(teams.every((t) => t.where === (melee.losers.includes('axis') ? 'casualty' : 'map'))).toBe(true);
+  });
+
+  it('the Teams share the Squad\'s fate when its side loses', () => {
+    const s = deploySetup(true);
+    const r = fight(s);
+    expect(r.events.find((e) => e.kind === 'melee')).toMatchObject({ losers: ['axis'] });
+    expect(Object.values(s.pieces).filter((p) => p.side === 'axis' && p.where === 'map' && p.hex === H('E5'))).toEqual([]);
+    expect(mixedHexes(s)).toEqual([]);
+  });
+
+  it('a Light Wounds Team (after a Sniper! breaks the Squad) is eliminated with its side', () => {
+    const snip = cardsWhere('German', { trigger: 'Sniper' }).sort((a, b) => CARDS[b].white + CARDS[b].red - (CARDS[a].white + CARDS[a].red))[0];
+    const hexCard = cardsWhere('German', {}).find((c) => CARDS[c].hex === H('E5') && c !== snip)!;
+    const lw = card('American', { action: 'Light Wounds' });
+    const s = build({
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E5' }, // p0, p1
+        { type: 'American/Line Squad', hex: 'E5' }, { type: 'American/Line Team', hex: 'E5' }, // p2, p3
+        { type: 'German/Rifle Squad', hex: 'O10' }, { type: 'American/Line Squad', hex: 'A1' },
+      ],
+      axis: { top: [snip, hexCard] },
+      allied: { hand: [lw], top: rolls('American', [[1, 2]]) },
+      active: 'allied',
+    });
+    const r = fight(s, (d) => {
+      if (d.kind === 'reroll') return { kind: 'reroll', yes: false };
+      if (d.kind === 'choose' && d.reason === 'sniperTarget') return { kind: 'choose', items: [d.items.findIndex((i) => 'piece' in i && i.piece === 'p2')] };
+      if (d.kind === 'react') return d.window === 'squadWouldBreak' && d.side === 'allied' ? { kind: 'play', option: 0 } : { kind: 'done' };
+      if (d.kind === 'choose') return { kind: 'choose', items: Array.from({ length: d.min }, (_, i) => i) };
+      return undefined;
+    });
+    expect(r.events).toContainEqual(expect.objectContaining({ kind: 'replace', piece: 'p2' }));
+    expect(r.events.find((e) => e.kind === 'melee')).toMatchObject({ losers: ['allied'] });
+    expect(mixedHexes(s)).toEqual([]);
+    expect(Object.values(s.pieces).filter((p) => p.side === 'allied' && p.where === 'map' && p.hex === H('E5'))).toEqual([]);
   });
 });

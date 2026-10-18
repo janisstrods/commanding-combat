@@ -3,7 +3,7 @@
 // off; then each of his units that was broken when the Order was announced makes a Rally roll (units broken during the
 // Order do not): roll < current Morale (Command, Cover ... included) → it rallies; = → Suppressed (still broken);
 // > → nothing. The result is locked in before the roll's trigger is resolved (§1.9.1 rule 1).
-import { rally, suppress } from '../casualties';
+import { pendingTargets, rally, suppress, watchReplacements } from '../casualties';
 import { roll } from '../deck';
 import { choose, type Gen } from '../decisions';
 import type { OrderHandler } from '../registry';
@@ -55,15 +55,25 @@ export function* eachInOrder(
   }
 }
 
-/** A Rally roll for broken unit `id` by its owner (§O22). */
+/**
+ * A Rally roll for broken unit `id` by its owner (§O22). The result is fixed at the roll; if the Squad Deploys in the
+ * roll's trigger it applies to both Teams (R-53).
+ */
 export function* rallyRoll(s: GameState, ctx: FlowCtx, id: PieceId): Gen {
   const p = s.pieces[id];
   const morale = rollMorale(s, id);
-  const r = yield* roll(s, ctx, p.side, 'rally');
-  if (p.where !== 'map') return;
-  if (r.sum < morale) rally(s, ctx, id);
-  else if (r.sum === morale) suppress(s, ctx, id);
-  else ctx.emit({ kind: 'log', text: `${typeOf(p).name} fails to rally (${r.sum} against Morale ${morale}).`, side: p.side });
+  const w = watchReplacements(ctx);
+  const r = yield* roll(s, w.ctx, p.side, 'rally');
+  const targets = pendingTargets(s, id, w.by);
+  if (!targets.length) return;
+  if (r.sum > morale) {
+    ctx.emit({ kind: 'log', text: `${typeOf(p).name} fails to rally (${r.sum} against Morale ${morale}).`, side: p.side });
+    return;
+  }
+  for (const t of targets) {
+    if (r.sum < morale) rally(s, ctx, t);
+    else suppress(s, ctx, t);
+  }
 }
 
 export const recoverOrder: OrderHandler = {

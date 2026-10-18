@@ -9,7 +9,7 @@
 // row that must go on leaves the map and is eliminated (§7.2.2); one whose only ways on are into an enemy hex, an
 // impassable hex, across a Cliff (or a Major Bridge's side) is eliminated (§O23.3.5). Overstacking is fixed at the end
 // of the Turn.
-import { eliminate, suppress } from '../casualties';
+import { eliminate, pendingTargets, suppress, watchReplacements } from '../casualties';
 import { roll } from '../deck';
 import { ask, choose, type Gen } from '../decisions';
 import { onEnterHex, onLeaveHex } from '../forts';
@@ -85,15 +85,22 @@ export function* retreat(s: GameState, ctx: FlowCtx, id: PieceId, hexes: number)
   }
 }
 
-/** The Rout roll by `roller` for broken unit `id` (§O23.2). */
+/**
+ * The Rout roll by `roller` for broken unit `id` (§O23.2). The result is fixed at the roll; if the Squad Deploys in the
+ * roll's trigger it applies to both Teams (R-53).
+ */
 export function* routRoll(s: GameState, ctx: FlowCtx, roller: Side, id: PieceId): Gen {
   const p = s.pieces[id];
   const morale = rollMorale(s, id);
-  const r = yield* roll(s, ctx, roller, 'rout');
-  if (p.where !== 'map') return;
+  const w = watchReplacements(ctx);
+  const r = yield* roll(s, w.ctx, roller, 'rout');
+  const targets = pendingTargets(s, id, w.by);
+  if (!targets.length) return;
   if (r.sum < morale) ctx.emit({ kind: 'log', text: `${typeOf(p).name} holds (${r.sum} against Morale ${morale}).`, side: p.side });
-  else if (r.sum === morale) suppress(s, ctx, id);
-  else yield* retreat(s, ctx, id, r.sum - morale);
+  else for (const t of targets) {
+    if (r.sum === morale) suppress(s, ctx, t);
+    else yield* retreat(s, ctx, t, r.sum - morale);
+  }
 }
 
 export const routOrder: OrderHandler = {

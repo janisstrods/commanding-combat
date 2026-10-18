@@ -2,7 +2,7 @@
 // Ordnance, the Fire Attack Roll (Jammed!, Airburst, one-use Weapons), the reaction windows before the attack and each
 // Defense roll, and the Defense rolls with their results. Used by the Fire Order, Op Fire, Assault Fire (Task 9),
 // Artillery (Task 8: `defendHex` with its own AttackInfo) and Mines (Task 7: `defend` with mode 'mine').
-import { breakPiece, eliminate, suppress } from './casualties';
+import { breakPiece, eliminate, pendingTargets, suppress, watchReplacements } from './casualties';
 import { CARDS } from './data';
 import { roll } from './deck';
 import { choose, type Gen } from './decisions';
@@ -365,10 +365,10 @@ export function* defendHex(s: GameState, ctx: FlowCtx, attack: AttackInfo, hex: 
 
 /**
  * One Defense roll (§O20.3.4): the defender's window just before it (Concealment, Hidden Entrenchments / Pillbox),
- * then the roll; after its trigger, current Morale + Cover + roll against the attack total less any Concealment:
- * lower → the unit breaks; equal → Suppressed, or breaks if it is activated to Move; higher → no effect. A Squad that
- * Deploys during its roll's trigger keeps its pending result, which then applies to both Teams (R-53, §E52); its
- * Morale and Cover are taken as they stood before the trigger.
+ * then the roll. The result is fixed at the roll (§1.9.1 rule 1): current Morale + Cover then, + the roll, against the
+ * attack total less any Concealment: lower → the unit breaks; equal → Suppressed, or breaks if it is activated to Move;
+ * higher → no effect. It is applied after the roll's trigger, to the unit wherever it now is on the map — or, if a
+ * Deploy made two Teams of the Squad meanwhile, to both (R-53, §E52).
  */
 export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackInfo, firers: HexId[] = []): Gen {
   const p = s.pieces[id];
@@ -376,33 +376,17 @@ export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackI
   const hex = p.hex;
   yield* window(s, ctx, 'beforeDefenseRoll', { hex, units: [id], attack });
   if (!still(s, id, hex)) return;
-  const vs = { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover };
-  const before = currentStats(s, id).morale + cover(s, id, vs);
-  const replaced: { by: PieceId[] | null } = { by: null };
-  const watch: FlowCtx = {
-    ...ctx,
-    emit: (e) => {
-      if (e.kind === 'replace' && e.piece === id) replaced.by = e.by;
-      ctx.emit(e);
-    },
-  };
-  const r = yield* roll(s, watch, p.side, 'defense');
+  const morale = currentStats(s, id).morale + cover(s, id, { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover });
+  const w = watchReplacements(ctx);
+  const r = yield* roll(s, w.ctx, p.side, 'defense');
   const against = (attack.total ?? 0) - attack.reduction;
-  if (!still(s, id, hex)) {
-    // Deployed meanwhile (one Squad → two Teams): the result stands for both (Light Wounds, one Team, is not a Deploy)
-    const teams = replaced.by && replaced.by.length === 2 ? replaced.by.filter((t) => still(s, t, hex)) : [];
-    if (!teams.length) return;
-    const total = before + r.sum;
-    const kind = total < against ? 'break' : total === against ? 'tie' : 'none';
-    ctx.emit({ kind: 'defense', unit: id, morale: before, total, attack: against, result: kind === 'tie' ? 'suppress' : kind });
-    for (const t of teams) yield* apply(s, ctx, t, kind === 'tie' ? (s.turn.moving.includes(t) ? 'break' : 'suppress') : kind, attack);
-    return;
-  }
-  const morale = currentStats(s, id).morale + cover(s, id, vs);
+  const targets = pendingTargets(s, id, w.by);
+  if (!targets.length) return;
   const total = morale + r.sum;
-  const result = total < against ? 'break' : total === against ? (s.turn.moving.includes(id) ? 'break' : 'suppress') : 'none';
-  ctx.emit({ kind: 'defense', unit: id, morale, total, attack: against, result });
-  yield* apply(s, ctx, id, result, attack);
+  const kind = total < against ? 'break' : total === against ? 'tie' : 'none';
+  const tie = (t: PieceId) => (s.turn.moving.includes(t) ? 'break' : 'suppress');
+  ctx.emit({ kind: 'defense', unit: id, morale, total, attack: against, result: kind === 'tie' ? tie(targets[0]) : kind });
+  for (const t of targets) yield* apply(s, ctx, t, kind === 'tie' ? tie(t) : kind, attack);
 }
 
 function* apply(s: GameState, ctx: FlowCtx, id: PieceId, result: 'break' | 'suppress' | 'none', attack: AttackInfo): Gen {

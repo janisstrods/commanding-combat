@@ -57,6 +57,18 @@ describe('Commissar (§E50, Russian deck only)', () => {
     expect(r.decisions).toEqual([]);
     expect(t.players.allied.discards).toHaveLength(1); // only the Event card: no roll
   });
+
+  it('the Morale it rolls against includes the Cover of its hex (§T78.3, audit)', () => {
+    const probe = build({ allied: { nation: 'Russian' }, pieces: [{ type: 'Russian/Rifle Squad', hex: 'E6', broken: true }] });
+    const morale = currentStats(probe, 'p0').morale;
+    const s = build({
+      map: { terrain: { E6: 'Woods' } },
+      allied: { nation: 'Russian', top: eventTop(RU, 'Commissar', [], rolls(RU, [morale + 1])) },
+      pieces: [{ type: 'Russian/Rifle Squad', hex: 'E6', broken: true }],
+    });
+    trigger(s, 'allied', choices({ commissar: { piece: 'p0' } }));
+    expect(s.pieces.p0).toMatchObject({ where: 'map', broken: false }); // Morale + 2 (Woods) beats the roll
+  });
 });
 
 describe('Cower (§E51)', () => {

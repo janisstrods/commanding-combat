@@ -4,10 +4,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { CARDS } from '../../src/engine/data';
 import type { Gen } from '../../src/engine/decisions';
 import { turnFlow } from '../../src/engine/flow';
-import { edgeDistance, routTargets } from '../../src/engine/orders/rout';
+import { edgeDistance, routRoll, routTargets } from '../../src/engine/orders/rout';
 import { EVENTS } from '../../src/engine/registry';
 import type { EventName, GameEvent } from '../../src/engine/types';
-import { H, build, card, cardsWhere, rolls, start, type BuildSpec, type Stepper } from '../support/build';
+import { H, build, card, cardsWhere, rolls, run, script, start, type BuildSpec, type Stepper } from '../support/build';
 
 const G = 'German';
 const A = 'American';
@@ -122,5 +122,28 @@ describe('Rout (§O23)', () => {
 
   it('edge distance counts the hexes between a hex and the edge', () => {
     expect([edgeDistance(H('E1'), 'top'), edgeDistance(H('E5'), 'top'), edgeDistance(H('E5'), 'bottom'), edgeDistance(H('C5'), 'left'), edgeDistance(H('C5'), 'right')]).toEqual([0, 4, 5, 2, 12]);
+  });
+});
+
+describe('a Squad Deployed by its own Rout roll\'s Event (R-53, audit)', () => {
+  const setup = (type: string) => {
+    const trig = card(G, { white: 3, red: 4, trigger: 'Event' });
+    const dep = card(G, { event: 'Deploy' }, [trig]);
+    return build({ pieces: [{ type, hex: 'E5', broken: true }, { type: 'German/Rifle Squad', hex: 'J5' }], axis: { top: [trig, dep] } });
+  };
+
+  it('a tie suppresses both Teams', () => {
+    const s = setup('German/Rifle Squad'); // broken Morale 7: the 7 ties
+    run(s, (ctx) => routRoll(s, ctx, 'axis', 'p0'), script([{ kind: 'choose', items: [0] }]));
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    expect(teams.map((t) => [t.where, t.hex, t.suppressed])).toEqual([['map', H('E5'), true], ['map', H('E5'), true]]);
+  });
+
+  it('a retreat moves both Teams', () => {
+    const s = setup('German/Conscript Squad'); // broken Morale 5: the 7 means 2 hexes back
+    run(s, (ctx) => routRoll(s, ctx, 'axis', 'p0'), script([{ kind: 'choose', items: [0] }]));
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    expect(teams).toHaveLength(2);
+    for (const t of teams) expect(edgeDistance(t.hex, 'bottom')).toBe(edgeDistance(H('E5'), 'bottom') - 2);
   });
 });

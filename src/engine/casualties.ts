@@ -164,21 +164,32 @@ export function* exitUnits(s: GameState, ctx: FlowCtx, ids: PieceId[]): Gen {
   for (const id of ids) {
     const p = s.pieces[id];
     vp += unitVp(p);
-    p.where = 'time';
+    // a Hero goes back to the counter mix, never onto the Time Track (§3.4); its Weapon leaves play with it
+    p.where = typeOf(p).hero ? 'mix' : 'time';
     p.hex = -1;
     p.broken = false;
     p.suppressed = false;
     p.veteran = false;
-    if (p.weapon) s.pieces[p.weapon].broken = false;
+    if (p.weapon) {
+      const w = s.pieces[p.weapon];
+      w.broken = false;
+      if (p.where === 'mix') {
+        w.where = 'mix';
+        w.carrier = null;
+        p.weapon = null;
+      }
+    }
   }
   ctx.emit({ kind: 'exit', units: ids.slice(), from });
   addVp(s, ctx, side, vp * (s.openChits.includes('W') ? 2 : 1), 'exit');
   updateControl(s, ctx, from);
   if (!unitsOf(s, side).length) throw new GameOver(finalScore(s, ctx), 'exit');
+  const toTrack = ids.filter((id) => s.pieces[id].where === 'time');
+  if (!toTrack.length) return;
   const spaces: number[] = [];
   for (let t = s.time + 1; t <= Math.max(TIME_TRACK_LAST, s.time + 1); t++) spaces.push(t);
-  const [i] = yield* choose(s, ctx, side, 'exitSpace', spaces.map((space) => ({ space })), 1, 1, { units: ids });
-  for (const id of ids) s.pieces[id].space = spaces[i];
+  const [i] = yield* choose(s, ctx, side, 'exitSpace', spaces.map((space) => ({ space })), 1, 1, { units: toTrack });
+  for (const id of toTrack) s.pieces[id].space = spaces[i];
 }
 
 /**
@@ -233,6 +244,34 @@ export function replaceUnit(
   old.broken = false;
   ctx.emit({ kind: 'replace', piece: oldId, by: ids });
   return made;
+}
+
+/**
+ * A ctx that notes which units replace others while it is in use (Deploy: two Teams, Light Wounds: one; the 'replace'
+ * event): `by[old]` = the new ids. For results pending on a unit across a roll's trigger (R-53).
+ */
+export function watchReplacements(ctx: FlowCtx): { ctx: FlowCtx; by: Record<PieceId, PieceId[]> } {
+  const by: Record<PieceId, PieceId[]> = {};
+  return {
+    by,
+    ctx: {
+      ...ctx,
+      emit: (e) => {
+        if (e.kind === 'replace') by[e.piece] = e.by;
+        ctx.emit(e);
+      },
+    },
+  };
+}
+
+/**
+ * Who a result pending on unit `id` applies to after a trigger (R-53, §E52): the unit itself while on the map (wherever
+ * it now is), else the two Teams a Deploy made of it that are on the map (not a Light Wounds Team: it replaced a break).
+ */
+export function pendingTargets(s: GameState, id: PieceId, by: Record<PieceId, PieceId[]>): PieceId[] {
+  if (s.pieces[id]?.where === 'map') return [id];
+  const teams = by[id];
+  return teams && teams.length === 2 ? teams.filter((t) => s.pieces[t]?.where === 'map') : [];
 }
 
 /** Deploy (§E52): replace a Squad by two Teams of its owner's OB troop quality. Returns the Teams. */
