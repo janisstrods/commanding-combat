@@ -45,10 +45,15 @@ export interface AiMemory {
   last: { kind: Decision['kind']; ms: number; sims?: number; label?: string; alternatives?: { label: string; score: number; n: number }[] } | null;
   /** Turn number of the last line said (one flavour line per Turn at most). */
   saidTurn: number;
+  /**
+   * Draw piles and Time at the AI's last Turn start: unchanged at the next one means both players passed without
+   * discarding in between — the AI then discards when it passes, so the game cannot stall.
+   */
+  turnSig: string;
 }
 
 export function newMemory(seed?: number): AiMemory {
-  return { rngState: seed ?? 0, plan: null, lastFire: null, opFireHex: null, deploy: null, fallbacks: 0, last: null, saidTurn: -1 };
+  return { rngState: seed ?? 0, plan: null, lastFire: null, opFireHex: null, deploy: null, fallbacks: 0, last: null, saidTurn: -1, turnSig: '' };
 }
 
 export interface AiResult {
@@ -86,7 +91,13 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
   try {
     if (d.side !== me) throw new Error(`decision for ${d.side}, AI plays ${me}`);
     if (d.kind === 'turn') {
-      const r = planTurn(v, d, level, rng, opts.timeBudgetMs ?? level.budgetMs, opts.deterministic);
+      let stalled = false;
+      if (d.canPass && v.turn.ordersGiven === 0) {
+        const sig = `${v.time}:${v.players.axis.deck.length}:${v.players.allied.deck.length}:${v.players.axis.discards.length}:${v.players.allied.discards.length}`;
+        stalled = sig === mem.turnSig;
+        mem.turnSig = sig;
+      }
+      const r = planTurn(v, d, level, rng, opts.timeBudgetMs ?? level.budgetMs, opts.deterministic, stalled);
       answer = r.answer;
       pc.plan = r.plan;
       sims = r.sims;

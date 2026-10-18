@@ -9,9 +9,8 @@ import { counterType, isLeader, isUnit, typeOf } from '../engine/state';
 import type { ChoiceItem, Decision, GameState, HexId, Piece, Side } from '../engine/types';
 import { other } from '../engine/types';
 import { cardCtx, keepValue } from './cards';
-import { surrenderPressure } from './evaluate';
 import { fireOn, sideShooters, stackLoss, suppressCost, unitsAt } from './tactics';
-import { breakCost, breakLoss, elimVp, pieceValue, typeValue } from './values';
+import { breakCost, breakLoss, elimVp, pieceValue, pressureStep, typeValue } from './values';
 
 type ChooseD = Extract<Decision, { kind: 'choose' }>;
 
@@ -19,7 +18,7 @@ const ctxOf = (d: ChooseD) => (d.context ?? {}) as Record<string, unknown>;
 
 /** Worth to `me` of breaking piece `p` (enemy: gain; own: loss, negative). */
 function breakScore(s: GameState, me: Side, p: Piece): number {
-  const v = breakCost(s, p, pressureStep(s, p.side));
+  const v = breakCost(s, p);
   return p.side === me ? -v : v;
 }
 
@@ -34,13 +33,6 @@ function rallyScore(s: GameState, me: Side, p: Piece): number {
   if (!p.broken) return 0;
   const v = breakLoss(s, { ...p, broken: false });
   return p.side === me ? v : -v;
-}
-
-/** One more casualty for `side`: the rise in its surrender pressure. */
-function pressureStep(s: GameState, side: Side): number {
-  const pl = s.players[side];
-  const left = pl.surrender - pl.casualties.length;
-  return surrenderPressure(left - 1) - surrenderPressure(left);
 }
 
 /** How safe a hex is for `side`'s units (cover, little enemy fire, near friends), for placing or retreating. */
@@ -220,8 +212,8 @@ export function itemScores(s: GameState, d: ChooseD, me: Side): number[] {
       return byHex((h) => {
         const mine = unitsAt(s, h, me);
         const theirs = unitsAt(s, h, opp);
-        const cheapest = (list: Piece[], side: Side) => (list.length ? Math.min(...list.map((p) => breakCost(s, p, pressureStep(s, side)))) : 0);
-        return cheapest(theirs, opp) - cheapest(mine, me) - 0.05;
+        const cheapest = (list: Piece[]) => (list.length ? Math.min(...list.map((p) => breakCost(s, p))) : 0);
+        return cheapest(theirs) - cheapest(mine) - 0.05;
       });
     case 'sappers':
     case 'fortRemove':

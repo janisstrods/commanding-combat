@@ -62,13 +62,32 @@ export function breakLoss(s: GameState, p: Piece): number {
   return pieceValue(s, p);
 }
 
+/** The evaluation's score for winning (or losing) the game. */
+export const GAME_SCORE = 150;
+
+/**
+ * What being `left` casualties away from surrender costs (in evaluation points): the chance of losing by surrender
+ * before the game ends, times the game. Fractional `left` counts broken units as part-casualties.
+ */
+export function surrenderPressure(left: number): number {
+  if (left <= 0) return GAME_SCORE;
+  return GAME_SCORE * Math.min(1, 0.3 * Math.pow(0.42, left - 1));
+}
+
+/** One more casualty for `side`: the rise in its surrender pressure. */
+export function pressureStep(s: GameState, side: Side): number {
+  const pl = s.players[side];
+  const left = pl.surrender - pl.casualties.length;
+  return surrenderPressure(left - 1) - surrenderPressure(left);
+}
+
 /**
  * The full cost to `p`'s side of one break result on it: lost worth, plus (if it dies) the VP the enemy gains and a
- * step toward its own surrender (`pressureStep`, from the evaluation).
+ * step toward its own surrender.
  */
-export function breakCost(s: GameState, p: Piece, pressureStep = 0.6): number {
-  if (!p.broken) return breakLoss(s, p);
-  return pieceValue(s, p) + elimVp(s, p) + pressureStep;
+export function breakCost(s: GameState, p: Piece): number {
+  if (!p.broken) return breakLoss(s, p) + (isUnit(p) ? 0.15 * pressureStep(s, p.side) : 0);
+  return pieceValue(s, p) + elimVp(s, p) + (isUnit(p) ? pressureStep(s, p.side) : 0);
 }
 
 /** VP the enemy gains for eliminating `p` (chit X doubles). */

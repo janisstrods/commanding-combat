@@ -3,14 +3,15 @@
 // less the Op Fire risk along the least-risk path that fits the group's MP; the planner then plays the best plans
 // through the real engine (Op Fire reactions and all) before choosing.
 import { activationCandidates, commandRadius } from '../engine/activation';
-import { distance, neighbours } from '../engine/hex';
+import { ALL_HEXES, distance, neighbours } from '../engine/hex';
+import { shooter, type Shooter } from '../engine/fire';
 import { moveAnswerError, moveAnswers } from '../engine/orders/move';
 import { cloneState, isLeader, isUnit } from '../engine/state';
 import type { Answer, Decision, GameState, HexId, Piece, PieceId, Side } from '../engine/types';
 import { other } from '../engine/types';
-import { evaluate, weightsFor, type Weights } from './evaluate';
+import { cohesionOf, evaluate, objectiveTerm, weightsFor, type Weights } from './evaluate';
 import type { LevelCfg } from './levels';
-import { fireOn, fitsStack, isFireAction, pHolds, reachable, sideShooters, stackLoss } from './tactics';
+import { fireOn, fitsStack, isFireAction, pHolds, reachable, sideShooters, stackLoss, unitsOnMap, type HexFire } from './tactics';
 import { pieceValue } from './values';
 
 export interface MovePlan {
@@ -41,8 +42,10 @@ export function opFireRisk(s: GameState, me: Side): (work: GameState, units: Pie
   const activated = t.opFire.length > 0;
   const p = activated ? 1 : pCard;
   if (!ready.length || p <= 0) return () => 0;
+  // the enemy's Op Fire on each hex does not depend on where our units are: computed once per hex
+  const fire: (HexFire | undefined)[] = [];
   return (work, units, hex) => {
-    const f = fireOn(work, ready, hex);
+    const f = (fire[hex] ??= fireOn(work, ready, hex));
     if (!f.fp) return 0;
     const saved = units.map((u) => u.hex);
     for (const u of units) u.hex = hex;
@@ -70,23 +73,78 @@ interface DestChoice {
   risk: number;
 }
 
-/** The best destinations for `group` (in `work`), each scored by evaluation − path risk; `stay` is the score now. */
-function destinations(
-  work: GameState, me: Side, group: Piece[], w: Weights, risk: ReturnType<typeof opFireRisk>, keep: number,
-): { stay: number; best: DestChoice[] } {
+/** What the destination search keeps fixed while it moves one group around: the enemy's fire on every hex. */
+interface Board {
+  me: Side;
+  w: Weights;
+  enemyFire: HexFire[];
+  enemyStacks: { hex: HexId; units: Piece[] }[];
+}
+
+function board(s: GameState, me: Side, w: Weights): Board {
+  const opp = other(me);
+  const shooters = sideShooters(s, opp);
+  const enemyFire = ALL_HEXES.map((h) => fireOn(s, shooters, h));
+  const stacks = new Map<HexId, Piece[]>();
+  for (const u of unitsOnMap(s, opp)) stacks.set(u.hex, [...(stacks.get(u.hex) ?? []), u]);
+  return { me, w, enemyFire, enemyStacks: [...stacks].map(([hex, units]) => ({ hex, units })) };
+}
+
+/**
+ * The part of the evaluation a group's position changes, for the group standing where it is in `work`: its exposure to
+ * the enemy's fire there, the threat its own shooters pose from there (its best target, and a little of the next), the
+ * objective term and Leader cohesion (an approximation of `evaluate` for speed: the other parts do not depend on where
+ * one group stands).
+ */
+function localScore(work: GameState, group: Piece[], b: Board): number {
+  const hex = group[0].hex;
+  const exposure = stackLoss(work, hex, b.me, b.enemyFire[hex], false, group);
+  const shooters: Shooter[] = [];
+  for (const u of group) {
+    const a = shooter(work, u.id);
+    if (a) shooters.push(a);
+    if (u.weapon) {
+      const w = shooter(work, u.weapon);
+      if (w) shooters.push(w);
+    }
+  }
+  let t1 = 0;
+  let t2 = 0;
+  if (shooters.length) {
+    for (const e of b.enemyStacks) {
+      if (distance(e.hex, hex) > 16) continue;
+      const f = fireOn(work, shooters, e.hex);
+      const l = stackLoss(work, e.hex, other(b.me), f, false, e.units);
+      if (l > t1) {
+        t2 = t1;
+        t1 = l;
+      } else if (l > t2) t2 = l;
+    }
+  }
+  const w = b.w;
+  return -w.exposure * 1.1 * exposure + w.threat * 0.8 * (t1 + 0.3 * t2) + w.objective * objectiveTerm(work, b.me) + w.cohesion * cohesionOf(work, b.me);
+}
+
+/** The best destinations for `group` (in `work`), each scored by `localScore` − path risk; `stay` is the score now. */
+function destinations(work: GameState, group: Piece[], b: Board, risk: ReturnType<typeof opFireRisk>, keep: number): { stay: number; best: DestChoice[] } {
   const ids = group.map((u) => u.id);
-  const stay = evaluate(work, me, w, { hand: false });
-  const reach = reachable(work, ids, (hex) => risk(work, group, hex));
+  const stay = localScore(work, group, b);
+  const memo = new Map<HexId, number>();
+  const reach = reachable(work, ids, (hex) => {
+    let r = memo.get(hex);
+    if (r === undefined) memo.set(hex, (r = risk(work, group, hex)));
+    return r;
+  });
   const start = group[0].hex;
   const out: DestChoice[] = [];
   for (const [hex, r] of reach) {
-    if (hex === start || !fitsStack(work, hex, group, me)) continue;
+    if (hex === start || !fitsStack(work, hex, group, b.me)) continue;
     for (const u of group) u.hex = hex;
-    const sc = evaluate(work, me, w, { hand: false }) - r.risk;
+    const sc = localScore(work, group, b) - r.risk;
     for (const u of group) u.hex = start;
     out.push({ hex, path: r.path, score: sc, risk: r.risk });
   }
-  out.sort((a, b) => b.score - a.score);
+  out.sort((a, b2) => b2.score - a.score);
   return { stay, best: out.slice(0, keep) };
 }
 
@@ -107,6 +165,7 @@ export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Parti
   };
   const tried = firsts.slice().sort((a, b) => prior(b) - prior(a)).slice(0, level.moveActs);
   const base = evaluate(s, me, w, { hand: false });
+  const b = board(s, me, w);
   const plans: MovePlan[] = [];
   for (const first of tried) {
     const p = s.pieces[first];
@@ -118,7 +177,7 @@ export function planMoves(s: GameState, me: Side, level: LevelCfg, patch?: Parti
       let moved = false;
       const groups = byHex(work, pool);
       groups.forEach((group, gi) => {
-        const { stay, best } = destinations(work, me, group, w, risk, variant + 1);
+        const { stay, best } = destinations(work, group, b, risk, variant + 1);
         const pick = gi === 0 ? best[Math.min(variant, best.length - 1)] : best[0];
         if (!pick || pick.score <= stay + 0.05) return;
         for (const u of group) {

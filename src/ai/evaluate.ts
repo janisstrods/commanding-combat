@@ -16,7 +16,9 @@ import { isLeader, isUnit, typeOf } from '../engine/state';
 import { type GameState, type HexId, type Piece, type Posture, type Side, UNKNOWN_CARD, other } from '../engine/types';
 import { HAND_WEIGHT, cardCtx, handValue } from './cards';
 import { fireOn, sideShooters, stackLoss } from './tactics';
-import { materialOf } from './values';
+import { GAME_SCORE, materialOf, surrenderPressure } from './values';
+
+export { surrenderPressure } from './values';
 
 export interface Weights {
   vp: number;
@@ -55,11 +57,6 @@ export function weightsFor(s: GameState, me: Side, patch?: Partial<Weights>): We
   return { ...BASE, ...POSTURE[s.players[me].posture], ...patch };
 }
 
-/** Value of being `left` casualties away from surrender (higher is worse). */
-export function surrenderPressure(left: number): number {
-  if (left <= 0) return 40;
-  return 9 / Math.pow(left + 0.2, 1.25);
-}
 
 /** VP the side's secret chits will score at game end for the current control (chits not known score 0 here). */
 function secretChitVp(s: GameState, side: Side): number {
@@ -107,7 +104,7 @@ export function evaluateParts(s: GameState, me: Side, w: Weights = weightsFor(s,
   if (s.phase === 'over') {
     const won = s.winner === me;
     const m = projectedMargin(s, me);
-    const total = (won ? 150 : -150) + 0.5 * m;
+    const total = (won ? GAME_SCORE : -GAME_SCORE) + 0.5 * m;
     return { total, margin: m, material: 0, surrender: 0, time: 0, exposure: 0, threat: 0, objective: 0, hand: 0, cohesion: 0, initiative: 0 };
   }
   const margin = projectedMargin(s, me);
@@ -209,21 +206,24 @@ export function objectiveTerm(s: GameState, side: Side): number {
     const hex = s.map.objectives[i];
     let v = base + Math.max(0, objectiveValue(s, i + 1));
     for (const c of s.players[side].secretChits) v += chitValue(c, i + 1);
-    let near = 99;
-    let on = 0;
+    // the nearest unit counts fully, the next one a third: holding it in strength, or closing in with more than one
+    let c1 = 0;
+    let c2 = 0;
     for (const u of units) {
       const d = distance(u.hex, hex);
-      if (d < near) near = d;
-      if (d === 0) on += typeOf(u).kind === 'squad' ? 1 : 0.5;
+      const c = d === 0 ? (typeOf(u).kind === 'leader' ? 0.9 : 1.15) : d === 1 ? 0.8 : Math.max(0, 0.8 - (d - 1) * 0.09);
+      if (c > c1) {
+        c2 = c1;
+        c1 = c;
+      } else if (c > c2) c2 = c;
     }
-    const closeness = on ? 1 + 0.15 * Math.min(2, on) : near <= 1 ? 0.75 : Math.max(0, 1 - near / 8) * 0.7;
-    t += v * closeness;
+    t += v * (c1 + 0.35 * c2);
   }
   return t;
 }
 
 /** Non-Leader units within the Command radius of a friendly unbroken Leader (activated or not). */
-function cohesionOf(s: GameState, side: Side): number {
+export function cohesionOf(s: GameState, side: Side): number {
   const leaders: Piece[] = [];
   const others: Piece[] = [];
   for (const id in s.pieces) {

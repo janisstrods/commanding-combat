@@ -8,7 +8,7 @@
 // halving) until the time budget or the world count runs out.
 import { activationCandidates, commandRadius } from '../engine/activation';
 import { neighbours } from '../engine/hex';
-import { turnFlow } from '../engine/flow';
+import { nextTurn, turnFlow } from '../engine/flow';
 import { cloneState, isLeader, radioOf } from '../engine/state';
 import { type Answer, type CardId, type Decision, type GameState, type OrderName, type PieceId, type Side, other } from '../engine/types';
 import { avgDraw, cardCtx, keepValue, weakestFirst } from './cards';
@@ -43,7 +43,7 @@ export interface PlanResult {
 const now = (): number => (globalThis.performance ? globalThis.performance.now() : Date.now());
 
 /** The candidate plans for the Turn decision `d` in view `s`. */
-export function candidates(s: GameState, d: TurnD, level: LevelCfg): Candidate[] {
+export function candidates(s: GameState, d: TurnD, level: LevelCfg, mustDiscard = false): Candidate[] {
   const me = d.side;
   const cc = cardCtx(s, me);
   const turn = s.turn.number;
@@ -121,7 +121,12 @@ export function candidates(s: GameState, d: TurnD, level: LevelCfg): Candidate[]
     }
     if (!added) break;
   }
-  if (d.canPass) for (const c of passCandidates(s, me, d.maxDiscard, cc)) kept.push(c);
+  if (d.canPass) {
+    for (const c of passCandidates(s, me, d.maxDiscard, cc)) {
+      if (mustDiscard && c.first.kind === 'pass' && !c.first.discard.length && d.maxDiscard > 0) continue;
+      kept.push(c);
+    }
+  }
   else kept.push({ label: 'End the Turn', first: { kind: 'endTurn' }, plan: null, prior: 0 });
   return kept;
 }
@@ -215,7 +220,9 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
     return policyAnswer(st, d, d.side === me ? mine : theirs);
   };
   const stop = (d: Decision) => d.kind === 'turn' && !first && (d.side !== me || !level.lookahead);
-  drive(s, (ctx) => turnFlow(s, ctx), policy, rng, { stop, maxSteps: 600 });
+  const r = drive(s, (ctx) => turnFlow(s, ctx), policy, rng, { stop, maxSteps: 600 });
+  // the Turn is over: the opponent acts next (the evaluation weighs his fire first)
+  if (r.done && s.phase === 'play') nextTurn(s);
   return evaluate(s, me, weightsFor(s, me));
 }
 
@@ -223,10 +230,12 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
  * Choose the AI's answer to its Turn decision `d` in view `view`: candidates, then simulations within the budget.
  * `deterministic` replaces the clock by the level's simulation counts (reproducible for a seed).
  */
-export function planTurn(view: GameState, d: TurnD, level: LevelCfg, rng: Rng, budgetMs: number, deterministic = false): PlanResult {
+export function planTurn(
+  view: GameState, d: TurnD, level: LevelCfg, rng: Rng, budgetMs: number, deterministic = false, mustDiscard = false,
+): PlanResult {
   const t0 = now();
   const me = d.side;
-  const cands = candidates(view, d, level);
+  const cands = candidates(view, d, level, mustDiscard);
   if (cands.length === 1) return { answer: cands[0].first, plan: cands[0].plan, label: cands[0].label, sims: 0, scores: [] };
   const worlds: GameState[] = [];
   const seeds: number[] = [];
@@ -241,23 +250,24 @@ export function planTurn(view: GameState, d: TurnD, level: LevelCfg, rng: Rng, b
   const all = live.slice();
   let sims = 0;
   const over = () => !deterministic && now() - t0 > budgetMs;
-  let round = 0;
-  outer: while (live.length > 1) {
-    const target = round === 0 ? level.minSims : live[0].n + Math.max(1, Math.ceil(level.minSims / 2));
+  // breadth first: every live candidate gets its next world before any gets another; after `minSims` worlds each,
+  // every round drops the weaker part
+  let target = 1;
+  outer: for (;;) {
     for (const x of live) {
-      while (x.n < Math.min(target, level.worlds)) {
-        if (sims > 0 && over()) break outer;
-        x.sum += simulate(world(x.n), me, x.c, level, seeds[x.n]);
-        x.n++;
-        sims++;
-      }
+      if (x.n >= Math.min(target, level.worlds)) continue;
+      if (sims > 0 && over()) break outer;
+      x.sum += simulate(world(x.n), me, x.c, level, seeds[x.n]);
+      x.n++;
+      sims++;
     }
-    if (live.every((x) => x.n >= level.worlds)) break;
-    live.sort((a, b) => b.sum / b.n - a.sum / a.n);
-    // drop the weaker part (keep at least two until the worlds run out)
-    const keep = Math.max(2, Math.ceil(live.length * 0.6));
-    live = live.slice(0, keep);
-    round++;
+    if (live.length === 1 || live.every((x) => x.n >= level.worlds)) break;
+    if (target >= level.minSims) {
+      live.sort((a, b) => b.sum / b.n - a.sum / a.n);
+      live = live.slice(0, Math.max(2, Math.ceil(live.length * 0.6)));
+      if (live.length === 2 && live.every((x) => x.n >= level.worlds)) break;
+    }
+    target++;
   }
   const mean = (x: Scored) => (x.n ? x.sum / x.n : -Infinity);
   const noise = (x: Scored) => (level.noise ? rng.normal() * level.noise : 0) + mean(x);

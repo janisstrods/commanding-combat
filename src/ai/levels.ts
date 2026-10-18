@@ -35,11 +35,11 @@ export const LEVELS: Record<AiLevel, LevelCfg> = {
     noise: 1.2, sloppy: 0.35, reroll: false, lookahead: false,
   },
   line: {
-    level: 'line', budgetMs: 2500, worlds: 20, minSims: 3, maxCands: 12, fireActs: 4, moveActs: 6, moveVariants: 2,
+    level: 'line', budgetMs: 2500, worlds: 32, minSims: 4, maxCands: 12, fireActs: 4, moveActs: 6, moveVariants: 2,
     noise: 0, sloppy: 0, reroll: true, lookahead: false,
   },
   elite: {
-    level: 'elite', budgetMs: 4000, worlds: 32, minSims: 4, maxCands: 18, fireActs: 6, moveActs: 9, moveVariants: 3,
+    level: 'elite', budgetMs: 4000, worlds: 48, minSims: 6, maxCands: 18, fireActs: 6, moveActs: 9, moveVariants: 3,
     noise: 0, sloppy: 0, reroll: true, lookahead: true,
   },
 };

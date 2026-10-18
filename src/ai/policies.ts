@@ -21,7 +21,7 @@ import { deployAnswer, type DeployMemo } from './deploy';
 import { contestOdds, pSumBelow } from './dice';
 import { projectedMargin } from './evaluate';
 import type { LevelCfg } from './levels';
-import { moveAnswer } from './moves';
+import { moveAnswer, planMoves } from './moves';
 import type { Rng } from './rand';
 import { safeAnswer } from './sim';
 import { fireEV, fireOn, knownTotalOdds, meleeStrength, meleeWinChance, sideShooters, stackLoss, unitsAt, unitsOnMap } from './tactics';
@@ -58,6 +58,8 @@ export interface PolicyCtx {
   /** The hex the AI means to Op Fire at, after playing a Fire card to activate units for it. */
   opFireHex: HexId | null;
   deploy: DeployMemo | null;
+  /** quickTurn also considers Move Orders (planMoves; too slow inside simulations, used by the 'greedy' baseline). */
+  quickMoves?: boolean;
 }
 
 export function newPolicyCtx(me: Side, level: LevelCfg, rng: Rng, cheap = false): PolicyCtx {
@@ -113,10 +115,22 @@ export function quickTurn(s: GameState, d: Extract<Decision, { kind: 'turn' }>, 
       return { kind: 'order', card, order: 'Fire' };
     }
   }
+  const move = d.orders.filter((o) => o.order === 'Move');
+  if (pc.quickMoves && move.length) {
+    const best = planMoves(s, me, pc.level)[0];
+    const card = cheapest(move.map((o) => o.card), cc);
+    if (best && best.gain > cardCost(s, me, card, cc) + 0.2) {
+      pc.plan = { turn: s.turn.number, given: s.turn.ordersGiven, card, order: 'Move', units: best.units, dest: best.dest, paths: best.paths, label: 'quick move' };
+      return { kind: 'order', card, order: 'Move' };
+    }
+  }
   const recover = d.orders.find((o) => o.order === 'Recover');
   if (recover && unitsOnMap(s, me).filter((u) => u.broken).length >= 2) return { kind: 'order', card: recover.card, order: 'Recover' };
   if (!d.canPass) return { kind: 'endTurn' };
-  const weak = weakestFirst(s, me, cc).filter((c) => keepValue(c, cc) < 0.6).slice(0, d.maxDiscard);
+  // a pass discards at least one card: two players passing with full hands would stall the game for ever
+  const order = weakestFirst(s, me, cc);
+  const weak = order.filter((c) => keepValue(c, cc) < 0.6).slice(0, d.maxDiscard);
+  if (!weak.length && d.maxDiscard > 0 && order.length) weak.push(order[0]);
   return { kind: 'pass', discard: weak };
 }
 

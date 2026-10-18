@@ -7,8 +7,10 @@
 // Options: --scenario <ids|all> (default 1), --games <n per scenario> (default 2), --axis / --allied
 // <green|line|elite|random> (default line), --seed <n> (default 1), --budget <ms per own-Turn decision> (default: the
 // level's), --swap (also play every game with the sides' players swapped), --max <decisions per game> (default 20000),
-// --verbose (one line per Order).
+// --verbose (one line per Order). Players: green, line, elite, random, greedy (policies only, no simulations).
 import { chooseAnswer, newMemory, type AiLevel, type AiMemory } from '../src/ai/index';
+import { newPolicyCtx, policyAnswer } from '../src/ai/policies';
+import { LEVELS } from '../src/ai/levels';
 import { Rng } from '../src/ai/rand';
 import { SCENARIOS, scenario } from '../src/engine/data';
 import { GameDriver } from '../src/engine/driver';
@@ -16,7 +18,8 @@ import { randomAnswer } from '../src/engine/random';
 import { newGame, redact } from '../src/engine/state';
 import type { Side } from '../src/engine/types';
 
-type Player = AiLevel | 'random';
+/** An AI level, random play, or 'greedy': the AI's policies with a greedy Turn rule and no simulations (a baseline). */
+type Player = AiLevel | 'random' | 'greedy';
 
 function args(): Record<string, string> {
   const out: Record<string, string> = {};
@@ -50,6 +53,7 @@ export function playMatch(id: string, seed: number, players: Record<Side, Player
   const d = new GameDriver(newGame(scenario(id), seed));
   const mem: Record<Side, AiMemory> = { axis: newMemory(seed * 2 + 1), allied: newMemory(seed * 2 + 2) };
   const rnd = new Rng(seed * 7 + 3);
+  const greedy: Partial<Record<Side, ReturnType<typeof newPolicyCtx>>> = {};
   const t0 = performance.now();
   let n = 0;
   let slowest = 0;
@@ -59,7 +63,10 @@ export function playMatch(id: string, seed: number, players: Record<Side, Player
     const who = players[dec.side];
     let a;
     if (who === 'random') a = randomAnswer(d.state, dec, () => rnd.next());
-    else {
+    else if (who === 'greedy') {
+      greedy[dec.side] ??= { ...newPolicyCtx(dec.side, LEVELS.line, new Rng(seed + 11)), quickMoves: true };
+      a = policyAnswer(redact(d.state, dec.side), dec, greedy[dec.side]!);
+    } else {
       const t = performance.now();
       a = chooseAnswer(redact(d.state, dec.side), dec, { side: dec.side, level: who, timeBudgetMs: opts.budget }, mem[dec.side]).answer;
       slowest = Math.max(slowest, performance.now() - t);
@@ -92,7 +99,13 @@ function main(): void {
       const variants: Record<Side, Player>[] = [base];
       if (a.swap === 'true') variants.push({ axis: base.allied, allied: base.axis });
       for (const players of variants) {
-        const r = playMatch(id, seed, players, { budget, max: a.max ? Number(a.max) : undefined, verbose: a.verbose === 'true' });
+        let r: MatchResult;
+        try {
+          r = playMatch(id, seed, players, { budget, max: a.max ? Number(a.max) : undefined, verbose: a.verbose === 'true' });
+        } catch (e) {
+          console.log(`scenario ${id} seed ${seed} axis=${players.axis} allied=${players.allied}: ERROR ${e instanceof Error ? e.message : String(e)}`);
+          continue;
+        }
         const w = r.winner ? `${r.winner} (${r.players[r.winner]})` : 'none';
         console.log(
           `scenario ${id} seed ${seed} axis=${players.axis} allied=${players.allied}: winner ${w} by ${r.reason} — VP ${r.vp}, ` +
