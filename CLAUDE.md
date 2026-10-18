@@ -14,7 +14,7 @@ cnc-claude (`~/Gamemaking/cnc-ancients`): same stack and conventions.
 | `npm run build` | Type-check, then build the static site into `docs/` |
 | `npx vite-node scripts/fuzz.ts -- --games 500 [--scenario N] [--tiny-decks] [--seed S]` | Random-legal games with replay and invariant checks |
 | `npx vite-node scripts/ai-match.ts -- --scenario 1 --games 2` | AI vs AI (see the file header for flags) |
-| `npx vite-node scripts/build-data.ts [cards counters scenarios maps rsg]` | Rebuild `src/data` from `design/data` |
+| `npx vite-node scripts/build-data.ts [cards counters scenarios maps rsg mix]` | Rebuild `src/data` from `design/data` |
 
 ## Dev shortcuts
 
@@ -28,12 +28,13 @@ cnc-claude (`~/Gamemaking/cnc-ancients`): same stack and conventions.
 ## Where things live
 
 - **Contract:** `src/engine/types.ts` (state, decisions, answers, events). Unions may grow; fields keep their meaning.
-- **Rules authority:** `design/rules-reference.md` (paraphrased; § numbers in code comments; rulings R-01…R-55 in §20)
+- **Rules authority:** `design/rules-reference.md` (paraphrased; § numbers in code comments; rulings R-01…R-56 in §20)
   and `design/scenarios-reference.md` (scenarios, RSG). Rules tests in `tests/rules` are written from them.
 - **Engine:** `state.ts` (newGame, cloneState, redact), `deck.ts` (every "roll" is a Fate-card reveal; triggers, Time
   advance, Sudden Death), `flow.ts` (Turn), `decisions.ts` (`ask`, `answerError` — the one answer check, also used by
   the AI), `reactions.ts` (Action windows: inactive first, one round), `fire.ts`, `stats.ts`, `casualties.ts`,
-  `objectives.ts`, `melee.ts`, `forts.ts`, `los.ts` / `terrain.ts`, `setup.ts`, `scenarioRules.ts` (special rules,
+  `objectives.ts`, `melee.ts`, `forts.ts`, `mix.ts` (the counter mix, R-56: one table, `src/data/mix.json`, for every
+  counter limit), `los.ts` / `terrain.ts`, `setup.ts`, `scenarioRules.ts` (special rules,
   read from `ScenarioDef.special`, never by scenario number), `rsg.ts` + `rsg/`.
 - **Handlers:** `orders/`, `actions/`, `events/`, each with an `index.ts` of **getters** over namespace imports; the
   registry (`registry.ts`) looks handlers up when used. Never build a handler table while modules load
