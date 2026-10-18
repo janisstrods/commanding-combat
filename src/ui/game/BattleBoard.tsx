@@ -8,6 +8,8 @@ import { counterType } from '../../engine/state';
 import type { GameState, HexId, PieceId, Side } from '../../engine/types';
 import { Board, StackView, hexCentre, type LosLine, type StackItem } from '../board';
 import type { AttackShow, Flash, Slide } from './controller';
+import { FireOverlay } from './FireOverlay';
+import type { FireShow } from './fireShow';
 import type { HexMark } from './prompts';
 
 export interface BattleBoardProps {
@@ -25,6 +27,8 @@ export interface BattleBoardProps {
   flashes: readonly Flash[];
   flipping: readonly PieceId[];
   attack: AttackShow | null;
+  /** The Fire Attack being shown (arrow, rings, total). */
+  fire?: FireShow | null;
   losLine: LosLine | null;
   expanded: HexId | null;
   hovered?: HexId | null;
@@ -161,6 +165,7 @@ export function BattleBoard(p: BattleBoardProps) {
       <ControlMarkers s={s} rotate180={rotate180} />
       <Marks marks={p.marks} rotate180={rotate180} />
       {p.attack ? <AttackLines key={p.attack.id} attack={p.attack} rotate180={rotate180} /> : null}
+      {p.fire ? <FireOverlay key={p.fire.id} show={p.fire} human={p.human} rotate180={rotate180} /> : null}
       {p.slides.map((sl) => (
         <Flyer key={sl.id} slide={sl} rotate180={rotate180}>
           <StackView

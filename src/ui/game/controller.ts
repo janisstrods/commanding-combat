@@ -10,10 +10,13 @@ import { other } from '../../engine/types';
 import { sfx } from '../sound';
 import { storage } from '../storage';
 import { publicEvent, viewOf } from './hidden';
+import { fireStep, type FireShow } from './fireShow';
 import { logEntry, vpBucket, type LogKind } from './log';
 import { PURPOSE_TEXT, isRollPurpose, pieceName, sideName } from './names';
 import { WINDOW_PAUSE_MS, type Opponent } from './opponent';
-import { loadRerollPolicy, offerReroll, saveRerollPolicy, type RerollPolicy, type RollContext } from './reroll';
+import {
+  contextAfterAnswer, contextAfterEvent, loadRerollPolicy, offerReroll, rollStakes, saveRerollPolicy, type RerollPolicy, type RollContext, type RollStakes,
+} from './reroll';
 import { clearSave, makeSave, newDriver, writeSave, type SessionConfig } from './session';
 import { setupChoice } from './prompts';
 import { deployForMe } from '../../ai/deploy';
@@ -79,6 +82,8 @@ export interface ViewState {
   slides: Slide[];
   flipping: PieceId[];
   attack: AttackShow | null;
+  /** The Fire Attack being shown step by step (fireShow.ts), until play moves on. */
+  fire: FireShow | null;
   toast: { id: number; text: string; kind: 'turn' | 'notice' | 'big' } | null;
   /** The opponent is deciding. */
   thinking: boolean;
@@ -100,9 +105,6 @@ export interface ViewState {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const emptyVp = (): VpBreakdown => ({ Eliminations: 0, Exits: 0, Objectives: 0, Time: 0, Other: 0 });
-
-/** FP Actions played just before a Fire Attack roll (for the re-roll judgement). */
-const FP_ACTIONS = new Set(['Bore Sighting', 'Crossfire', 'Hand Grenades', 'Marksmanship', 'Sustained Fire']);
 
 let seq = 1;
 
@@ -157,6 +159,7 @@ export class GameController {
       slides: [],
       flipping: [],
       attack: null,
+      fire: null,
       toast: null,
       thinking: false,
       waiting: null,
@@ -247,6 +250,21 @@ export class GameController {
     this.set({ reroll: p });
   }
 
+  /** What the human's pending re-roll question decides for him: the number the roll had to reach, his chances. */
+  stakesOf(d: Decision | null): RollStakes | null {
+    if (!d || d.kind !== 'reroll') return null;
+    try {
+      return rollStakes(viewOf(this.driver.state, this.human), d.roll, this.human, this.rollCtx);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Close the Fire Attack panel. */
+  closeFire(): void {
+    if (this.view.fire) this.set({ fire: null });
+  }
+
   /** Skip the rest of the animations now playing. */
   hurry(): void {
     if (this.view.animating) this.skip = true;
@@ -299,8 +317,7 @@ export class GameController {
 
   /** Remember what the re-roll judgement needs from an accepted answer. */
   private noteAnswer(d: Decision, a: Answer) {
-    if (a.kind === 'fire') this.rollCtx = { ...this.rollCtx, spec: { side: d.side, pieces: a.spec.pieces.slice(), target: a.spec.target, bonus: 0 } };
-    if (a.kind === 'activatePlayer' && d.kind === 'activate' && d.order === 'Rout') this.rollCtx = { ...this.rollCtx, routed: a.player };
+    this.rollCtx = contextAfterAnswer(this.rollCtx, d, a);
   }
 
   /** The human answers his pending decision (the screen's click). `rest`: more answers of a path to send after it. */
@@ -309,7 +326,7 @@ export class GameController {
     if (!d || this.busy || this.view.fatal || this.disposed) return;
     if (!this.give(d, a)) return;
     this.plan = rest.slice();
-    this.set({ pending: null, error: null, canUndo: false });
+    this.set({ pending: null, error: null, canUndo: false, ...(this.view.fire?.stage === 'done' ? { fire: null } : {}) });
     this.run();
   }
 
@@ -398,6 +415,7 @@ export class GameController {
       error: null,
       slides: [],
       attack: null,
+      fire: null,
     });
     this.save();
     if (!this.humanPending()) this.run();
@@ -578,11 +596,12 @@ export class GameController {
     const entry = e.kind === 'place' && e.piece && full.phase === 'setup' ? null : logEntry(e, after, human);
     if (entry) this.addLog(entry);
     const mine = (side: Side | undefined) => side === human;
+    this.rollCtx = contextAfterEvent(this.rollCtx, e);
+    this.stepFire(e, after);
     switch (e.kind) {
       case 'turnStart': {
         this.orders++;
         this.autoPass = null;
-        this.rollCtx = {};
         this.set({ display: after, attack: null });
         if (mine(e.side)) {
           sfx.turn();
@@ -595,12 +614,7 @@ export class GameController {
         break;
       }
       case 'cardPlayed': {
-        if (e.as === 'order') {
-          this.orders++;
-          this.rollCtx = {};
-        } else if (FP_ACTIONS.has(e.name) && this.rollCtx.spec) {
-          this.rollCtx = { ...this.rollCtx, spec: { ...this.rollCtx.spec, bonus: this.rollCtx.spec.bonus + 2 } };
-        }
+        if (e.as === 'order') this.orders++;
         sfx.card();
         const caption = `${sideName(after, e.side)}${mine(e.side) ? ' (you)' : ''}: ${e.name}${e.as === 'order' ? ' Order' : ''}`;
         this.showCard({ card: e.card, side: e.side, caption, highlight: e.as === 'order' ? 'order' : 'action' }, mine(e.side) ? 900 : 1700);
@@ -658,21 +672,30 @@ export class GameController {
         this.set({ display: after });
         await this.wait(500);
         break;
+      // a Fire Attack in steps (the panel and the board overlay draw `fire`): who fires at whom, the FP built line by
+      // line, the roll and the total, then each defender's number to hold, its roll and the result
+      case 'fireAt':
+        this.set({ display: after });
+        await this.wait(mine(e.side) ? 350 : 700);
+        break;
+      case 'firePower':
+        this.set({ display: after });
+        await this.wait(250 + 130 * (this.view.fire?.lines.length ?? 2));
+        break;
       case 'fireAttack': {
-        const from = [...new Set(e.pieces.map((id) => this.hexOf(before, id)).filter((h) => h >= 0))];
         const targets = e.hexes?.length ? e.hexes : [e.target];
-        this.rollCtx = { ...this.rollCtx, attack: { side: e.side, total: e.total, targets, pieces: e.pieces.slice() } };
         if (e.pieces.length > 2) sfx.burst(6);
         else sfx.shot();
-        const attack = { id: seq++, from, targets };
-        this.set({ display: after, attack });
-        setTimeout(() => {
-          if (this.view.attack?.id === attack.id) this.set({ attack: null });
-        }, Math.max(700, this.dur(2400)));
-        for (const t of targets) this.flash(t, `${e.fp} FP + ${e.total - e.fp} = ${e.total}`, 'fire', 2200);
-        await this.wait(950);
+        this.set({ display: after });
+        // (the overlay labels the target with the total)
+        if (!this.view.fire) for (const t of targets) this.flash(t, `Attack ${e.total}`, 'fire', 1800);
+        await this.wait(800);
         break;
       }
+      case 'defending':
+        this.set({ display: after });
+        await this.wait(500);
+        break;
       case 'targeting':
         this.flash(e.target, `${e.product} vs ${e.need}: ${e.hit ? 'hit!' : 'miss'}`, e.hit ? 'fire' : 'info', 1500);
         this.set({ display: after });
@@ -778,6 +801,19 @@ export class GameController {
         break;
       default:
         this.set({ display: after });
+    }
+  }
+
+  /** The Fire Attack shown after event `e`; once every defender has rolled it closes by itself after a while. */
+  private stepFire(e: GameEvent, after: GameState) {
+    const prev = this.view.fire;
+    const fire = fireStep(prev, e, after);
+    if (fire === prev) return;
+    this.set({ fire });
+    if (fire && fire.stage === 'done' && prev?.stage !== 'done') {
+      setTimeout(() => {
+        if (this.view.fire?.id === fire.id && this.view.fire.stage === 'done') this.set({ fire: null });
+      }, Math.max(3000, this.dur(7000)));
     }
   }
 

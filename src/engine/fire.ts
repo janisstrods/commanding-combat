@@ -3,6 +3,7 @@
 // Defense roll, and the Defense rolls with their results. Used by the Fire Order, Op Fire, Assault Fire (Task 9),
 // Artillery (Task 8: `defendHex` with its own AttackInfo) and Mines (Task 7: `defend` with mode 'mine').
 import { breakPiece, eliminate, pendingTargets, suppress, watchReplacements } from './casualties';
+import { defendingEvent, firePowerEvent } from './fireParts';
 import { CARDS } from './data';
 import { roll } from './deck';
 import { choose, type Gen } from './decisions';
@@ -287,6 +288,7 @@ export function* fireAttack(s: GameState, ctx: FlowCtx, side: Side, spec: FireSp
     ignoresCover: shooters.some((x) => !!x.type.ignoresCover),
     fp: 0, bonus: 0, total: null, reduction: 0, played: [],
   };
+  ctx.emit({ kind: 'fireAt', side, pieces: spec.pieces.slice(), target: spec.target, mode });
   if (ordnance) {
     const w = shooters[0];
     const range = distance(w.hex, spec.target);
@@ -305,6 +307,7 @@ export function* fireAttack(s: GameState, ctx: FlowCtx, side: Side, spec: FireSp
     ctx.emit({ kind: 'log', text: 'The attack would have less than 1 FP: it is not made.', side });
     return false;
   }
+  ctx.emit(firePowerEvent(s, attack));
   const defenders = attack.targets.map((h) => unitsAt(s, h, other(side)));
   const r = yield* roll(s, ctx, side, 'fireAttack');
   const airburst = attack.mortarOrArtillery && attack.targets.some((h) => s.map.terrain[h] === 'Woods') ? 2 : 0;
@@ -376,6 +379,7 @@ export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackI
   const hex = p.hex;
   yield* window(s, ctx, 'beforeDefenseRoll', { hex, units: [id], attack });
   if (!still(s, id, hex)) return;
+  ctx.emit(defendingEvent(s, id, attack, firers));
   const morale = currentStats(s, id).morale + cover(s, id, { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover });
   const w = watchReplacements(ctx);
   const r = yield* roll(s, w.ctx, p.side, 'defense');

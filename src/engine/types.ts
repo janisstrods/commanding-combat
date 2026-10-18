@@ -822,6 +822,25 @@ export type Answer =
 // ---------------------------------------------------------------------------------------------------------------------
 // Events (what the UI animates and the log shows)
 
+/** How a Fire Attack is built (§O20.4, fire.ts `attackFp`) just before its roll: the 'firePower' event, for the screen. */
+export interface FireParts {
+  /** Each firing piece with its current FP and the Leader Command included in it, best first (it gives the base FP). */
+  pieces: { piece: PieceId; fp: number; command: number }[];
+  /** The largest Hindrance on the lines of fire (subtracted; 0 for Ordnance). */
+  hindrance: number;
+  /** −1 if a target is higher than a firing piece, +1 if one is lower (both may apply). */
+  height: number;
+  /** FP added by Actions, and the Actions played on the attack. */
+  bonus: number;
+  played: ActionName[];
+  /** Airburst (+2: a Mortar firing into Woods), added to the attack total with the roll. */
+  airburst: number;
+  /** The FP: best piece + 1 per other piece − hindrance + height + bonus. */
+  fp: number;
+  /** The enemy units in the target hexes, with their current Morale and their Cover against this attack. */
+  defenders: { unit: PieceId; morale: number; cover: number }[];
+}
+
 export type GameEvent =
   | { kind: 'turnStart'; side: Side; number: number }
   | { kind: 'cardPlayed'; side: Side; card: CardId; as: 'order' | 'action'; name: OrderName | ActionName }
@@ -838,6 +857,15 @@ export type GameEvent =
   | { kind: 'fireAttack'; side: Side; pieces: PieceId[]; target: HexId; fp: number; total: number; hexes?: HexId[] }
   | { kind: 'targeting'; side: Side; piece: PieceId; target: HexId; product: number; need: number; hit: boolean }
   | { kind: 'defense'; unit: PieceId; morale: number; total: number; attack: number; result: 'none' | 'suppress' | 'break' }
+  /** A Fire Attack begins: `pieces` of `side` fire at `target` (before any Targeting roll and Action window). */
+  | { kind: 'fireAt'; side: Side; pieces: PieceId[]; target: HexId; mode: 'order' | 'opFire' | 'assault' }
+  /** The FP of the Fire Attack about to be rolled (after its Actions), with its parts; `targets`: two after Spray Fire. */
+  | { kind: 'firePower'; side: Side; targets: HexId[]; parts: FireParts }
+  /**
+   * A unit is about to make its Defense roll: current Morale + Cover against the attack total `attack` (less
+   * Concealment). A roll above `attack − morale − cover` holds; exactly that ties (Suppressed, or broken if `moving`).
+   */
+  | { kind: 'defending'; unit: PieceId; morale: number; cover: number; attack: number; moving: boolean }
   | { kind: 'break'; piece: PieceId }
   | { kind: 'rally'; piece: PieceId }
   | { kind: 'suppress'; piece: PieceId }
