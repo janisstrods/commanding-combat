@@ -6,6 +6,9 @@ import { ACTIONS, EVENTS, ORDERS } from '../../src/engine/registry';
 import { moveOrder } from '../../src/engine/orders/move';
 import { fireOrder, opFireAction } from '../../src/engine/orders/fire';
 import { ambushAction } from '../../src/engine/actions/ambush';
+import { airSupportEvent } from '../../src/engine/events/airSupport';
+import { blazeEvent } from '../../src/engine/events/blaze';
+import { heroEvent } from '../../src/engine/events/hero';
 
 describe('handler tables and module load order', () => {
   it('serves the real Order and Action handlers when activation.ts loads first', () => {
@@ -17,5 +20,11 @@ describe('handler tables and module load order', () => {
 
   it('has an entry for every Event name', () => {
     expect(Object.keys(EVENTS)).toHaveLength(35);
+  });
+
+  it('serves the real Event handlers when activation.ts loads first', () => {
+    expect(EVENTS['Air Support']).toBe(airSupportEvent);
+    expect(EVENTS.Blaze).toBe(blazeEvent);
+    expect(EVENTS.Hero).toBe(heroEvent);
   });
 });
