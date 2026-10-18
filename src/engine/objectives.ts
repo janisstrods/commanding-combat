@@ -129,12 +129,17 @@ export function finalScore(s: GameState, ctx: FlowCtx): Side {
   return s.vp > 0 ? 'axis' : s.vp < 0 ? 'allied' : s.initiative;
 }
 
-/** Move unit `id` (its Weapon goes with it) to `hex`, updating control there. No rules checks: callers decide. */
+/**
+ * Move unit `id` (its Weapon goes with it) to `hex`, updating control there and where it left (leaving a building
+ * Objective can leave the other side alone in it). No rules checks: callers decide.
+ */
 export function relocate(s: GameState, ctx: FlowCtx, id: PieceId, hex: HexId): void {
   const p = s.pieces[id];
+  const from = p.where === 'map' ? p.hex : -1;
   p.where = 'map';
   p.hex = hex;
   p.space = -1;
   updateControl(s, ctx, hex);
+  if (from >= 0 && from !== hex) updateControl(s, ctx, from);
 }
 

@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { eliminate } from '../../src/engine/casualties';
 import { drawChit, finalScore, objectiveHexes, objectiveValue, relocate, revealChit, updateControl } from '../../src/engine/objectives';
-import { H, build, makeCtx, passive, run } from '../support/build';
+import { turnFlow } from '../../src/engine/flow';
+import { H, build, card, makeCtx, passive, run, start } from '../support/build';
 
 const map = { objectives: ['C3', 'E5', 'G7', 'J3', 'L5'], building: { G7: 1, G8: 1, H7: 1 } };
 
@@ -71,5 +72,31 @@ describe('Objective chits (§7.3.2, §7.3.3)', () => {
     expect(s.vp).toBe(0);
     s.vp = 1;
     expect(finalScore(s, makeCtx([]))).toBe('axis');
+  });
+});
+
+describe('leaving a building Objective (§7.3.1.1, found by the fuzzer)', () => {
+  // Objective 3 is the building G7-G8-H7: an Axis unit in G8 and an Allied one in H7, Axis control
+  const shared = () =>
+    build({
+      map,
+      control: [null, null, 'axis', null, null],
+      pieces: [{ type: 'German/Rifle Squad', hex: 'G8' }, { type: 'American/Line Squad', hex: 'H7' }],
+      axis: { hand: [card('German', { order: 'Move' })] },
+    });
+
+  it('the side left alone in the building takes control when the other leaves it', () => {
+    const s = shared();
+    relocate(s, makeCtx([]), 'p0', H('F8'));
+    expect(s.control[2]).toBe('allied');
+  });
+
+  it('also when the unit leaves by a Move', () => {
+    const s = shared();
+    const f = start(s, (ctx) => turnFlow(s, ctx));
+    const c = s.players.axis.hand[0];
+    f.answer({ kind: 'order', card: c, order: 'Move' }).answer({ kind: 'activate', units: ['p0'] });
+    f.answer({ kind: 'moveStep', units: ['p0'], to: H('G9') });
+    expect(s.control[2]).toBe('allied');
   });
 });

@@ -73,9 +73,14 @@ export function* retreat(s: GameState, ctx: FlowCtx, id: PieceId, hexes: number)
     const to = steps[i];
     yield* onLeaveHex(s, ctx, [id], from, to, 'retreat');
     if (!still(s, id, from)) return;
+    if (s.blaze[to]) {
+      left++; // a trigger while leaving (a Mine Attack's Event) set `to` ablaze: the step is taken another way
+      continue;
+    }
     p.hex = to;
     ctx.emit({ kind: 'retreat', unit: id, from, to });
     updateControl(s, ctx, to);
+    updateControl(s, ctx, from); // leaving a building Objective can leave the enemy alone in it
     yield* onEnterHex(s, ctx, [id], from, to, 'retreat');
   }
 }

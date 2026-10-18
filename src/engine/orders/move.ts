@@ -170,6 +170,11 @@ function* moveStep(s: GameState, ctx: FlowCtx, side: Side, units: PieceId[], to:
   }
   const cost = stepCost(s, from, to)!;
   const leave = yield* onLeaveHex(s, ctx, units, from, to, 'move');
+  if (stepCost(s, from, to) === null || hasUnitOf(s, to, other(side))) {
+    // a trigger while leaving (a Mine Attack's Event) made `to` impassable or put enemy units in it: they stay
+    finishGroup(m);
+    return;
+  }
   const movers = units.filter((id) => onMap(s, id) && s.pieces[id].hex === from);
   for (const id of movers) {
     m.spent[id] = (m.spent[id] ?? 0) + cost;
@@ -181,6 +186,7 @@ function* moveStep(s: GameState, ctx: FlowCtx, side: Side, units: PieceId[], to:
   m.entered = true;
   ctx.emit({ kind: 'move', units: movers, from, to, mp: cost });
   updateControl(s, ctx, to);
+  updateControl(s, ctx, from); // leaving a building Objective can leave the enemy alone in it
   const enter = yield* onEnterHex(s, ctx, movers, from, to, 'move');
   const here = movers.filter((id) => onMap(s, id) && s.pieces[id].hex === to);
   if (here.length && !enter.noOpFire) yield* window(s, ctx, 'afterHexEntry', { hex: to, units: here, mover: side });
