@@ -107,11 +107,11 @@ nation unless a special rule says otherwise. Where the Playbook and the module d
 - Scenario 3 (Bonfire of the NKVD): Hidden Fortifications: the Allies place their Wire after the Axis set-up (in their own set-up area).
 - Scenario 3 (Bonfire of the NKVD): Chits V, W and X are left out of the cup.
 - Scenario 3 (Bonfire of the NKVD): Sappers: the Axis starts with card G-65 in hand (taken out of the deck before shuffling; it counts toward the opening hand).
-- Scenario 4 (Closed for Renovation): Hidden Gun: the Axis sets up one Weapon Team and the IG 18 Gun after the Allied set-up (in the Axis set-up area).
+- Scenario 4 (Closed for Renovation): Hidden Gun: one Weapon Team and the IG 18 Gun are held back and placed in the Axis set-up area only once the Allies have finished setting up.
 - Scenario 4 (Closed for Renovation): Rubble: Axis Wire must be placed in or adjacent to Building hexes.
 - Scenario 4 (Closed for Renovation): Reinforcements: Sgt White, both Engineer Squads and both Flamethrowers enter along the Allied edge on Time space 3.
 - Scenario 5 (Cold Front): Chits R, V and X are left out of the cup.
-- Scenario 5 (Cold Front): Deep Freeze: one of the four German Weapons, picked at random, starts broken. After play starts no Fortification can enter play by any means: an Action that would place one cannot be played (like Command Confusion), an Event that would place one does nothing.
+- Scenario 5 (Cold Front): Deep Freeze: a randomly chosen German Weapon (of the four) starts broken. After play starts no Fortification can enter play by any means: an Action that would place one cannot be played (like Command Confusion), an Event that would place one does nothing.
 - Scenario 5 (Cold Front): Snow: Open Ground costs 1½ MP.
 - Scenario 5 (Cold Front): Winter Camouflage: an Allied Concealment Action lowers the Axis Fire Attack Total by a further 2.
 - Scenario 6 (Paralyzed from the West Down): Axis Orders per Turn start at 1 and rise by 1 at every Time advance, to at most 3.
@@ -130,7 +130,7 @@ nation unless a special rule says otherwise. Where the Playbook and the module d
 - Scenario 10 (Commando School): Combat Engineers: the two Pionier Squads start carrying the Flamethrower and the Satchel Charge (one each).
 - Scenario 10 (Commando School): Commandos: every Allied Melee roll gets +1.
 - Scenario 11 (Hold the Line): Uncleared Fortifications: the pre-placed Wire and Mines belong to neither side; the Mines are 6 FP.
-- Scenario 11 (Hold the Line): Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.
+- Scenario 11 (Hold the Line): Immobilised Sherman: the Bunker goes into one non-Hill Open Ground hex together with the Weapon Team (carrying the Pack Howitzer) and Sgt Buehler (carrying the .50 cal MG). While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.
 - Scenario 11 (Hold the Line): Reinforcements: one American Line Squad enters on each of Time spaces 2, 3, 4 and 5.
 - Scenario 11 (Hold the Line): Captured Panzerfausts: the two American Satchel Charges cannot attack a hex whose Cover is below 2.
 - Scenario 12 (Misty Mountain): Reinforcements: Sgt Smith and eight Green Squads arrive on Time space 7; any of them may be placed in or adjacent to road hex A9 instead of along the friendly edge.

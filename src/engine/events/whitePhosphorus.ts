@@ -1,7 +1,7 @@
-// White Phosphorus (§E77, American deck only): the receiver may draw a random Smoke and place it in a hex adjacent to
-// one of his unbroken Squads (not Water, Stream or Marsh; no Blaze). If he does, each player with units in that hex
-// (the inactive player first) must break one of his own units there — even if the Smoke already there was larger and
-// stays (R-42: the marker was placed, then stacking kept the larger). Both may lose at once.
+// White Phosphorus (§E77, American deck only): the receiver may draw a random Smoke and put it next to any unbroken
+// Squad of his, in a hex that is not Water, Stream or Marsh and has no Blaze. If he does, each player with units in that
+// hex (the inactive player first) must break one of his own units there — even if the Smoke already there was larger
+// and stays (R-42: the marker was placed, then stacking kept the larger). Both may lose at once.
 import { breakPiece, simultaneously } from '../casualties';
 import { choose } from '../decisions';
 import { neighbours } from '../hex';

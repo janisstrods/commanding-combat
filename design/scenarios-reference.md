@@ -225,7 +225,7 @@ Humaine, Belgium, 27 December 1944. 9th Panzer remnants in a château refuse to 
 
 - **Set-up:** Axis first, 9 deep; Allies last, 1 hex deep. Allies take the first Turn.
 - **Special rules:** (1) *Hidden Gun* — the Axis may place one Weapon Team and the IG 18 after the Allied set-up. (2)
-  *Rubble* — Axis Wire must go in or adjacent to building hexes. (3) *Reinforcements* — Sgt. White, both Engineer
+  *Rubble* — each Axis Wire is placed in a building hex or next to one. (3) *Reinforcements* — Sgt. White, both Engineer
   Squads and both Flamethrowers start on Time space 3.
 
 ### Scenario 5 — Cold Front (map 5)
@@ -258,8 +258,8 @@ Staritsa, Russia, 30 December 1941. Siberian Guards attack German Infantry Regim
 | Surrender | space 12 |
 
 - **Set-up:** Allies first, 3 deep; Axis last, 12 deep. Allies take the first Turn.
-- **Special rules:** (1) Chits R, V and X are left out of the cup. (2) *Deep Freeze* — one of the four German Weapons,
-  picked at random, begins broken; after play starts no Fortification may enter play by any means (an Action or Event
+- **Special rules:** (1) Chits R, V and X are left out of the cup. (2) *Deep Freeze* — a German Weapon chosen at random
+  (out of the four) begins broken; after play starts no Fortification may enter play by any means (an Action or Event
   that would place one is treated as Command Confusion, i.e. does nothing). (3) *Snow* — Open Ground costs 1½ MP.
   (4) *Winter Camouflage* — an Allied Concealment Action also lowers the Axis Attack Total by a further 2.
 
@@ -488,9 +488,9 @@ St. Jean de Daye, 8 July 1944. A small US force with an immobilised Sherman hold
 - **Set-up:** Allies first, 10 deep; Axis last, 1 hex deep. Axis takes the first Turn.
 - **Special rules:** (1) *Uncleared Fortifications* — Wire in B2, B3, B5, B6, B8, B9, C8, D8, D5, E5, H5, G6, G8, G9;
   Mines in C5, C6, D7, E8; Mines are 6 FP. (Wire/Mines are drawn in the German box but are neutral obstacles placed by
-  the rule.) (2) *Immobilised Sherman* — the Bunker, Sgt. Buehler with the .50 cal MG, and the Weapon Team with the Pack
-  Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex's unit
-  stacking limit is 4 figures (not 7). The Howitzer is fixed in the Bunker hex and dies if its carrier or
+  the rule.) (2) *Immobilised Sherman* — the Bunker goes into one non-Hill Open Ground hex together with
+  the Weapon Team (carrying the Pack Howitzer) and Sgt. Buehler (carrying the .50 cal MG). While the Bunker exists,
+  that hex's unit stacking limit is 4 figures (not 7). The Howitzer is fixed in the Bunker hex and dies if its carrier or
   the Bunker is eliminated. (3) *Reinforcements* — one US Line Squad on each of Time spaces 2, 3, 4 and 5. (4) The two
   Satchel Charges are captured panzerfausts: they may not attack a hex whose Cover is below 2.
 
@@ -748,7 +748,7 @@ Modifiers: Elite OB +1, Green OB −1; year:
 | 1945 | +1 | −1 | +1 |
 
 ### RS.7 Support rolls
-- If the VP marker is on 0, skip.
+- Skipped entirely when the VP marker sits on 0.
 - Otherwise the player with the cheaper OB (VP marker on his side) rolls 2 dice and **must** buy one or more units (no
   Radios) from that column of his Support Table, each available in the scenario year and still in the counter mix
   (several, even several of the same item, allowed). He moves the VP marker toward the opponent by the total cost.

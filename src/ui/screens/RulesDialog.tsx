@@ -734,8 +734,8 @@ function Orders() {
         <p className="rules-lead">{ORDER_TEXT.Recover}</p>
         <ul>
           <li>
-            Legal if you have at least one broken or Suppressed unit and have not been activated for a Recover or Rout
-            yet this Turn.
+            You may give it only while one or more of your units is broken or Suppressed, and only if no Recover or Rout
+            has activated you yet this Turn.
           </li>
           <li>
             It activates <i>you</i>, not your units, so the units that recover can still be activated by another Order
@@ -778,8 +778,8 @@ function Orders() {
         <p className="rules-lead">{ORDER_TEXT.Rout}</p>
         <ul>
           <li>
-            You may rout <b>either</b> player — usually the enemy — if he has a broken unit and has not been activated for
-            a Recover or Rout yet this Turn. So at most two Routs per Turn (one per player), and a Recover excludes a Rout
+            You may rout <b>either</b> player — usually the enemy — as long as he has a broken unit and no Recover or Rout
+            has activated him yet this Turn. So at most two Routs per Turn (one per player), and a Recover excludes a Rout
             on yourself.
           </li>
           <li>The player who gives the Order rolls, from his own deck, for each of that player&rsquo;s units that were broken when it was given:</li>
@@ -1306,9 +1306,9 @@ function Units() {
             Terrain and enemy units do not matter for the distance. Leaders never activate other Leaders.
           </li>
           <li>
-            <b>Command bonus</b>: each Leader adds his Command to the FP, Range, Movement and Morale of every friendly Squad
-            and Team in his hex, whether or not he is activated. Several Leaders add up. Leaders never boost themselves or
-            each other.
+            <b>Command bonus</b>: every friendly Squad and Team in a Leader&rsquo;s hex gets his Command added to its FP,
+            Range, Movement and Morale, whether the Leader is activated or not. Several Leaders add up. Leaders never
+            boost themselves or each other.
           </li>
           <li>
             <b>Weapons</b> carried by Squads and Teams in his hex also gain his Command on FP and Range — except Ordnance,
@@ -1404,16 +1404,16 @@ function Weapons() {
           <li>During a Move a unit may hand its Weapon to a friendly unit in its hex without one, for 1 MP.</li>
           <li>You may throw away (eliminate) one of your Weapons at any time.</li>
           <li>
-            If the carrier is eliminated, the Weapon goes to the Weapons box of the Casualty Track; if it exits the map,
-            the Weapon goes with it. When a Squad splits, one of the Teams keeps it.
+            A Weapon whose carrier is eliminated is put in the Weapons box of the Casualty Track; a carrier that exits the
+            map takes its Weapon along. When a Squad splits, one of the Teams keeps it.
           </li>
         </ul>
       </Sec>
       <Sec title="Broken Weapons">
         <ul>
           <li>
-            Weapons break from <b>Jammed!</b>, doubles on <b>Sustained Fire</b>, and the <b>Malfunction</b> Event. A broken
-            Weapon that breaks again is eliminated. Broken Weapons cannot fire.
+            Weapons break from <b>Jammed!</b>, doubles on <b>Sustained Fire</b>, and the <b>Malfunction</b> Event.
+            Breaking an already broken Weapon eliminates it. Broken Weapons cannot fire.
           </li>
           <li>
             The broken side shows a <b>Fix</b> range and an <b>Elim</b> range of hex numbers. Every time anyone determines a{' '}
@@ -1507,8 +1507,8 @@ function Artillery() {
             It is accurate if the result is greater than the distance.
           </li>
           <li>
-            <b>Accurate</b>: reveal a card; the round drifts one hex in the direction of the white die (on the map
-            compass), then one hex in the direction of the coloured die. It may end where it started.
+            <b>Accurate</b>: reveal a card; the round drifts one hex toward the map-compass direction shown by the
+            white die, then one more hex toward the direction shown by the coloured die. It may end where it started.
           </li>
           <li>
             <b>Inaccurate</b>: reveal a card; the round drifts in the white die&rsquo;s direction as many hexes as the
@@ -1944,8 +1944,9 @@ function TerrainChart() {
   return (
     <>
       <p>
-        Every hex has one terrain <b>type</b>. If a hex shows several, the type higher in the table below wins (a Major
-        Bridge over a Stream is a Bridge hex). <b>Features</b> — roads, hexsides, hills and markers — modify the type.
+        Every hex has one terrain <b>type</b>. If a hex shows several, the type higher in the table below wins (a hex
+        where a Major Bridge spans a Stream counts as a Bridge hex). <b>Features</b> — roads, hexsides, hills and markers
+        — modify the type.
       </p>
       <ul>
         <li>

@@ -48,12 +48,12 @@ the ruling below is marked **Project ruling** with its reasoning, so it can be r
 | Activate | Units are normally activated at most once per Turn (Hero exception). Recover/Rout activate a *player*, not units. |
 | Active / inactive | Player whose Turn it is / the other one. When both may do something at the same moment, the inactive player goes first (fully) — see §A24.2. |
 | Adjacent | Sharing a hexside. |
-| Broken | A unit, Weapon or Radio showing its reverse side. A broken piece that breaks again is eliminated. Broken Weapons/Radios cannot be used. Broken units still act, weaker. |
+| Broken | A unit, Weapon or Radio showing its reverse side. If an already-broken piece breaks a second time, it is eliminated. Broken Weapons/Radios cannot be used. Broken units still act, weaker. |
 | Command | Leader-only stat (number in a hexagon). Radius of activation and bonus to stacked Squads/Teams and their Weapons. |
 | Cover | Number for each terrain/fortification; the best single applicable Cover is added to the Morale of each unit in the hex. Never cumulative. |
 | Friendly hex | A hex holding a friendly unit, or an Objective hex you control that holds no enemy unit. Enemy hex is the mirror. Fortifications are never friendly or enemy. |
 | Hindrance | Terrain/marker that reduces fire *through* it (Smoke also into/out of its own hex). Not cumulative: only the largest applies. |
-| Obstacle | Terrain that blocks LOS *through* it (never into/out of the hex that contains it). |
+| Obstacle | Terrain that stops a LOS passing *across* it; a LOS that starts or ends in the Obstacle's own hex is never blocked by it. |
 | LOS | Line of sight: straight segment between hex centre dots. |
 | Marker | Any non-unit counter (Weapons, Wire, Control, Smoke, Spotting Round, etc.). |
 | Morale | Unit stat (top right). Defence strength and the target number for Rally/Rout rolls. |
@@ -171,11 +171,12 @@ boxed Range enables Spray Fire; boxed Movement enables Smoke Grenades. No other 
 ### §3.3 Leaders and Command (rulebook 3.3)
 Use the Leader's *current* side's Command (a broken Leader usually has 0).
 
-- **Command Radius (3.3.1.1):** when a Leader is activated for an Order or for Op Fire it may also activate any, all or
-  none of the friendly *non-Leader* units within that many hexes (0 = own hex only; 1 = own + adjacent; 2 = up to 2
-  away). Distance ignores terrain, impassable hexes and enemy units. Leaders never activate other Leaders.
-- **Unit Command (3.3.1.2):** each friendly Leader in a hex adds its Command to the FP, Range, Movement and Morale of
-  every friendly Squad and Team in that hex, whether or not the Leader is activated. Multiple Leaders stack
+- **Command Radius (3.3.1.1):** when a Leader is activated for an Order or for Op Fire, the player may activate with it
+  whichever friendly *non-Leader* units he likes (none, some or all) that are no more than that many hexes away (0 = own
+  hex only; 1 = own + adjacent; 2 = up to 2 away). Distance ignores terrain, impassable hexes and enemy units. Leaders
+  never activate other Leaders.
+- **Unit Command (3.3.1.2):** a friendly Squad or Team gets the Command of each friendly Leader sharing its hex added
+  to its own FP, Range, Movement and Morale — the Leader need not be activated. Multiple Leaders stack
   (cumulative). Leaders never boost themselves or other Leaders.
 - **Weapon Command (3.3.1.3):** each friendly Leader also adds its Command to the FP and Range of every non-Ordnance
   Weapon carried by a Squad/Team in its hex (cumulative). Ordnance and Weapons carried by Leaders get nothing.
@@ -246,7 +247,7 @@ Placed per scenario (usually space 0).
 
 #### §6.1.2 Time advance — what causes it (rulebook 6.1.2)
 - A Time! trigger on any roll that is allowed to trigger, or
-- revealing/drawing the last card of a player's draw pile (treated exactly as a Time! trigger by that player). This
+- a player revealing or drawing the final card of his draw pile (handled exactly like a Time! trigger by that player). This
   happens even while resolving another trigger or Event (R-07).
 - A Time! trigger on the last card advances the marker once, not twice.
 
@@ -260,7 +261,7 @@ The Time marker moves forward one space. Then:
 5. Units/pieces on the Time Track space now occupied by the Time marker enter as reinforcements: each owner places
    them in hexes along his own friendly board edge (inactive player places first), respecting stacking limits. A
    reinforcement Radio goes to its owner's Artillery Box (only if empty; §8.1.2).
-6. Both players may play Dig In Actions (§A32) (inactive first).
+6. Each player may now play Dig In Actions (§A32), the inactive one first.
 Then play resumes exactly where it paused (including an interrupted hand refill, or the pending result of the
 triggering roll).
 
@@ -272,10 +273,10 @@ below 2, so Time space ≤2 never ends the game this way; Time space ≥13 alway
 
 ### §6.3 Game end (rulebook 6.3, as clarified by FAQ)
 The game ends when any of these happens:
-1. A player must place an eliminated unit into the Casualty Track space holding his own Surrender marker.
-2. A player's last unit on the map is eliminated.
-3. A player's last unit on the map voluntarily Moves or Advances off the map.
-4. A Sudden Death roll is below the Time marker's space number.
+1. A player has to put one of his eliminated units into the Casualty Track space where his own Surrender marker sits.
+2. The final unit a player has on the map is eliminated.
+3. The final unit a player has on the map leaves it voluntarily, by Moving or Advancing off.
+4. A Sudden Death roll comes up lower than the number of the Time space the marker occupies.
 
 Outcome:
 - Cases 1 or 2: that player loses at once regardless of VP. If both players lose this way simultaneously, the holder of
@@ -361,8 +362,8 @@ revealed at start. Values add up across chits (C+G+K → Objective 3 worth 6).
 - Radios: one per Artillery Box; if a second would enter, the first stays and the newcomer is not placed.
 - Fortifications: one per hex; the first placed stays; a later placement into an occupied hex simply fails.
 - Smoke: one per hex; if a second arrives keep the one with the larger Hindrance (ties: keep either — R-42).
-- Blaze: one per hex; while a Blaze is in a hex, no unit and none of the markers above (unit markers, Fortification,
-  Smoke) may be there.
+- Blaze: one per hex; a hex holding a Blaze cannot also hold any unit or any of the markers above (unit markers,
+  Fortification, Smoke).
 
 ### §8.2 Units (rulebook 8.2)
 - Limit: friendly units totalling at most 7 figures per hex (Squad 4, Team 2, Leader 1). 8+ = overstacked.
@@ -392,8 +393,8 @@ revealed at start. Values add up across chits (C+G+K → Objective 3 worth 6).
 - Only terrain in **intervening** hexes matters. Obstacles/Hindrances inside (or on the hexsides of) the sighting or
   target hex never matter — except Smoke, which hinders into/out of its own hex, and Blaze (which blocks in its hex,
   where no unit can be anyway).
-- A hexside Wall/Hedge (Obstacle) or Fence (Hindrance) that is not one of the six sides of either end hex does count —
-  even when the LOS runs exactly along that hexside (along the hexspine).
+- A hexside Wall/Hedge (Obstacle) or Fence (Hindrance) does count unless it forms part of the sighting or target hex's
+  own border — even when the LOS runs exactly along that hexside (along the hexspine).
 - Units never block or hinder LOS.
 
 ### §10.2 Obstacles (rulebook 10.2)
@@ -451,8 +452,8 @@ Algorithm for LOS between A (level a) and B (level b), applied in addition to §
   Track's Weapons box (elimination). When a Squad Deploys, one of the new Teams keeps the Weapon.
 - **Broken Weapons (11.4):** broken side shows a Fix range and an Elim range. On every Random Hex determination, compare
   the hex number to every broken Weapon (both sides) *before* the Sniper/Event effect: in Fix range → flip unbroken
-  (usable at once); in Elim range → eliminate (to Weapons box); else stays broken. A broken Weapon that breaks again is
-  eliminated.
+  (usable at once); in Elim range → eliminate (to Weapons box); else stays broken. Breaking an already-broken Weapon
+  eliminates it.
 - **Ordnance (11.5):** white band. Targeting roll first; never in a Fire Group; never Op Fire; no Leader bonus. The
   carrier may still fire its own FP normally (alone or in groups).
 - **Specialised (11.6):** Flamethrower (and Molotov Cocktail if any) sets the target's Cover to 0, unmodifiable.
@@ -663,9 +664,9 @@ Suppressed − Wire + Cover (§T78.3; Cover forced to 0 vs Flamethrower/Molotov 
 - Wire (F106.2), Trench (F105.2), Road (T93) and Snow (scenario 5) modify costs — see those sections.
 
 ## §O22 Recover (rulebook O22)
-- Legal if the player has at least one broken and/or Suppressed unit, and has not yet been activated this Turn for a
-  Recover or Rout. Activates the *player* (so at most one Recover per Turn); the affected units are not activated and
-  can be activated for another Order the same Turn.
+- Allowed only while the player owns one or more units that are broken, Suppressed or both, and only if no Recover or
+  Rout has activated him yet this Turn. Activates the *player* (so at most one Recover per Turn); the affected units
+  are not activated and can be activated for another Order the same Turn.
 - Procedure: (1) remove every Suppressed marker from his units; (2) Rally roll for each of his units that was broken
   when the Order was announced (owner chooses order; units broken by Events during the Order don't roll).
 - Rally roll vs current Morale (Command, Cover etc. included): roll < Morale → Rally; = → becomes Suppressed (stays
@@ -758,8 +759,8 @@ Turn 3). Useless against Flamethrower/Molotov/Mines (Cover 0). See R-17 for nega
 Just before a Fire Attack Roll that targets one or more Moving units (activated to Move). +2 FP.
 
 ## §A31 Demolitions (rulebook A31)
-When the opponent passes and throws away at least one card (Fog of War / Interrogation losses don't count). Remove one
-Fortification in any hex containing a friendly unit.
+When the opponent passes and throws away at least one card (Fog of War / Interrogation losses don't count). Pick a hex
+that holds a friendly unit and take one Fortification out of it.
 
 ## §A32 Dig In (rulebook A32)
 Only at the end of a Time advance (step 6). Place Foxholes in a hex with a friendly unit; not Water, not Blaze, no other
@@ -790,7 +791,7 @@ adjacent suffices). +2 FP.
   and has no Fortification. Place Mines and make a Mine Attack (§F103) against each unit that just entered (units
   already there are immune to this attack).
 - **A35.3 Hidden Pillbox:** just before the Defender makes a Defense Roll against an attack on an Objective hex (for a
-  building Objective, any hex of the building — R-18), if the Pillbox is not already in play; not Water; no
+  building Objective, any hex of the building — R-18), provided the Pillbox has not entered play yet; not Water; no
   Fortification. Place the Pillbox.
 - **A35.4 Hidden Unit:** when the opponent passes and discards ≥1 card (not Event discards). (1) roll on own Support
   Table (a normal roll; triggers apply — R-16); (2) choose one non-Radio item from that column available in the
@@ -815,8 +816,8 @@ After a melee, if at least one of the player's participating units is still aliv
 Russia, and by the Russian player against anyone. +2 VP.
 
 ## §A39 Smoke Grenades (rulebook A39)
-For a unit with boxed Movement that is currently activated to Move. Draw a random Smoke marker; place it in or adjacent
-to that unit's hex (not Water, not Blaze). Smoke into Smoke: keep the larger.
+For a unit with boxed Movement that is currently activated to Move. Draw a random Smoke marker and put it in that unit's
+hex or a hex next to it (not Water, not Blaze). Smoke into Smoke: keep the larger.
 
 ## §A40 Spray Fire (rulebook A40)
 Just before a Fire Attack Roll. All firing pieces have boxed Range. Two target hexes, adjacent to each other, each within
@@ -880,7 +881,7 @@ hex (by hex distance) holding any unit; receiver breaks all units there if he wi
 Receiver must put a Veteran marker on one of his units that lacks one (§13).
 
 ## §E45 Battlefield Integrity (rulebook E45)
-Receiver gains VP equal to the number of enemy units on the Casualty Track.
+Receiver scores 1 VP for each enemy unit on the Casualty Track.
 
 ## §E46 Blaze (rulebook E46)
 Random Hex. If it is not Water and has no Blaze: place a Blaze; remove any Smoke and Fortification there; every unit
@@ -973,7 +974,7 @@ observed, not impassable.
 Random Hex; if not Water and no Blaze/Fortification: place Wire.
 
 ## §E70 Sappers (rulebook E70)
-Receiver may remove one Mines or one Wire marker from the map.
+Receiver may take a single Mines or Wire marker off the map.
 
 ## §E71 Scrounge (rulebook E71)
 Receiver may take one eliminated Weapon (any side) from the Casualty Track and give it to one of his units that has no
@@ -989,8 +990,8 @@ Random Hex; if not Water and no Blaze/Fortification: place Foxholes.
 Draw a random Objective chit and place it open in the centre; score it at once for current controllers.
 
 ## §E75 Suppressing Fire (rulebook E75)
-Receiver may Suppress one enemy unit without a Suppressed marker that is within current Range and LOS of one of his
-unbroken MGs carried by an unbroken, unsuppressed friendly unit.
+Receiver may Suppress one enemy unit that has no Suppressed marker yet, if one of his unbroken MGs — held by a friendly
+unit that is neither broken nor suppressed — has that unit in LOS and within its current Range.
 
 ## §E76 Walking Wounded (rulebook E76)
 Receiver must: pick one eliminated unit (any side) on the Casualty Track; Random Hex; place that unit broken in or
@@ -998,8 +999,8 @@ adjacent to that hex (stacking observed, not impassable). VP already scored stay
 empty.
 
 ## §E77 White Phosphorus — American deck only (rulebook E77)
-Receiver may draw a random Smoke and place it in a hex adjacent to one of his unbroken Squads (not Water, not Blaze). If
-he does, each player with units in that hex must break one of his own units there.
+Receiver may draw a random Smoke and put it next to any unbroken Squad of his, in a hex that is not Water and has no
+Blaze. If he does, each player with units in that hex must break one of his own units there.
 
 ---
 
@@ -1007,8 +1008,8 @@ he does, each player with units in that hex must break one of his own units ther
 
 ## §T78 General (rulebook T78)
 - **Types vs features (T78.1):** each hex has one terrain *type* (green rows on the chart; the highest row present in
-  the hex wins, so a Major Bridge over a Stream is a Bridge hex, not Water). *Features* (tan rows: Road, Railway,
-  Trail, hexside Fence/Hedge/Wall, Hill, Cliff, Smoke, Blaze) modify the type.
+  the hex wins, so a hex where a Major Bridge spans a Stream counts as a Bridge hex, not Water). *Features* (tan rows:
+  Road, Railway, Trail, hexside Fence/Hedge/Wall, Hill, Cliff, Smoke, Blaze) modify the type.
 - **Move Cost (T78.2):** MP to enter the hex or cross the hexside.
 - **Cover (T78.3):** always added to the Morale of every unit in the hex, for every purpose (Defense, Rally, Rout,
   Commissar...). Never cumulative: if several Covers are available (terrain, Fortification, Wall/Hedge vs a shot across

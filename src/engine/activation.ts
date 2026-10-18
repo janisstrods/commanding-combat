@@ -1,6 +1,6 @@
 // Activating units for an Order or for Op Fire (§O14.1, §3.3.1.1): one friendly unit not yet activated this Turn (a
-// Hero any number of times); a Leader may bring any of the friendly non-Leader units within its Command radius that
-// are not activated either. Each Order adds its own requirement (Fire: an enemy in LOS and Range, Move: a hex to enter).
+// Hero any number of times); a Leader may take along any not-yet-activated friendly non-Leader units in its Command
+// radius. Each Order adds its own requirement (Fire: an enemy in LOS and Range, Move: a hex to enter).
 import { canShootSomething } from './fire';
 import { distance } from './hex';
 import { ORDERS } from './registry';

@@ -41,8 +41,9 @@ export const TERRAIN: Readonly<Record<TerrainType, Readonly<TerrainInfo>>> = {
   Orchard: t('Orchard', 1, 1, 2),
   Field: t('Field', 1, 0, 1),
   MajorBridge: t('Major Bridge', null, 2, 1),
-  // "1 across a road/railway hexside, else the cost of the other terrain in the hex". A Minor Bridge lies inside one hex
-  // and spans a Stream, so the other terrain is the Stream (project ruling: MapDef keeps one terrain type per hex).
+  // Move cost: 1 when entered across a road/railway hexside, otherwise what the hex's other terrain costs. A Minor
+  // Bridge lies inside one hex and spans a Stream, so the other terrain is the Stream (project ruling: MapDef keeps one
+  // terrain type per hex).
   MinorBridge: t('Minor Bridge', 3, 2, 1),
   Gully: t('Gully', 2, 1, 0),
   Water: t('Water Barrier', null, null, 0, false, true),

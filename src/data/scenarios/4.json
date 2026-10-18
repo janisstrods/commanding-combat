@@ -66,7 +66,7 @@
     "lateSetup": {"axis":["German/Weapon Team","German/IG 18 Gun"]},
     "fortNear": {"axis":{"wire":"Building"}},
     "notes": [
-      "Hidden Gun: the Axis sets up one Weapon Team and the IG 18 Gun after the Allied set-up (in the Axis set-up area).",
+      "Hidden Gun: one Weapon Team and the IG 18 Gun are held back and placed in the Axis set-up area only once the Allies have finished setting up.",
       "Rubble: Axis Wire must be placed in or adjacent to Building hexes.",
       "Reinforcements: Sgt White, both Engineer Squads and both Flamethrowers enter along the Allied edge on Time space 3."
     ]

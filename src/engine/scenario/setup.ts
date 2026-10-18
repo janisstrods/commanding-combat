@@ -63,8 +63,8 @@ export function* scenarioDeploy(s: GameState, ctx: FlowCtx, side: Side): Gen {
 
 /**
  * The units of `setupTogether` (with the Weapons `carried` gave them) and the Fortification: the owner picks one hex of
- * his set-up area with the named terrain and elevation that can take the Fortification and them (S11: the Bunker,
- * Sgt Buehler with the .50 cal, the Weapon Team with the Pack Howitzer, in a non-Hill Open Ground hex).
+ * his set-up area with the named terrain and elevation that can take the Fortification and them (S11: one non-Hill
+ * Open Ground hex takes the Bunker plus Sgt Buehler and the Weapon Team, carrying the .50 cal and the Pack Howitzer).
  */
 function* setUpTogether(s: GameState, ctx: FlowCtx, side: Side): Gen {
   const t = s.scenario.special.setupTogether![side]!;

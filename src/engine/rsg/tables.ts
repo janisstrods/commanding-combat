@@ -27,7 +27,7 @@ export const die = (d: RsgDraft) => 1 + Math.floor(random(d) * 6);
 export const twoDice = (d: RsgDraft): [number, number] => [die(d), die(d)];
 export const coin = (d: RsgDraft): 'heads' | 'tails' => (random(d) < 0.5 ? 'heads' : 'tails');
 export const nationOf = (d: RsgDraft, side: Side): Nation => (side === 'axis' ? 'German' : d.allied!);
-/** `side`'s VP lead (the VP marker on his side of 0 is positive). */
+/** `side`'s VP lead: positive while the VP marker sits on `side`'s half of the track. */
 export const leadOf = (vp: number, side: Side) => (side === 'axis' ? vp : -vp);
 /** Move the VP marker `n` toward `side`. */
 export const give = (d: RsgDraft, side: Side, n: number) => {
@@ -186,7 +186,7 @@ export function supportError(options: RsgSupportOption[], lead: number, buy: str
   }
   const total = costs.reduce((a, b) => a + b, 0);
   if (total - Math.max(...costs) >= lead) {
-    return 'Every purchase but the last must leave the VP marker on his side of 0 (project ruling for RS.7).';
+    return 'Before the last purchase the VP marker must still be on the buyer\'s side of 0 (project ruling for RS.7).';
   }
   return null;
 }

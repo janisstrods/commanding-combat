@@ -102,7 +102,7 @@ export const SCENARIO_RULES: Record<number, ScenarioRules> = {
       lateSetup: { axis: ['German/Weapon Team', 'German/IG 18 Gun'] },
       fortNear: { axis: { wire: 'Building' } },
       notes: [
-        'Hidden Gun: the Axis sets up one Weapon Team and the IG 18 Gun after the Allied set-up (in the Axis set-up area).',
+        'Hidden Gun: one Weapon Team and the IG 18 Gun are held back and placed in the Axis set-up area only once the Allies have finished setting up.',
         'Rubble: Axis Wire must be placed in or adjacent to Building hexes.',
         'Reinforcements: Sgt White, both Engineer Squads and both Flamethrowers enter along the Allied edge on Time space 3.',
       ],
@@ -122,7 +122,7 @@ export const SCENARIO_RULES: Record<number, ScenarioRules> = {
       concealmentBonus: { allied: 2 },
       notes: [
         'Chits R, V and X are left out of the cup.',
-        'Deep Freeze: one of the four German Weapons, picked at random, starts broken. After play starts no Fortification can enter play by any means: an Action that would place one cannot be played (like Command Confusion), an Event that would place one does nothing.',
+        'Deep Freeze: a randomly chosen German Weapon (of the four) starts broken. After play starts no Fortification can enter play by any means: an Action that would place one cannot be played (like Command Confusion), an Event that would place one does nothing.',
         'Snow: Open Ground costs 1½ MP.',
         'Winter Camouflage: an Allied Concealment Action lowers the Axis Fire Attack Total by a further 2.',
       ],
@@ -251,7 +251,7 @@ export const SCENARIO_RULES: Record<number, ScenarioRules> = {
       minTargetCover: { 'American/Satchel Charge': 2 },
       notes: [
         'Uncleared Fortifications: the pre-placed Wire and Mines belong to neither side; the Mines are 6 FP.',
-        'Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.',
+        'Immobilised Sherman: the Bunker goes into one non-Hill Open Ground hex together with the Weapon Team (carrying the Pack Howitzer) and Sgt Buehler (carrying the .50 cal MG). While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.',
         'Reinforcements: one American Line Squad enters on each of Time spaces 2, 3, 4 and 5.',
         'Captured Panzerfausts: the two American Satchel Charges cannot attack a hex whose Cover is below 2.',
       ],

@@ -1,5 +1,6 @@
-// Suppressing Fire (§E75): the receiver may Suppress one enemy unit without a Suppressed marker that is within the
-// current Range and LOS of one of his unbroken machine guns carried by an unbroken, unsuppressed friendly unit.
+// Suppressing Fire (§E75): the receiver may Suppress one enemy unit that has no Suppressed marker yet, if one of his
+// unbroken machine guns, held by a friendly unit that is neither broken nor suppressed, has it in LOS and in current
+// Range.
 import { suppress } from '../casualties';
 import { choose } from '../decisions';
 import { distance } from '../hex';
