@@ -199,11 +199,11 @@ function Marks({ marks, rotate180 }: { marks: readonly HexMark[]; rotate180: boo
     <g pointerEvents="none" className="bb-marks">
       {marks.map((m) => {
         const c = hexCentre(m.hex, rotate180);
-        const w = Math.max(0.5, m.label.length * 0.105 + 0.16);
+        const w = Math.max(0.56, m.label.length * 0.125 + 0.18);
         return (
-          <g key={`${m.hex}-${m.label}`} transform={`translate(${c.x} ${c.y + 0.58})`} className={`bb-mark bb-mark--${m.tone}`}>
-            <rect x={-w / 2} y={-0.13} width={w} height={0.26} rx={0.12} />
-            <text y={0.07}>{m.label}</text>
+          <g key={`${m.hex}-${m.label}`} transform={`translate(${c.x} ${c.y + 0.6})`} className={`bb-mark bb-mark--${m.tone}`}>
+            <rect x={-w / 2} y={-0.155} width={w} height={0.31} rx={0.14} />
+            <text y={0.075}>{m.label}</text>
           </g>
         );
       })}

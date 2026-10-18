@@ -90,7 +90,7 @@
 .bb-flyer { will-change: transform; }
 
 .bb-mark rect { fill: rgba(25, 27, 16, .82); stroke: rgba(255, 245, 210, .7); stroke-width: .015px; }
-.bb-mark text { fill: #fff3c4; font-family: var(--kit-font-title); font-size: .17px; font-weight: 600; text-anchor: middle; letter-spacing: .005px; }
+.bb-mark text { fill: #fff3c4; font-family: var(--kit-font-title); font-size: .21px; font-weight: 600; text-anchor: middle; letter-spacing: .005px; }
 .bb-mark--fire rect { fill: rgba(120, 22, 12, .88); }
 .bb-mark--info rect { fill: rgba(40, 60, 30, .6); }
 .bb-mark--info text { font-size: .14px; }
@@ -222,9 +222,10 @@
   transition: transform .15s ease, filter .15s ease;
   flex: 0 0 auto;
 }
-.gp-card:hover { transform: translateY(-6px); }
+.gp-card:hover { transform: translateY(-6px); z-index: 2; }
+.gp-card.is-chosen { transform: translateY(-14px); box-shadow: 0 0 0 3px #f2d36b, 0 0 18px rgba(242, 211, 107, .9); z-index: 1; }
 .gp-card.is-playable { box-shadow: 0 0 0 3px #f2d36b, 0 0 14px rgba(242, 211, 107, .7); }
-.gp-card.is-picked { transform: translateY(-14px); box-shadow: 0 0 0 3px #d6331f, 0 0 14px rgba(214, 51, 31, .6); }
+.gp-card.is-picked { z-index: 1; transform: translateY(-14px); box-shadow: 0 0 0 3px #d6331f, 0 0 14px rgba(214, 51, 31, .6); }
 .gp-card__tag {
   position: absolute;
   top: -15px;
@@ -252,6 +253,8 @@
 .gp-mini svg, .gp-opphand__card svg { width: 52px !important; height: 74px !important; display: block; }
 .gp-opphand .gp-count { right: 2px; bottom: 2px; }
 .gp-pile { display: flex; gap: 8px; }
+.gp-decks.is-compact .gp-deckrow__label { width: auto; font-size: 10.5px; writing-mode: vertical-rl; transform: rotate(180deg); }
+.gp-decks.is-compact .gp-opphand__card + .gp-opphand__card { margin-left: -40px !important; }
 .gp-pile__deck, .gp-pile__discard { position: relative; width: 52px; height: 74px; flex: 0 0 auto; }
 .gp-pile__discard { border: none; padding: 0; background: none; cursor: pointer; }
 .gp-pile__discard:disabled { cursor: default; }
@@ -321,7 +324,7 @@
 .gp-cas__head { display: flex; justify-content: space-between; font-size: 12.5px; }
 .gp-cas__head b.is-bad { color: var(--kit-bad); }
 .gp-cas__row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 2px; }
-.gp-cas__slot { width: 24px; height: 24px; border: 1px dashed rgba(35, 36, 28, .35); border-radius: 2px; display: flex; align-items: center; justify-content: center; }
+.gp-cas__slot { width: 20px; height: 20px; border: 1px dashed rgba(35, 36, 28, .35); border-radius: 2px; display: flex; align-items: center; justify-content: center; }
 .gp-cas__slot.is-surrender { border: 2px solid var(--kit-red); background: rgba(150, 45, 34, .1); }
 
 .gp-objs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }

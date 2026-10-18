@@ -110,13 +110,15 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     case 'eliminate':
       return { kind: 'result', side: s.pieces[e.piece]?.side, text: `${pieceName(s, e.piece)} is eliminated${e.vp ? ` (${e.vp} VP)` : ''}.` };
     case 'place': {
+      if (e.marker === 'sr') return null; // the Spotting Round's steps: the artillery's own lines tell where it lands
       if (e.piece) return { kind: 'info', side: s.pieces[e.piece]?.side, text: `${pieceName(s, e.piece)} placed in ${hexName(e.hex)}.` };
       if (!e.marker) return null;
-      const what = e.marker === 'smoke' ? `Smoke ${e.value ?? ''}`.trim() : e.marker === 'sr' ? 'The Spotting Round' : e.marker === 'blaze' ? 'A Blaze' : cap(e.marker);
+      const what = e.marker === 'smoke' ? `Smoke ${e.value ?? ''}`.trim() : e.marker === 'blaze' ? 'A Blaze' : cap(e.marker);
       return { kind: 'info', text: `${what} placed in ${hexName(e.hex)}.` };
     }
     case 'remove': {
-      const what = e.marker === 'smoke' ? 'Smoke' : e.marker === 'sr' ? 'The Spotting Round' : e.marker === 'blaze' ? 'The Blaze' : cap(e.marker);
+      if (e.marker === 'sr') return null;
+      const what = e.marker === 'smoke' ? 'Smoke' : e.marker === 'blaze' ? 'The Blaze' : cap(e.marker);
       return { kind: 'info', text: `${what} removed from ${hexName(e.hex)}.` };
     }
     case 'melee': {

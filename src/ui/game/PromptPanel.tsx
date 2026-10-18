@@ -6,7 +6,7 @@ import type { Decision, GameState, PieceId, Side } from '../../engine/types';
 import { Button } from '../kit';
 import { DeployPanel } from '../screens/Deploy';
 import type { ViewState } from './controller';
-import { WINDOW_TEXT, hexName, pieceName, sideName } from './names';
+import { hexName, pieceName, sideName } from './names';
 import type { PromptButton, PromptModel } from './prompts';
 
 const card = (id: string) => {
@@ -134,7 +134,7 @@ function Waiting({ view, s, human }: { view: ViewState; s: GameState; human: Sid
   const opp = sideName(s, human === 'axis' ? 'allied' : 'axis');
   let text = 'The battle unfolds…';
   if (view.fatal) text = view.error ?? 'The battle cannot continue.';
-  else if (view.waiting) text = `${opp}: ${WINDOW_TEXT[view.waiting].toLowerCase()}…`;
+  else if (view.waiting) text = `The ${opp} may react…`;
   else if (view.thinking) text = `The ${opp} are deciding…`;
   else if (s.phase === 'setup') text = `The ${opp} are setting up.`;
   else if (s.active !== human) text = `The ${opp}’ Turn.`;

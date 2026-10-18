@@ -126,4 +126,27 @@ describe('what the human sees in a whole random game', () => {
     for (const l of c.view.log) if (/^Americans draw/.test(l.text)) expect(l.text).toMatch(/^Americans draw (\d+ cards?|a secret objective)\.$/);
     c.dispose();
   });
+
+  it("the opponent's reaction decisions never show it deciding: they look like any other reaction window", async () => {
+    stubStorage();
+    const human: Side = 'allied';
+    const c = new GameController(newSessionConfig('5', human, 'line', 8), new RandomOpponent(rng(8)));
+    c.view = { ...c.view, speed: 'instant' };
+    let reacts = 0;
+    let windows = 0;
+    c.subscribe(() => {
+      const p = c.driver.pending;
+      if (p && p.side !== human && p.kind === 'react') {
+        reacts++;
+        expect(c.view.thinking).toBe(false);
+      }
+      if (c.view.waiting) windows++;
+    });
+    c.autoPlay(150);
+    c.start();
+    for (let i = 0; i < 600 && !(c.view.pending && !c.view.animating && c.driver.answers.length > 150); i++) await new Promise((r) => setTimeout(r, 5));
+    expect(windows).toBeGreaterThan(0);
+    expect(reacts).toBeGreaterThan(0);
+    c.dispose();
+  });
 });

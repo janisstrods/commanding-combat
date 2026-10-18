@@ -90,9 +90,9 @@ export const WINDOW_TEXT: Record<WindowKind, string> = {
 };
 
 export const END_REASON_TEXT: Record<string, string> = {
-  surrender: 'surrender',
-  annihilation: 'annihilation: the last unit on the map was lost',
-  exit: 'the last unit on the map left it',
-  suddenDeath: 'Sudden Death: the battle ended on the Time track',
-  objectivesV: 'control of all five Objectives (chit V)',
+  surrender: 'the enemy’s surrender',
+  annihilation: 'annihilation: the enemy lost his last unit on the map',
+  exit: 'VP once the last unit on the map had left it',
+  suddenDeath: 'VP when Sudden Death ended the battle',
+  objectivesV: 'holding all five Objectives (chit V)',
 };

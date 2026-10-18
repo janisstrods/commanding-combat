@@ -119,7 +119,7 @@ export function VictoryPanel({ s, human }: { s: GameState; human: Side }) {
                 const p = id ? s.pieces[id] : null;
                 return (
                   <span key={i} className={`gp-cas__slot ${i === pl.surrender - 1 ? 'is-surrender' : ''}`} title={p ? pieceName(s, id) : undefined}>
-                    {p ? <Counter type={counterType(p.type)} size={22} /> : null}
+                    {p ? <Counter type={counterType(p.type)} size={18} /> : null}
                   </span>
                 );
               })}
@@ -179,10 +179,12 @@ export function ObjectivesPanel({ s, human }: { s: GameState; human: Side }) {
 // ---------------------------------------------------------------------------------------------------------- Hands
 
 export function HandStrip({
-  s, human, playable, tags, picked, onCard,
+  s, human, playable, tags, picked, onCard, small = false,
 }: {
   s: GameState;
   human: Side;
+  /** Smaller cards (narrow screens). */
+  small?: boolean;
   playable: readonly CardId[];
   tags: Record<CardId, string>;
   picked: readonly CardId[];
@@ -190,9 +192,22 @@ export function HandStrip({
 }) {
   const hand = s.players[human].hand;
   const [hover, setHover] = useState<{ id: CardId; x: number; y: number } | null>(null);
+  // overlap the cards when the hand is wider than its room
+  const ref = useRef<HTMLDivElement>(null);
+  const [room, setRoom] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setRoom(el.clientWidth));
+    ro.observe(el);
+    setRoom(el.clientWidth);
+    return () => ro.disconnect();
+  }, []);
+  const cw = small ? 84 : 120;
+  const gap = hand.length > 1 && room ? Math.min(6, Math.floor((room - 8 - hand.length * cw) / (hand.length - 1))) : 6;
   return (
-    <div className="gp-hand" onMouseLeave={() => setHover(null)}>
-      {hand.map((id) => {
+    <div className="gp-hand" ref={ref} onMouseLeave={() => setHover(null)}>
+      {hand.map((id, i) => {
         const c = card(id);
         if (!c) return null;
         const can = playable.includes(id);
@@ -201,14 +216,15 @@ export function HandStrip({
           <button
             type="button"
             key={id}
-            className={`gp-card ${can ? 'is-playable' : ''} ${on ? 'is-picked' : ''}`}
+            className={`gp-card ${can ? 'is-playable' : ''} ${on ? (tags[id] === 'Discard' ? 'is-picked' : 'is-chosen') : ''}`}
+            style={i ? { marginLeft: gap - 6 } : undefined}
             onClick={() => onCard(id)}
             onMouseEnter={(e) => setHover({ id, x: e.clientX, y: e.clientY })}
             onMouseMove={(e) => setHover({ id, x: e.clientX, y: e.clientY })}
             aria-label={`${c.order} / ${c.action} / ${c.event}`}
           >
             {tags[id] ? <span className="gp-card__tag">{tags[id]}</span> : null}
-            <FateCardView card={c} size="md" highlight={tags[id] && tags[id] !== 'Discard' ? 'order' : null} />
+            <FateCardView card={c} size={small ? 'sm' : 'md'} highlight={tags[id] && tags[id] !== 'Discard' ? 'order' : null} />
           </button>
         );
       })}
@@ -223,12 +239,12 @@ export function HandStrip({
 }
 
 /** The opponent's hand (backs), both decks and both discard piles. */
-export function DecksPanel({ s, human }: { s: GameState; human: Side }) {
+export function DecksPanel({ s, human, compact = false }: { s: GameState; human: Side; compact?: boolean }) {
   const [browse, setBrowse] = useState<Side | null>(null);
   const opp = other(human);
   const theirs = s.players[opp];
   return (
-    <div className="gp-decks">
+    <div className={`gp-decks ${compact ? 'is-compact' : ''}`}>
       <div className="gp-deckrow">
         <div className="gp-deckrow__label">{sideName(s, opp)}</div>
         <div className="gp-opphand" title={`${theirs.hand.length} cards in hand`}>
@@ -287,17 +303,35 @@ function DiscardList({ s, side }: { s: GameState; side: Side }) {
 
 export function LogPanel({ log, s, human }: { log: readonly LogLine[]; s: GameState; human: Side }) {
   const ref = useRef<HTMLDivElement>(null);
+  // follow the newest line unless the reader has scrolled up; keep following when the panel changes size
+  const stick = useRef(true);
+  const toEnd = () => {
+    const el = ref.current;
+    if (el && stick.current) el.scrollTop = el.scrollHeight;
+  };
+  const last = log.length ? log[log.length - 1].id : 0;
+  useEffect(toEnd, [last]);
   useEffect(() => {
     const el = ref.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [log.length]);
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(toEnd);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
     <section className="gp-log kit-paper" aria-label="Battle log">
       <header className="gp-box__head">
         <h3>Battle log</h3>
         <span className="gp-box__aside">VP {vpTotalText(s.vp)}</span>
       </header>
-      <div className="gp-log__lines" ref={ref}>
+      <div
+        className="gp-log__lines"
+        ref={ref}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          stick.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
+        }}
+      >
         {log.map((l) => (
           <div key={l.id} className={`gp-log__line gp-log__line--${l.kind} ${l.side ? (l.side === human ? 'is-you' : 'is-them') : ''}`}>
             {l.text}

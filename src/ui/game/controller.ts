@@ -126,6 +126,11 @@ export class GameController {
   /** Random answers still to give for the human (dev `?auto=N`). */
   private autoLeft = 0;
   private rollCtx: RollContext = {};
+  /**
+   * The longest time (ms, capped) the opponent has needed for a reaction decision. Every one of its reaction windows
+   * pauses at least this long, so a window where it had a card to consider looks the same as one where it had none.
+   */
+  private reactMax = 0;
   /** For each human answer by its place among the answers: the first log id after it (undo drops the lines). */
   private logMarks = new Map<number, number>();
 
@@ -451,16 +456,26 @@ export class GameController {
    * The opponent's pending decision, asked before the events that lead to it are animated (the engine is already past
    * them), so it thinks while the board plays them. Nothing else can answer meanwhile (`busy`).
    */
-  private askAhead(): { d: Decision; answer: Promise<{ answer: Answer; say?: string }> } | null {
+  private askAhead(): { d: Decision; answer: Promise<{ answer: Answer; say?: string }>; took: () => number } | null {
     const d = this.driver.pending;
     if (!d || d.side === this.human || this.driver.state.phase === 'over') return null;
+    const t0 = performance.now();
+    let t1 = 0;
     const answer = this.opponent.decide(redact(this.driver.state, d.side), d);
-    answer.catch(() => {});
-    return { d, answer };
+    answer.then(
+      () => (t1 = performance.now()),
+      () => {},
+    );
+    return { d, answer, took: () => (t1 || performance.now()) - t0 };
   }
 
   private async opponentTurn(d: Decision, asked: ReturnType<GameController['askAhead']>): Promise<void> {
-    this.set({ thinking: true, pending: null, canUndo: false });
+    // a reaction (or re-roll) decision shows only the window's own notice: "deciding…" would tell it had a card to weigh
+    const quiet = d.kind === 'react' || d.kind === 'reroll';
+    // the opponent answered something on the way (Op Fire, a re-roll ...): a planned path stops for a fresh look
+    if (d.kind !== 'reroll') this.plan = [];
+    const t0 = performance.now();
+    this.set({ thinking: !quiet, waiting: d.kind === 'react' ? d.window : this.view.waiting, pending: null, canUndo: false });
     let res: { answer: Answer; say?: string };
     let timer: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -478,7 +493,9 @@ export class GameController {
       clearTimeout(timer);
     }
     if (this.disposed) return;
-    this.set({ thinking: false });
+    // how long the opponent needed to weigh this reaction (its own computing time, not the animations meanwhile)
+    if (d.kind === 'react') this.reactMax = Math.max(this.reactMax, Math.min(2000, asked && asked.d === d ? asked.took() : performance.now() - t0));
+    this.set({ thinking: false, waiting: null });
     if (res.say) this.addLog({ kind: 'say', side: d.side, text: res.say });
     let ok = false;
     try {
@@ -721,9 +738,12 @@ export class GameController {
         break;
       case 'window':
         if (e.side !== human) {
-          // the same pause at every window of the opponent's, whether or not it can play anything there
+          // the same pause at every window of the opponent's, whether or not it can play anything there (and at least
+          // as long as it has needed to weigh a reaction: its decision is asked before these animations, see askAhead)
           this.set({ waiting: e.window });
-          await this.wait(WINDOW_PAUSE_MS);
+          // (the reaction time applies at every speed, also when hurried: only the cosmetic part of the pause is skipped)
+          const ms = Math.max(this.dur(WINDOW_PAUSE_MS), this.reactMax);
+          if (ms > 0) await sleep(ms);
           this.set({ waiting: null });
         }
         break;

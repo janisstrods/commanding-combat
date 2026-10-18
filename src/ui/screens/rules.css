@@ -116,7 +116,9 @@
 .rules-table tbody tr:nth-child(odd) { background: rgba(255, 252, 238, .35); }
 .rules-num { text-align: center !important; font-variant-numeric: tabular-nums; }
 .rules-table--odds td, .rules-table--odds th { text-align: center; }
-.rules-table--chart td:nth-child(2), .rules-table--chart td:nth-child(3) { white-space: nowrap; }
+.rules-table--chart td:nth-child(2) { min-width: 90px; max-width: 170px; }
+.rules-table--chart td:nth-child(3), .rules-table--chart td:nth-child(4) { white-space: nowrap; }
+.rules-table--chart td:last-child { width: 46%; }
 .rules-table--chits td { text-align: center; }
 .rules-chit span {
   display: inline-block;

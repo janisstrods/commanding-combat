@@ -57,7 +57,11 @@ function SetupBrief({ s, side }: { s: GameState; side: Side }) {
   return (
     <p className="deploy__brief">
       The {NATION_PLURAL[def.nation]} set up {where} (lit on the map), at most 7 figures per hex (Squad 4, Team 2, Leader 1).
-      {s.scenario.setupFirst === side ? ' You set up first.' : ' The enemy has set up.'}
+      {s.scenario.special.simultaneousSetup
+        ? ' Both sides set up at once, unseen: the enemy appears when the battle begins.'
+        : s.scenario.setupFirst === side
+          ? ' You set up first.'
+          : ' The enemy has set up.'}
     </p>
   );
 }

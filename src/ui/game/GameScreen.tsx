@@ -131,6 +131,26 @@ export function GameScreen({
     else if (b.sel) setSel((x) => ({ ...x, ...b.sel }));
   };
 
+  // dev: drive the screen from the console or a test harness (`__cceUi.hex(22)`, `__cceUi.button('fire')`)
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    (window as unknown as { __cceUi?: unknown }).__cceUi = {
+      model,
+      sel,
+      hex: (h: HexId) => onHexClick(h, { stopPropagation() {} } as MouseEvent<SVGElement>),
+      piece: onPiece,
+      card: onCard,
+      button: (key: string) => {
+        const b = [...(model?.buttons ?? []), ...(model?.list ?? [])].find((x) => x.key === key);
+        if (b) onButton(b);
+        return !!b;
+      },
+      hover: (h: HexId | null) => setHover(h === null ? null : { hex: h, x: 600, y: 300 }),
+      los: (from: HexId, to: HexId) => setLos({ on: true, from, to }),
+      expand: setExpanded,
+    };
+  });
+
   // keyboard: Enter = the primary button, Escape = clear, Space = hurry, Z = undo, L = line of sight
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -310,8 +330,9 @@ export function GameScreen({
           tags={model?.cardTags ?? {}}
           picked={model?.pickedCards ?? []}
           onCard={onCard}
+          small={!wide}
         />
-        <DecksPanel s={s} human={human} />
+        <DecksPanel s={s} human={human} compact={!wide} />
       </footer>
 
       <RulesDialog open={rules} onClose={() => setRules(false)} />
