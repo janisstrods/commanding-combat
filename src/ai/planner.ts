@@ -16,7 +16,7 @@ import { avgDraw, cardCtx, keepValue, weakestFirst } from './cards';
 import { determinize } from './determinize';
 import { evaluate, weightsFor, type Weights } from './evaluate';
 import type { LevelCfg } from './levels';
-import { planMoves } from './moves';
+import { holdsFixedWeapon, planMoves } from './moves';
 import { bestSpotter, cheapest, fireActivations, meleeOdds, newPolicyCtx, policyAnswer, quickTurn, type Plan, type PolicyCtx } from './policies';
 import { Rng } from './rand';
 import { drive } from './sim';
@@ -173,6 +173,7 @@ function advanceCandidates(s: GameState, me: Side, card: CardId, turn: number, g
     const targets = new Map<number, PieceId[]>();
     for (const id of pool) {
       const u = s.pieces[id];
+      if (holdsFixedWeapon(s, u)) continue;
       for (const h of neighbours(u.hex)) if (unitsAt(s, h, other(me)).length) targets.set(h, [...(targets.get(h) ?? []), id]);
     }
     for (const [hex, ours] of targets) {
@@ -202,7 +203,7 @@ function advanceCandidates(s: GameState, me: Side, card: CardId, turn: number, g
     const placed = new Map<number, Piece[]>();
     for (const id of pool) {
       const u = s.pieces[id];
-      if (u.broken) continue;
+      if (u.broken || holdsFixedWeapon(s, u)) continue;
       const here = safety(s, me, u.hex, enemyShooters);
       let best = -1;
       let bv = 0.4;

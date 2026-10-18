@@ -34,6 +34,8 @@ export interface CardCtx {
   russianFoe: boolean;
   nation: string;
   enemiesInRange: number;
+  /** S5 Deep Freeze: Actions that would place a Fortification cannot be played. */
+  noForts: boolean;
 }
 
 export function cardCtx(s: GameState, side: Side): CardCtx {
@@ -87,6 +89,7 @@ export function cardCtx(s: GameState, side: Side): CardCtx {
     russianFoe: s.players[other(side)].nation === 'Russian',
     nation: pl.nation,
     enemiesInRange,
+    noForts: !!s.scenario.special.noNewFortifications,
   };
 }
 
@@ -115,8 +118,11 @@ export function orderValue(order: OrderName, c: CardCtx): number {
 }
 
 /** Worth of the card's Action part (the Fire Action counts when the card has "Order/Action Fire"). */
+const FORT_ACTIONS: ReadonlySet<ActionName> = new Set(['Dig In', 'Hidden Entrenchments', 'Hidden Mines', 'Hidden Pillbox', 'Hidden Wire']);
+
 export function actionValue(action: ActionName, c: CardCtx, defenderOnly = false): number {
   if (defenderOnly && !c.defender) return 0;
+  if (c.noForts && FORT_ACTIONS.has(action)) return 0;
   switch (action) {
     case 'Fire':
       return c.defender ? 1.0 : c.posture === 'recon' ? 0.75 : 0.55;

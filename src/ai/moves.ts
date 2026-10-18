@@ -55,12 +55,18 @@ export function opFireRisk(s: GameState, me: Side): (work: GameState, units: Pie
   };
 }
 
-/** Units of `ids` grouped by hex (on the map only), larger groups first. */
+/** Does unit `p` carry a Weapon fixed in its hex (S11 Pack Howitzer: it is lost if the carrier leaves)? */
+export function holdsFixedWeapon(s: GameState, p: Piece): boolean {
+  const fixed = s.scenario.special.fixedWeapons;
+  return !!fixed && !!p.weapon && !!s.pieces[p.weapon] && fixed[s.pieces[p.weapon].type] !== undefined;
+}
+
+/** Units of `ids` grouped by hex (on the map only), larger groups first; carriers of fixed Weapons stay out. */
 function byHex(s: GameState, ids: PieceId[]): Piece[][] {
   const m = new Map<HexId, Piece[]>();
   for (const id of ids) {
     const p = s.pieces[id];
-    if (!p || p.where !== 'map' || !isUnit(p)) continue;
+    if (!p || p.where !== 'map' || !isUnit(p) || holdsFixedWeapon(s, p)) continue;
     m.set(p.hex, [...(m.get(p.hex) ?? []), p]);
   }
   return [...m.values()].sort((a, b) => b.reduce((n, u) => n + pieceValue(s, u), 0) - a.reduce((n, u) => n + pieceValue(s, u), 0));
@@ -255,8 +261,12 @@ export function moveAnswer(s: GameState, d: Extract<Decision, { kind: 'move' }>,
 
 /** A required step with no usable plan: the step that brings a unit nearest to an Objective (else any legal step). */
 export function fallbackStep(s: GameState, d: Extract<Decision, { kind: 'move' }>): Answer {
-  const all = moveAnswers(s, d).filter((a) => a.kind === 'moveStep');
-  if (!all.length) return moveAnswers(s, d)[0] ?? { kind: 'done' };
+  const all = moveAnswers(s, d).filter((a) => a.kind === 'moveStep' && !holdsFixedWeapon(s, s.pieces[a.units[0]]));
+  if (!all.length) {
+    const any = moveAnswers(s, d);
+    // an exit is the last resort (it may eliminate the units, S7 / S8); a fixed Weapon's carrier moves only if it must
+    return any.find((a) => a.kind === 'moveStep') ?? any.find((a) => a.kind !== 'exit') ?? any[0] ?? { kind: 'done' };
+  }
   const objs = s.map.objectives;
   const near = (h: HexId) => Math.min(...objs.map((o) => distance(h, o)));
   let best = all[0];

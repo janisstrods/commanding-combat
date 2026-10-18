@@ -8,7 +8,7 @@ import { currentStats, hexCover } from '../engine/stats';
 import { counterType, isLeader, isUnit, typeOf } from '../engine/state';
 import type { ChoiceItem, Decision, GameState, HexId, Piece, Side } from '../engine/types';
 import { other } from '../engine/types';
-import { cardCtx, keepValue } from './cards';
+import { HAND_WEIGHT, avgDraw, cardCtx, keepValue } from './cards';
 import { fireOn, sideShooters, stackLoss, suppressCost, unitsAt } from './tactics';
 import { breakCost, breakLoss, elimVp, pieceValue, pressureStep, typeValue } from './values';
 
@@ -180,9 +180,19 @@ export function itemScores(s: GameState, d: ChooseD, me: Side): number[] {
     }
     case 'exitSpace':
       return per((it) => ('space' in it ? -it.space : 0));
-    case 'scenarioOption':
-      // a pre-game trade (e.g. a weaker minefield for a card): keep things as they are
-      return per((_, i) => (i === 0 ? 1 : 0));
+    case 'scenarioOption': {
+      // a pre-game trade (S9: weaker Mines for a card in the opening hand); item 0 keeps things as they are
+      const card = typeof c.card === 'string' ? c.card : null;
+      const mf = typeof c.minefield === 'number' ? c.minefield : null;
+      if (!card || mf === null || items.length !== 2) return per((_, i) => (i === 0 ? 1 : 0));
+      const cc = cardCtx(s, me);
+      const cardGain = HAND_WEIGHT * (keepValue(card, cc) - avgDraw(s, me, cc)) + 0.25;
+      let mines = 0;
+      for (const f of s.fort) if (f === 'mines') mines++;
+      mines += s.scenario.sides[me].fortifications.mines ?? 0;
+      const mineLoss = 0.2 * Math.max(1, mines) * Math.max(0, s.players[me].minefield - mf);
+      return [mineLoss, cardGain];
+    }
     case 'initiativeChoice':
       return per((it) => ('label' in it && it.label === 'keep' ? 1 : 0));
     case 'artilleryKind':

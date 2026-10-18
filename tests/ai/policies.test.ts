@@ -201,3 +201,41 @@ describe('no stalls', () => {
     if (a.kind === 'pass') expect(a.discard.length).toBeGreaterThan(0);
   });
 });
+
+describe('scenario special rules', () => {
+  it('Night (S8): prefers the close target to an equal one further away', () => {
+    const s = build({
+      special: { night: true },
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5' },
+        { type: 'American/Line Squad', hex: 'E9' },
+        { type: 'American/Line Squad', hex: 'F6' },
+      ],
+    });
+    const a = ask(s, { kind: 'fire', side: 'axis', mode: 'order', pieces: ['p0'], mustFire: true });
+    expect(a).toMatchObject({ kind: 'fire', spec: { target: H('F6') } });
+  });
+
+  it('fixed Weapons (S11): a Move plan never takes the carrier out of its hex', async () => {
+    const { planMoves } = await import('../../src/ai/moves');
+    const { LEVELS } = await import('../../src/ai/levels');
+    const s = build({
+      special: { fixedWeapons: { 'American/Pack Howitzer': 'bunker' } },
+      fort: { E5: 'bunker' },
+      active: 'allied',
+      pieces: [
+        { type: 'American/Weapon Team', hex: 'E5', weapon: 'American/Pack Howitzer' },
+        { type: 'American/Line Squad', hex: 'E5' },
+        { type: 'German/Rifle Squad', hex: 'E1' },
+      ],
+    });
+    for (const p of planMoves(s, 'allied', LEVELS.elite)) expect(p.dest.p0).toBeUndefined();
+  });
+
+  it('the S9 Mines option: takes a card worth more than one point of Mines', () => {
+    const s = build({ axis: { posture: 'defend', minefield: 8 }, pieces: [{ type: 'German/Rifle Squad', hex: 'E5' }] });
+    const d: Decision = { kind: 'choose', side: 'axis', reason: 'scenarioOption', items: [{ label: 'keep' }, { label: 'trade' }], min: 1, max: 1, context: { minefield: 7, card: 'G-32' } };
+    const a = ask(s, d);
+    expect(a.kind).toBe('choose');
+  });
+});

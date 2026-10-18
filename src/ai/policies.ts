@@ -21,7 +21,7 @@ import { deployAnswer, type DeployMemo } from './deploy';
 import { contestOdds, pSumBelow } from './dice';
 import { projectedMargin } from './evaluate';
 import type { LevelCfg } from './levels';
-import { moveAnswer, planMoves } from './moves';
+import { holdsFixedWeapon, moveAnswer, planMoves } from './moves';
 import type { Rng } from './rand';
 import { safeAnswer } from './sim';
 import { fireEV, fireOn, knownTotalOdds, meleeStrength, meleeWinChance, sideShooters, stackLoss, unitsAt, unitsOnMap } from './tactics';
@@ -460,7 +460,7 @@ export function bestAdvance(s: GameState, side: Side, units: PieceId[], legal: (
   const enemyShooters = sideShooters(s, other(side));
   for (const id of units) {
     const p = s.pieces[id];
-    if (!p || p.where !== 'map') continue;
+    if (!p || p.where !== 'map' || holdsFixedWeapon(s, p)) continue;
     const here = safety(s, side, p.hex, enemyShooters);
     for (const to of neighbours(p.hex)) {
       const a: Answer = { kind: 'advanceTo', unit: id, to };
@@ -596,8 +596,9 @@ function playWorth(
         const before = knownTotalOdds(total, base + c);
         let after: { brk: number; tie: number };
         if (o.action === 'Concealment') {
-          if (c <= 0) return null;
-          after = knownTotalOdds(total - c, base + c);
+          const bonus = s.scenario.special.concealmentBonus?.[me] ?? 0;
+          if (c + bonus <= 0) return null;
+          after = knownTotalOdds(total - c - bonus, base + c);
         } else {
           if (attack.ignoresCover) return null;
           const fc = (o.action === 'Hidden Pillbox' ? 5 : 3) + (attack.mortarOrArtillery ? 1 : 0);

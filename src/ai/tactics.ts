@@ -5,6 +5,7 @@ import { CARDS } from '../engine/data';
 import { attackFp, enemyHexes, inRange, shooter, type Shooter } from '../engine/fire';
 import { areAdjacent, distance, neighbours } from '../engine/hex';
 import { losCheck } from '../engine/los';
+import { nightPenalty, targetCoverError } from '../engine/scenarioRules';
 import { mpLeft, stepCost } from '../engine/orders/move';
 import { cover, currentStats, figures, stackLimit, unitFigures } from '../engine/stats';
 import { hasUnitOf, isUnit, typeOf } from '../engine/state';
@@ -97,6 +98,8 @@ export function fireEV(s: GameState, side: Side, spec: FireSpec, mods: FireMods 
     return p.where === 'carried' && p.carrier ? s.pieces[p.carrier].hex : p.hex;
   });
   const moving = mods.moving ?? false;
+  // S8 Night: the Attack Total loses the distance from the closest firer (no Night penalty on a total already known)
+  const night = mods.total === undefined ? nightPenalty(s, firers, [spec.target]) : 0;
   let ev = 0;
   for (const d of unitsAt(s, spec.target, other(side))) {
     const m = currentStats(s, d.id).morale + cover(s, d.id, { firers, mortarOrArtillery: parts.mortar, ignoresCover: parts.ignoresCover });
@@ -106,7 +109,7 @@ export function fireEV(s: GameState, side: Side, spec: FireSpec, mods: FireMods 
       // a known total: P(m + 2d6 < total') and P(= total')
       const t = mods.total - (mods.reduction ?? 0);
       ({ brk, tie } = knownTotalOdds(t, m));
-    } else ({ brk, tie } = defenseOdds(fp + airburst - (mods.reduction ?? 0), m));
+    } else ({ brk, tie } = defenseOdds(fp + airburst - night - (mods.reduction ?? 0), m));
     const isMoving = moving || s.turn.moving.includes(d.id);
     const cost = breakCost(s, d);
     ev += brk * cost + tie * (isMoving ? cost : suppressCost(s, d));
@@ -164,8 +167,9 @@ export function fireOn(s: GameState, shooters: readonly Shooter[], hex: HexId): 
   let ordMortar = false;
   const ok: Shooter[] = [];
   const el = s.map.elevation;
+  const night = !!s.scenario.special.night;
   for (const sh of shooters) {
-    if (!inRange(sh, hex)) continue;
+    if (!inRange(sh, hex) || targetCoverError(s, sh.type, hex)) continue;
     const l = losCheck(s, sh.hex, hex);
     if (!l.clear) continue;
     if (sh.ordnance) {
@@ -178,7 +182,7 @@ export function fireOn(s: GameState, shooters: readonly Shooter[], hex: HexId): 
       continue;
     }
     const h = el[hex] > el[sh.hex] ? -1 : el[hex] < el[sh.hex] ? 1 : 0;
-    const eff = sh.fp - l.hindrance + h;
+    const eff = sh.fp - l.hindrance + h - (night ? distance(sh.hex, hex) : 0);
     ok.push(sh);
     if (eff > best) {
       best = eff;
