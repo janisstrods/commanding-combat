@@ -51,7 +51,10 @@ const BASE: Weights = {
 
 /** Posture changes: attackers push for objectives, defenders guard against exposure. */
 const POSTURE: Record<Posture, Partial<Weights>> = {
-  attack: { objective: 1.4, exposure: 0.35, threat: 0.3 },
+  // attackers: Objectives first, fire-and-move (threat), more Op Fire risk accepted, card cycling not feared (Line vs
+  // Line over the attack/defend scenarios: attackers won 13 of 36 with these, 12 of 36 with objective 1.4, exposure
+  // 0.35, threat 0.3, time 2)
+  attack: { objective: 1.96, exposure: 0.26, threat: 0.39, time: 1 },
   recon: { objective: 1.1 },
   defend: { objective: 0.8, exposure: 0.45 },
 };
