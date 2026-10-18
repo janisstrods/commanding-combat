@@ -67,12 +67,6 @@ export interface Slide {
   ms: number;
 }
 
-export interface AttackShow {
-  id: number;
-  from: HexId[];
-  targets: HexId[];
-}
-
 export type VpBreakdown = Record<'Eliminations' | 'Exits' | 'Objectives' | 'Time' | 'Other', number>;
 
 export interface ViewState {
@@ -86,7 +80,6 @@ export interface ViewState {
   flashes: Flash[];
   slides: Slide[];
   flipping: PieceId[];
-  attack: AttackShow | null;
   /** The Fire Attack being shown step by step (fireShow.ts), until play moves on. */
   fire: FireShow | null;
   /** The Recover / Rout / Commissar being shown (rallyShow.ts). */
@@ -180,7 +173,6 @@ export class GameController {
       flashes: [],
       slides: [],
       flipping: [],
-      attack: null,
       fire: null,
       rally: null,
       hexPick: null,
@@ -447,7 +439,6 @@ export class GameController {
       canUndo: this.humanPending() ? this.driver.canUndo() : false,
       error: null,
       slides: [],
-      attack: null,
       fire: null,
       rally: null,
       hexPick: null,
@@ -646,7 +637,7 @@ export class GameController {
       case 'turnStart': {
         this.orders++;
         this.autoPass = null;
-        this.set({ display: after, attack: null });
+        this.set({ display: after });
         if (mine(e.side)) {
           sfx.turn();
           this.toast('Your Turn', 'turn', 1100);

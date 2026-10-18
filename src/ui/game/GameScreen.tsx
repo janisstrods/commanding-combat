@@ -19,7 +19,7 @@ import { DramaLayer } from './DramaLayer';
 import { EventBanner } from './EventBanner';
 import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controller';
 import { NATION_PLURAL, sideName } from './names';
-import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
+import { ArtilleryPanel, DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
 import { FirePanel } from './FirePanel';
 import { RallyPanel } from './RallyPanel';
 import { PromptPanel } from './PromptPanel';
@@ -229,6 +229,7 @@ export function GameScreen({
       <VictoryPanel s={s} human={human} />
       <TimePanel s={s} human={human} />
       <ObjectivesPanel s={s} human={human} />
+      <ArtilleryPanel s={s} human={human} />
     </>
   );
 
@@ -281,7 +282,6 @@ export function GameScreen({
           slides={view.slides}
           flashes={view.flashes}
           flipping={view.flipping}
-          attack={view.attack}
           fire={view.fire}
           rally={view.rally}
           losLine={losLine}
