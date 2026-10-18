@@ -41,6 +41,9 @@ cnc-claude (`~/Gamemaking/cnc-ancients`): same stack and conventions.
 - **Data:** `src/data/*.json` generated from `design/data` by `scripts/build-data.ts`; maps carry sub-hex terrain masks
   (`src/data/masks`, from `design/tools/build_masks.py`) used by LOS (drawn terrain blocks, not whole hexes) and by the
   map painter. `design/data/masks-audit.json` feeds type upgrades, crest hexes and multi-hex buildings into the maps.
+- **Maps load on demand** (one chunk per map): `await ensureMap(id)` before `loadMap` / `newGame` / LOS use it, else
+  `loadMap` throws "not loaded yet". Screens use `src/ui/maps.tsx` (a board shows once its map is loaded and painted);
+  node scripts start with `import './all-maps';` and Vitest runs `scripts/all-maps.ts` before each test file.
 - **Hidden information:** the AI gets only `redact(state, side)`; the UI filters events for the human
   (`src/ui/game`), and pauses uniformly at the opponent's reaction windows.
 - **Backlog:** `design/backlog.md` (planned AI, visual and UX improvements; not started).
