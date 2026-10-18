@@ -224,12 +224,12 @@ function nextStep(s: GameState, d: Extract<Decision, { kind: 'move' }>, ids: Pie
     const next = i < 0 ? path[0] : path[i + 1];
     if (next !== undefined && distance(here, next) === 1 && legal(next)) return next;
   }
-  // off the path: the legal neighbour nearest to the destination, if it gets nearer
+  // off the path: the legal neighbour nearest to the destination, if it gets nearer (not into Mines on the way)
   let best: HexId | null = null;
   let bd = distance(here, dest);
   for (const to of neighbours(here)) {
     const dd = distance(to, dest);
-    if (dd < bd && legal(to)) {
+    if (dd < bd && legal(to) && (to === dest || s.fort[to] !== 'mines')) {
       best = to;
       bd = dd;
     }

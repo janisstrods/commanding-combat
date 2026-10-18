@@ -3,6 +3,7 @@
 // group can move, and melee odds. Approximations made for speed say so where they are made.
 import { CARDS } from '../engine/data';
 import { attackFp, enemyHexes, inRange, shooter, type Shooter } from '../engine/fire';
+import { mineStrength } from '../engine/forts';
 import { areAdjacent, distance, neighbours } from '../engine/hex';
 import { losCheck } from '../engine/los';
 import { nightPenalty, targetCoverError } from '../engine/scenarioRules';
@@ -259,10 +260,25 @@ export interface Reach {
 }
 
 /**
+ * Expected loss of a Mine Attack (§F103: the Minefield FP + 2d6 against Morale, Cover 0) on `units` moving through a
+ * Mines hex (a tie breaks a Moving unit).
+ */
+export function mineLoss(s: GameState, units: Piece[]): number {
+  const fp = mineStrength(s);
+  let v = 0;
+  for (const u of units) {
+    const o = defenseOdds(fp, currentStats(s, u.id).morale);
+    v += (o.brk + o.tie) * breakCost(s, u);
+  }
+  return v;
+}
+
+/**
  * The hexes the group `ids` (all in one hex) can reach with its MP this Move Order (Road bonus included), avoiding enemy
  * hexes, each with the least-risk path that fits the MP: a small resource-constrained search over (hex, MP spent,
- * road). `risk(hex)` is the expected loss of entering `hex`. Wire, Mines and stacking along the way are ignored (a
- * planning approximation; the engine plays the real move).
+ * road). `risk(hex)` is the expected loss of entering `hex`; a Mines hex adds its Mine Attack on entering and on leaving,
+ * and a Wire hex ends the move (entering it, or the hex after leaving it: §F106.2). Stacking along the way is ignored
+ * (a planning approximation; the engine plays the real move).
  */
 export function reachable(s: GameState, ids: PieceId[], risk: (hex: HexId) => number, fresh = true): Map<HexId, Reach> {
   const side = s.pieces[ids[0]].side;
@@ -273,6 +289,8 @@ export function reachable(s: GameState, ids: PieceId[], risk: (hex: HexId) => nu
   const out = new Map<HexId, Reach>();
   out.set(start, { cost: 0, risk: 0, path: [] });
   if (mp <= 0) return out;
+  const mined = s.fort.some((f) => f === 'mines') ? mineLoss(s, ids.map((id) => s.pieces[id])) : 0;
+  const fort = (h: HexId) => s.fort[h];
   // label per (hex, road): list of non-dominated (cost, risk) entries
   type Label = { hex: HexId; cost: number; risk: number; road: boolean; path: HexId[] };
   const best = new Map<string, Label[]>();
@@ -301,10 +319,12 @@ export function reachable(s: GameState, ids: PieceId[], risk: (hex: HexId) => nu
       const cost = cur.cost + c;
       const limit = mp + (road && !roadStart ? 1 : 0);
       if (cost > limit + 1e-9 || cost > cap + 1 + 1e-9) continue;
-      const l: Label = { hex: to, cost, risk: cur.risk + risk(to), road, path: [...cur.path, to] };
+      const mines = mined && (fort(to) === 'mines' ? mined : 0) + (fort(cur.hex) === 'mines' ? mined : 0);
+      const l: Label = { hex: to, cost, risk: cur.risk + risk(to) + mines, road, path: [...cur.path, to] };
       if (dominated(l)) continue;
       add(l);
-      queue.push(l);
+      // Wire ends the move: in it, or one hex after leaving it
+      if (fort(to) !== 'wire' && fort(cur.hex) !== 'wire') queue.push(l);
       const r = out.get(to);
       if (!r || l.risk < r.risk - 1e-9 || (Math.abs(l.risk - r.risk) < 1e-9 && l.cost < r.cost)) out.set(to, { cost: l.cost, risk: l.risk, path: l.path });
     }
