@@ -440,7 +440,7 @@ export class GameController {
       a = { kind: 'reroll', yes: false };
     } else if (this.plan.length) {
       const next = this.plan[0];
-      const same = d.kind === 'move' && next.kind === 'moveStep' && !!d.current && d.current.length === next.units.length && next.units.every((id) => d.current!.includes(id));
+      const same = d.kind === 'move' && next.kind === 'moveStep' && !!d.current && d.current.length === next.units.length && next.units.every((id) => d.current!.includes(id)) || (d.kind === 'deploy' && (next.kind === 'deploy' || next.kind === 'done'));
       if (same && !answerError(s, d, next)) {
         this.plan.shift();
         a = next;

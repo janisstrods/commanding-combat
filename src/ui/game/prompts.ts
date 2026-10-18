@@ -20,6 +20,7 @@ import { choiceWords, countText, itemHex, labelText } from './choiceText';
 import { PURPOSE_TEXT, WINDOW_TEXT, chitText, counterName, hexName, pieceName, sideName } from './names';
 import { firePreview, fpText, piecesIn, reachable } from './preview';
 import { pct } from './odds';
+import { deployForMe } from '../../ai/deploy';
 
 /** The human's selection while he answers a decision (reset with every new decision). */
 export interface Sel {
@@ -786,6 +787,9 @@ function choosePrompt(s: GameState, d: D<'choose'>, sel: Sel): PromptModel {
     });
   });
   m.selected = picked.map((i) => d.items[i]).filter((it): it is { piece: string } => 'piece' in it).map((it) => it.piece);
+  // a card the choice is about (a scenario option's card): shown with it
+  const about = (d.context as { card?: unknown } | undefined)?.card;
+  if (typeof about === 'string' && !m.showCards.includes(about)) m.showCards.push(about);
   if (sel.hex !== null) m.targets = [sel.hex];
   if (!single) {
     const n = picked.length;
@@ -841,7 +845,7 @@ function deployPrompt(s: GameState, d: D<'deploy'>, sel: Sel): PromptModel {
       m.buttons.push({ key: 'back', label: 'Back', sel: { hex: null }, tone: 'ghost' });
     }
   } else m.text = 'Everything is placed.';
-  m.buttons.push({ key: 'auto', label: setup ? 'Deploy the rest for me' : 'Place the rest for me', answer: { kind: 'done' }, tone: 'secondary' });
+  m.buttons.push({ key: 'auto', label: setup ? 'Deploy the rest for me' : 'Place the rest for me', answer: { kind: 'done' }, answers: deployForMe(s, d), tone: 'secondary' });
   return m;
 }
 

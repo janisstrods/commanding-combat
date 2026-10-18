@@ -236,3 +236,34 @@ export function deployAnswer(s: GameState, d: Extract<Decision, { kind: 'deploy'
   pc.deploy = { key, plan };
   return try1(plan) ?? { kind: 'done' };
 }
+
+/**
+ * "Deploy the rest for me" (the battle screen's button for the human): the answers that carry out the AI's deployment
+ * of `d.side`'s pieces still to place, one per piece, then 'done' (the engine places anything the plan could not).
+ */
+export function deployForMe(s: GameState, d: Extract<Decision, { kind: 'deploy' }>): Answer[] {
+  const hit = forMeCache.get(s);
+  if (hit && hit.d === d) return hit.answers;
+  const answers = forMe(s, d);
+  forMeCache.set(s, { d, answers });
+  return answers;
+}
+
+/** The screen rebuilds its prompt on every selection: one plan per state and decision. */
+const forMeCache = new WeakMap<GameState, { d: Decision; answers: Answer[] }>();
+
+function forMe(s: GameState, d: Extract<Decision, { kind: 'deploy' }>): Answer[] {
+  // every staged piece in the hexes offered now (a scenario may narrow them as set-up goes on: the screen stops
+  // following the plan at the first placement that is no longer legal)
+  const plan = planDeployment(s, d.side, d.hexes, s.phase === 'setup' ? undefined : d.pieces);
+  const out: Answer[] = plan
+    // units not offered now are placed later (a late placement): leave them to their own decision
+    .filter((pl) => d.pieces.includes(pl.piece) || isWeapon(s.pieces[pl.piece]))
+    .map((pl) => ({ kind: 'deploy', piece: pl.piece, hex: pl.hex, ...(pl.carrier ? { carrier: pl.carrier } : {}) }));
+  // the first answer must be legal now
+  const i = out.findIndex((a) => !answerError(s, d, a));
+  if (i > 0) out.unshift(...out.splice(i, 1));
+  if (i < 0) return [{ kind: 'done' }];
+  out.push({ kind: 'done' });
+  return out;
+}

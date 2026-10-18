@@ -239,3 +239,27 @@ describe('scenario special rules', () => {
     expect(a.kind).toBe('choose');
   });
 });
+
+describe('deploy for me', () => {
+  it('gives the human a legal first placement, then the rest of the plan and done', async () => {
+    const { deployForMe } = await import('../../src/ai/deploy');
+    const { GameDriver } = await import('../../src/engine/driver');
+    const g = newGame(scenario('2'), 4);
+    const dr = new GameDriver(g);
+    const d = dr.pending!;
+    expect(d.kind).toBe('deploy');
+    if (d.kind !== 'deploy') return;
+    const answers = deployForMe(redact(dr.state, d.side), d);
+    expect(answers.at(-1)).toEqual({ kind: 'done' });
+    // following the plan while it stays legal places the whole side
+    let placed = 0;
+    for (const a of answers) {
+      const p = dr.pending!;
+      if (p.kind !== 'deploy' || p.side !== d.side) break;
+      if (answerError(dr.state, p, a)) break;
+      expect(dr.answer(a)).toBe(true);
+      placed++;
+    }
+    expect(placed).toBeGreaterThan(answers.length / 2);
+  });
+});
