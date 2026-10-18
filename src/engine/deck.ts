@@ -100,6 +100,7 @@ export function* eventTrigger(s: GameState, ctx: FlowCtx, side: Side): Gen {
   afterEvent(s, ctx, card.event);
   yield* checkFixedWeapons(s, ctx);
   yield* resolveMelees(s, ctx);
+  ctx.emit({ kind: 'triggerDone', side, trigger: 'Event' });
 }
 
 /** Sniper! (§1.9.1.3, R-11): a Random Hex; the roller may break one unit of either side in it or adjacent to it. */
@@ -114,6 +115,7 @@ export function* sniper(s: GameState, ctx: FlowCtx, side: Side): Gen {
   targets.push(...sniperExtraTargets(s, side, hex));
   const pick = yield* choose(s, ctx, side, 'sniperTarget', targets.map((p) => ({ piece: p.id })), 0, 1, { hex });
   if (pick.length) yield* breakPiece(s, ctx, targets[pick[0]].id, 'sniper');
+  ctx.emit({ kind: 'triggerDone', side, trigger: 'Sniper' });
 }
 
 /**

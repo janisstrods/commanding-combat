@@ -831,6 +831,8 @@ export type GameEvent =
   | { kind: 'reroll'; side: Side; by: Side }
   | { kind: 'trigger'; side: Side; trigger: Trigger; card: CardId }
   | { kind: 'event'; side: Side; card: CardId; event: EventName }
+  /** An Event! or Sniper! trigger has been carried out to its end (the UI closes its banner). */
+  | { kind: 'triggerDone'; side: Side; trigger: 'Event' | 'Sniper' }
   | { kind: 'activate'; side: Side; units: PieceId[]; order: OrderName | 'Op Fire' }
   | { kind: 'move'; units: PieceId[]; from: HexId; to: HexId; mp: number }
   | { kind: 'exit'; units: PieceId[]; from: HexId }
