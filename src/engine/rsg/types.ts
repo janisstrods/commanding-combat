@@ -176,6 +176,8 @@ export interface RsgSupportOption {
   pieces: Record<string, number>;
   carrier?: string;
   weapon?: string;
+  /** How many of this item the counter mix still allows him (≥ 1; items it has run out of are not offered). */
+  left: number;
   /** At most once per roll: named Leaders (one counter each). */
   once: boolean;
   /** Options sharing a group exclude each other (the two Leaders of an "A or B" row, FAQ RS.7). */
@@ -215,6 +217,8 @@ export type RsgChoiceStep =
       /** 1 when the column offers anything (he must buy), else 0. */
       min: number;
       options: RsgSupportOption[];
+      /** Counters of each piece type of the options the counter mix still has for him; items sharing a type add up. */
+      room: Record<string, number>;
     }
   | { kind: 'choice'; id: string; what: 'fortifications'; side: Side; budget: number; options: RsgFortOption[] }
   | {

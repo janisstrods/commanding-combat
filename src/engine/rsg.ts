@@ -9,7 +9,7 @@
 // Where the reference leaves a gap, the choice made here is marked "Ruling:".
 //
 // Files: rsg/types.ts (the draft, steps and choices), rsg/tables.ts (table look-ups, purchase rules, R0 pairings),
-// rsg/steps.ts (RS.1–RS.16 in order), rsg/auto.ts (rsgAuto), rsg/finish.ts (rsgFinish).
+// rsg/steps.ts (RS.1–RS.16 in order), rsg/auto.ts (rsgAuto), rsg/finish.ts (rsgFinish), rsg/mix.ts (counter-mix limits).
 import { type Side, SIDES } from './types';
 import { rsgAuto } from './rsg/auto';
 import { advanceInPlace, chooseInPlace, rsgStep } from './rsg/steps';
@@ -19,6 +19,7 @@ import type { RsgChoice, RsgDraft } from './rsg/types';
 export type * from './rsg/types';
 export { rsgAuto, rsgPieceValue } from './rsg/auto';
 export { rsgFinish } from './rsg/finish';
+export { rsgCounterCap } from './rsg/mix';
 export { newRsgDraft, rsgCheck, rsgStep } from './rsg/steps';
 export { RSG_MAPS, rsgLeaderIndex, rsgObOptions } from './rsg/tables';
 

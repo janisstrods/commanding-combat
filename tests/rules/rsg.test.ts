@@ -4,9 +4,10 @@ import { describe, expect, it } from 'vitest';
 import { COUNTERS, OBJECTIVE_CHITS, RSG, areaHexes, loadMap } from '../../src/engine/data';
 import { gameFlow } from '../../src/engine/flow';
 import { NUM_HEXES } from '../../src/engine/hex';
+import designCounters from '../../design/data/counters.json';
 import {
-  RSG_MAPS, newRsgDraft, rsgAdvance, rsgAuto, rsgAutoRun, rsgCheck, rsgChoose, rsgFinish, rsgLeaderIndex, rsgStep,
-  type RsgChoice, type RsgChoiceStep, type RsgDraft, type RsgFixed,
+  RSG_MAPS, newRsgDraft, rsgAdvance, rsgAuto, rsgAutoRun, rsgCheck, rsgChoose, rsgCounterCap, rsgFinish, rsgLeaderIndex,
+  rsgObOptions, rsgStep, type RsgChoice, type RsgChoiceStep, type RsgDraft, type RsgFixed, type RsgSupportOption,
 } from '../../src/engine/rsg';
 import { newGame, unitsOf } from '../../src/engine/state';
 import type { Nation, Posture, Quality, ScenarioDef, Side } from '../../src/engine/types';
@@ -630,6 +631,244 @@ describe('the engine takes an RSG scenario', () => {
       }
       const q: Quality[] = ['elite', 'line', 'green'];
       expect(q).toContain(s.players.axis.quality);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Support purchases: counter-mix limits (project ruling) and rsgAuto's buying
+
+type BuyStep = Extract<RsgChoiceStep, { what: 'supportBuy' }>;
+
+/** Every supportBuy step met while rsgAuto plays both sides from `seed` (as generate does), with rsgAuto's purchase. */
+function supportSteps(seed: number, humanSide?: Side): { d: RsgDraft; st: BuyStep; buy: string[] }[] {
+  const rnd = mulberry32(seed ^ 0x5eed);
+  let d = newRsgDraft({ seed, ...(humanSide ? { humanSide } : {}) });
+  const out: { d: RsgDraft; st: BuyStep; buy: string[] }[] = [];
+  for (let i = 0; i < 200; i++) {
+    const st = rsgStep(d);
+    if (st.kind === 'done') return out;
+    if (st.kind === 'auto') {
+      d = rsgAdvance(d);
+      continue;
+    }
+    const c = rsgAuto(d, st.side, rnd);
+    if (st.what === 'supportBuy' && c.what === 'supportBuy') out.push({ d, st, buy: c.buy });
+    d = rsgChoose(d, c);
+  }
+  throw new Error('no end');
+}
+
+const ALL_SUPPORT = Array.from({ length: 400 }, (_, seed) => supportSteps(seed, seed % 2 ? 'axis' : 'allied')).flat();
+const copies = (buy: string[]) => buy.reduce<Record<string, number>>((m, id) => ({ ...m, [id]: (m[id] ?? 0) + 1 }), {});
+
+/** What `side` has before buying: its OB's pieces and its Leaders. */
+function owned(d: RsgDraft, side: Side): Record<string, number> {
+  const nation = side === 'axis' ? 'German' : d.allied!;
+  const o = rsgObOptions(nation, d.year!, d.quality[side]!).find((x) => x.letter === d.ob[side]!.letter && x.size === d.ob[side]!.size)!;
+  const m: Record<string, number> = { ...o.units };
+  for (const l of d.leaders[side]) m[l] = 1;
+  return m;
+}
+
+const leftOf = (o: RsgSupportOption, have: Record<string, number>) =>
+  Math.min(...Object.entries(o.pieces).map(([t, n]) => Math.floor((rsgCounterCap(t) - (have[t] ?? 0)) / n)));
+
+describe('counter-mix limits (project ruling)', () => {
+  it("caps each type at the larger of the base scenarios' need (design/data/counters.json) and the largest OB; 1 for a Support-only piece", () => {
+    const largestOb = (id: string) => {
+      let m = 0;
+      for (const ob of Object.values(RSG.obs[COUNTERS[id].nation])) {
+        for (const s of Object.values(ob.sizes)) {
+          const extra = Math.max(0, ...(s.unitsByYear ?? []).map((u) => u.units[id] ?? 0));
+          m = Math.max(m, (s.units[id] ?? 0) + extra);
+        }
+      }
+      return m;
+    };
+    const onSupport = (id: string) =>
+      Object.values(RSG.support[COUNTERS[id].nation].items).some((it) => id in it.pieces || (it.oneOf ?? []).includes(id));
+    let checked = 0;
+    for (const [nation, groups] of Object.entries(designCounters.nations)) {
+      for (const group of ['squads', 'teams', 'weapons'] as const) {
+        for (const c of (groups as Record<string, { name: string; max_needed_in_base_scenarios?: number | null }[]>)[group]) {
+          const id = `${nation}/${c.name}`;
+          if (!COUNTERS[id]) continue; // Molotov Cocktail, Panzerfaust: not in src/data
+          expect(rsgCounterCap(id), id).toBe(Math.max(c.max_needed_in_base_scenarios ?? 0, largestOb(id), onSupport(id) ? 1 : 0));
+          checked++;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(60);
+    expect(rsgCounterCap('Russian/SMG Squad')).toBe(15);
+    expect(rsgCounterCap('German/Volksgrenadier Squad')).toBe(9); // a scenario needs more than any OB has
+    expect(rsgCounterCap('German/Weapon Team')).toBe(3);
+    expect(rsgCounterCap('German/IG 33 Gun')).toBe(1);
+    expect(rsgCounterCap('German/Lt Borbe')).toBe(1);
+  });
+
+  it('offers only what the mix still has, counting the OB, and refuses one more', () => {
+    let refused = 0;
+    let hidden = 0;
+    for (const { d, st } of ALL_SUPPORT) {
+      const have = owned(d, st.side);
+      for (const o of st.options) {
+        expect(o.left, o.id).toBe(o.once ? 1 : leftOf(o, have));
+        expect(o.left).toBeGreaterThanOrEqual(1);
+        if (!o.once && o.left < 8) {
+          expect(rsgCheck(d, { what: 'supportBuy', buy: Array(o.left + 1).fill(o.id) })).toMatch(/counter mix/);
+          refused++;
+        }
+      }
+      // items of the column the mix has run out of are not offered
+      const nation = st.side === 'axis' ? 'German' : d.allied!;
+      for (const e of RSG.support[nation].columns[st.roll[0] + st.roll[1]]) {
+        const item = RSG.support[nation].items[e.item];
+        if (item.kind === 'radio' || item.kind.startsWith('leader') || e.years[0] > d.year! || d.year! > e.years[1]) continue;
+        const left = Math.min(...Object.entries(item.pieces).map(([t, n]) => Math.floor((rsgCounterCap(t) - (have[t] ?? 0)) / n)));
+        expect(st.options.some((o) => o.item === e.item), e.item).toBe(left >= 1);
+        if (left < 1) hidden++;
+      }
+    }
+    expect(refused).toBeGreaterThan(20);
+    expect(hidden).toBeGreaterThan(0);
+  });
+
+  it('a Russian SMG Company already has all 15 SMG Squads', () => {
+    let tested = false;
+    for (let seed = 0; seed < 400 && !tested; seed++) {
+      let d = newRsgDraft({ seed, humanSide: 'allied', fixed: { year: 1943, allied: 'Russian', quality: { axis: 'line', allied: 'line' } } });
+      const rnd = mulberry32(seed);
+      for (;;) {
+        const st = rsgStep(d);
+        if (st.kind === 'done') break;
+        if (st.kind === 'auto') {
+          d = rsgAdvance(d);
+          continue;
+        }
+        if (st.what === 'ob') {
+          d = rsgChoose(d, st.side === 'axis' ? { what: 'ob', letter: 'F', size: 'company' } : { what: 'ob', letter: 'V', size: 'company' });
+          continue;
+        }
+        if (st.what !== 'supportBuy' || st.side !== 'allied') {
+          d = rsgChoose(d, rsgAuto(d, st.side, rnd));
+          continue;
+        }
+        const roll = st.roll[0] + st.roll[1];
+        if (roll === 4 || roll === 5) {
+          // SMG Squad is on columns 4 (1943-45) and 5 (1942-44)
+          expect(st.options.some((o) => o.item === 'smg_squad')).toBe(false);
+          expect(rsgCheck(d, { what: 'supportBuy', buy: ['smg_squad'] })).not.toBeNull();
+          tested = true;
+        }
+        break;
+      }
+    }
+    expect(tested).toBe(true);
+  });
+
+  it('no finished scenario has more of a type than the mix', () => {
+    for (let seed = 0; seed < 300; seed++) {
+      const scn = rsgFinish(generate(seed));
+      for (const side of SIDES) for (const [t, n] of Object.entries(scn.sides[side].forces)) expect(n, t).toBeLessThanOrEqual(rsgCounterCap(t));
+    }
+  });
+});
+
+describe('rsgAuto Support purchases', () => {
+  it('buys at most 3 of any item and at most 6 items, and keeps the lead unless its one purchase must cross', () => {
+    for (const { st, buy } of ALL_SUPPORT) {
+      for (const n of Object.values(copies(buy))) expect(n).toBeLessThanOrEqual(3);
+      expect(buy.length).toBeGreaterThanOrEqual(st.options.length ? 1 : 0);
+      expect(buy.length).toBeLessThanOrEqual(6);
+      const cost = buy.reduce((n, id) => n + st.options.find((o) => o.id === id)!.vp, 0);
+      if (buy.length > 1) expect(cost).toBeLessThan(st.lead);
+    }
+  });
+
+  it('the reported case: seed 4 no longer buys 15 SMG Squads', () => {
+    for (const humanSide of SIDES) {
+      const d = rsgAutoRun(newRsgDraft({ seed: 4, humanSide }), mulberry32(4));
+      for (const r of d.support) for (const n of Object.values(copies(r.bought.map((b) => b.id)))) expect(n).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it('builds a varied force: several purchases are of more than one kind', () => {
+    const several = ALL_SUPPORT.filter(({ st, buy }) => buy.length >= 3 && new Set(st.options.map((o) => o.item)).size >= 3);
+    expect(several.length).toBeGreaterThan(20);
+    const varied = several.filter(({ buy }) => new Set(buy).size >= 2);
+    expect(varied.length / several.length).toBeGreaterThan(0.9);
+  });
+
+  it('stops when the next purchase adds little: a handful of items, not the whole lead', () => {
+    const rounds = ALL_SUPPORT.filter(({ st }) => st.options.length);
+    const items = rounds.reduce((n, r) => n + r.buy.length, 0) / rounds.length;
+    expect(items).toBeGreaterThan(1.3);
+    expect(items).toBeLessThan(2.5);
+    const spent = rounds.map(({ st, buy }) => buy.reduce((n, id) => n + st.options.find((o) => o.id === id)!.vp, 0) / st.lead);
+    expect(spent.filter((f) => f <= 0.75).length / spent.length).toBeGreaterThan(0.8);
+  });
+
+  it('prefers Leaders unless already over-led, and MG teams as the likely Defender', () => {
+    const PER: Record<Nation, number> = { German: 3, American: 4, Russian: 5 };
+    let leaderCases = 0;
+    let leaderBought = 0;
+    let mgCases = 0;
+    let mgBought = 0;
+    for (const { d, st, buy } of ALL_SUPPORT) {
+      const nation = st.side === 'axis' ? 'German' : d.allied!;
+      const have = owned(d, st.side);
+      const squads = Object.entries(have).reduce((n, [t, k]) => n + (COUNTERS[t].kind === 'squad' ? k : 0), 0);
+      const mgs = Object.entries(have).reduce((n, [t, k]) => n + (COUNTERS[t].weaponClass === 'mg' ? k : 0), 0);
+      const bought = (pred: (o: RsgSupportOption) => boolean) => buy.some((id) => pred(st.options.find((o) => o.id === id)!));
+      const isLeader = (o: RsgSupportOption) => o.kind === 'leader' || o.kind === 'leaderEither';
+      const isMg = (o: RsgSupportOption) => !!o.weapon && COUNTERS[o.weapon].weaponClass === 'mg';
+      const affordable = (pred: (o: RsgSupportOption) => boolean) => st.options.some((o) => pred(o) && o.vp * 2 <= st.lead);
+      if (d.fixed.defender === undefined && affordable(isLeader) && d.leaders[st.side].length * PER[nation] <= squads) {
+        leaderCases++;
+        if (bought(isLeader)) leaderBought++;
+      }
+      if (d.fixed.defender === undefined && affordable(isMg) && mgs * 3 < squads) {
+        mgCases++;
+        if (bought(isMg)) mgBought++;
+      }
+    }
+    expect(leaderCases).toBeGreaterThan(20);
+    expect(mgCases).toBeGreaterThan(10);
+    expect(leaderBought / leaderCases).toBeGreaterThan(0.6);
+    expect(mgBought / mgCases).toBeGreaterThan(0.5);
+  });
+});
+
+describe('narration', () => {
+  const logs = Array.from({ length: 150 }, (_, seed) => generate(seed, {}, (st) => (st.what === 'assetRequest' ? { what: 'assetRequest', request: seed % 2 === 0 } : undefined)).log).flat();
+
+  it('groups copies ("2 × SMG Squad") and never lists one item twice', () => {
+    let grouped = 0;
+    for (let seed = 0; seed < 150; seed++) {
+      const d = generate(seed);
+      for (const r of d.support) {
+        const text = d.log.find((l) => l.step === 'supportBuy' && l.side === r.side)!.text;
+        for (const [id, n] of Object.entries(copies(r.bought.map((b) => b.id)))) {
+          const label = r.bought.find((b) => b.id === id)!.label;
+          if (n > 1) {
+            expect(text).toContain(`${n} × ${label}`);
+            grouped++;
+          } else expect(text.split(label).length - 1).toBe(1);
+        }
+      }
+    }
+    expect(grouped).toBeGreaterThan(0);
+  });
+
+  it('reads well: Asset Requests, capitalised troop quality, British spelling, whole sentences', () => {
+    const asset = logs.filter((l) => l.step === 'assetRequest').map((l) => l.text);
+    expect(asset.some((t) => / makes an Asset Request\.$/.test(t))).toBe(true);
+    expect(asset.some((t) => / makes no Asset Request\.$/.test(t))).toBe(true);
+    for (const l of logs.filter((x) => x.step === 'quality')) expect(l.text).toMatch(/: (Elite|Line|Green)\.$/);
+    for (const l of logs) {
+      expect(l.text, l.text).toMatch(/^[A-Z].*[.]$/);
+      expect(l.text).not.toMatch(/ {2}|\btoward\b|\bcolor|\b(Axis|Allies) (roll|pick|draw|buy|use|take|control)s?\b|undefined|null|NaN/);
     }
   });
 });

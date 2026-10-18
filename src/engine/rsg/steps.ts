@@ -5,9 +5,9 @@ import { chitValue } from '../objectives';
 import { random } from '../rng';
 import { type Edge, type Posture, type Side, SIDES, other } from '../types';
 import {
-  OBJECTIVES, OPPOSITE, RSG_MAPS, SIDE_NAME, attackerOf, clone, coin, defenderOf, die, fixedError, fortError, fortOb, give,
-  hasOb, leadOf, log, name, nationOf, nationOk, obOf, radioChances, radioOn, rsgLeaderIndex, rsgObOptions, sum,
-  supportError, supportOptions, twoDice, vpText, yearOk,
+  Cap, OBJECTIVES, OPPOSITE, PLAYER, QUALITY_NAME, RSG_MAPS, SIDE_NAME, attackerOf, clone, coin, defenderOf, die, fixedError,
+  fortError, fortOb, give, hasOb, leadOf, leaderName, listText, log, nationOf, nationOk, obLabel, obOf, radioChances, radioOn,
+  rollText, rsgLeaderIndex, rsgObOptions, signed, sum, supportError, supportOptions, supportRoom, twoDice, vpText, yearOk,
 } from './tables';
 import type {
   RsgAutoWhat, RsgChoice, RsgChoiceStep, RsgChoiceWhat, RsgDraft, RsgFortOption, RsgOptions, RsgPurchase, RsgStep,
@@ -51,7 +51,8 @@ function qualityStep(side: Side): AutoDef {
         const r = twoDice(d);
         const q = RSG.troopQuality[nation][sum(r)]?.[d.year!];
         const ok = !!q && hasOb(nation, d.year!, q);
-        log(d, { step: 'quality', side, dice: r, text: `${SIDE_NAME[side]} roll ${r[0]}+${r[1]} for troop quality: ${q ?? '–'}${ok ? '.' : ', no OB: re-roll.'}` });
+        const result = q ? QUALITY_NAME[q] : '–';
+        log(d, { step: 'quality', side, dice: r, text: `${Cap(PLAYER[side])} rolls ${rollText(r)} for troop quality: ${result}${ok ? '.' : ', which no OB has: re-roll.'}` });
         if (ok) {
           d.quality[side] = q;
           return;
@@ -77,7 +78,7 @@ function obStep(side: Side): ChoiceDef {
     apply: (d, c) => {
       if (c.what !== 'ob') return;
       d.ob[side] = { letter: c.letter, size: c.size };
-      log(d, { step: 'ob', side, choice: c, text: `${SIDE_NAME[side]} pick an Order of Battle.` });
+      log(d, { step: 'ob', side, choice: c, text: `${Cap(PLAYER[side])} picks an Order of Battle.` });
     },
   };
 }
@@ -85,33 +86,33 @@ function obStep(side: Side): ChoiceDef {
 function leaderStep(side: Side): AutoDef {
   return {
     kind: 'auto', id: `leaders:${side}`, what: 'leaders', side: () => side, when: always,
-    label: () => `${SIDE_NAME[side]} roll for Leaders (RS.6)`,
+    label: () => `${Cap(PLAYER[side])} rolls for his Leaders (RS.6)`,
     run: (d) => {
       const nation = nationOf(d, side);
       const { ob, size } = obOf(d, side);
       const table = RSG.leaderTable[nation];
       const mod = RSG.leaderModifiers.quality[ob.quality] + (RSG.leaderModifiers.year[nation][d.year!] ?? 0);
-      const modText = mod ? ` ${mod > 0 ? '+' : '−'} ${Math.abs(mod)}` : '';
+      const rollOf = (w: number) => (mod ? `white ${w} ${mod > 0 ? '+' : '−'} ${Math.abs(mod)} = ${signed(w + mod)}` : `white ${w}`);
       const got: string[] = [];
       while (got.length < size.leaders) {
         let placed = false;
         for (let t = 0; t < 50 && !placed; t++) {
           const w = die(d);
           const id = table[rsgLeaderIndex(nation, d.year!, ob.quality, w)];
-          const roll = `white ${w}${modText}`;
+          const roll = rollOf(w);
           if (got.includes(id)) {
-            log(d, { step: 'leaders', side, dice: [w], text: `${SIDE_NAME[side]} Leader roll ${roll}: ${name(id)} again, re-roll.` });
+            log(d, { step: 'leaders', side, dice: [w], text: `${Cap(PLAYER[side])} rolls ${roll} for a Leader: ${leaderName(id)} again, so he rolls again.` });
             continue;
           }
           got.push(id);
           placed = true;
-          log(d, { step: 'leaders', side, dice: [w], text: `${SIDE_NAME[side]} Leader roll ${roll}: ${name(id)}.` });
+          log(d, { step: 'leaders', side, dice: [w], text: `${Cap(PLAYER[side])} rolls ${roll} for a Leader: ${leaderName(id)}.` });
         }
         if (!placed) {
           // Ruling: cannot happen with the tables (at least 4 Leaders are reachable); take the first unused one.
           const id = table.find((x) => !got.includes(x))!;
           got.push(id);
-          log(d, { step: 'leaders', side, text: `${SIDE_NAME[side]} take ${name(id)}.` });
+          log(d, { step: 'leaders', side, text: `${Cap(PLAYER[side])} takes ${leaderName(id)}.` });
         }
       }
       d.leaders[side] = got;
@@ -125,15 +126,15 @@ function supportRollStep(k: 1 | 2): AutoDef {
     kind: 'auto', id: `supportRoll:${k}`, what: 'supportRoll', side: sideOf,
     // RS.7: skip at 0; the second roll only if the first purchase carried the marker past 0 (one round only)
     when: (d) => (k === 1 ? d.vp !== 0 : d.support.length === 1 && leadOf(d.vp, d.support[0].side) < 0),
-    label: (d) => `${SIDE_NAME[sideOf(d)]} roll on the Support Table (RS.7)`,
+    label: (d) => `${Cap(PLAYER[sideOf(d)])} rolls on his Support Table (RS.7)`,
     run: (d) => {
       const side = sideOf(d);
       const roll = twoDice(d);
       const empty = supportOptions(d, side, sum(roll)).length === 0;
       d.support.push({ side, roll, bought: [], cost: 0, done: empty });
       // Ruling: a column with nothing legal for the year buys nothing
-      const tail = empty ? ': nothing there for the year.' : '.';
-      log(d, { step: 'supportRoll', side, dice: roll, text: `${SIDE_NAME[side]} roll ${roll[0]}+${roll[1]} on the Support Table${tail}` });
+      const tail = empty ? ': that column has nothing he can buy.' : '.';
+      log(d, { step: 'supportRoll', side, dice: roll, text: `${Cap(PLAYER[side])} rolls ${rollText(roll)} on his Support Table${tail}` });
     },
   };
 }
@@ -145,12 +146,17 @@ function supportBuyStep(k: 1 | 2): ChoiceDef {
     step: (d) => {
       const r = round(d);
       const options = supportOptions(d, r.side, sum(r.roll));
-      return { kind: 'choice', id: `supportBuy:${k}`, what: 'supportBuy', side: r.side, roll: [...r.roll], lead: leadOf(d.vp, r.side), min: options.length ? 1 : 0, options };
+      const room = supportRoom(d, r.side, options.flatMap((o) => Object.keys(o.pieces)));
+      return {
+        kind: 'choice', id: `supportBuy:${k}`, what: 'supportBuy', side: r.side, roll: [...r.roll], lead: leadOf(d.vp, r.side),
+        min: options.length ? 1 : 0, options, room,
+      };
     },
     check: (d, c) => {
       if (c.what !== 'supportBuy') return 'Expected a purchase.';
       const r = round(d);
-      return supportError(supportOptions(d, r.side, sum(r.roll)), leadOf(d.vp, r.side), c.buy);
+      const options = supportOptions(d, r.side, sum(r.roll));
+      return supportError(options, leadOf(d.vp, r.side), c.buy, supportRoom(d, r.side, options.flatMap((o) => Object.keys(o.pieces))));
     },
     apply: (d, c) => {
       if (c.what !== 'supportBuy') return;
@@ -168,8 +174,10 @@ function supportBuyStep(k: 1 | 2): ChoiceDef {
       }
       r.done = true;
       give(d, other(r.side), r.cost);
-      const what = r.bought.length ? r.bought.map((b) => b.label).join(', ') : 'nothing';
-      log(d, { step: 'supportBuy', side: r.side, choice: c, vp: d.vp, text: `${SIDE_NAME[r.side]} buy ${what} for ${r.cost} VP: VP ${vpText(d.vp)}.` });
+      const text = r.bought.length
+        ? `${Cap(PLAYER[r.side])} buys ${listText(r.bought.map((b) => b.label))} for ${r.cost} VP; ${vpText(d.vp)}.`
+        : `${Cap(PLAYER[r.side])} buys nothing.`;
+      log(d, { step: 'supportBuy', side: r.side, choice: c, vp: d.vp, text });
     },
   };
 }
@@ -182,7 +190,7 @@ const STEPS: StepDef[] = [
     run: (d) => {
       const c = coin(d);
       d.humanSide = c === 'heads' ? 'axis' : 'allied';
-      log(d, { step: 'sides', side: null, coin: c, text: `Coin flip: ${c}. Player one takes the ${SIDE_NAME[d.humanSide]}.` });
+      log(d, { step: 'sides', side: null, coin: c, text: `Coin flip: ${c}. Player one plays the ${SIDE_NAME[d.humanSide]}.` });
     },
   },
   {
@@ -192,8 +200,9 @@ const STEPS: StepDef[] = [
     run: (d) => {
       const r = twoDice(d);
       d.mapPicker = sum(r) % 2 === 0 ? 'axis' : 'allied';
-      const tail = d.map === null ? 'pick the map' : 'would pick the map (it is fixed)';
-      log(d, { step: 'mapRoll', side: 'axis', dice: r, text: `Axis roll ${r[0]}+${r[1]}: the ${SIDE_NAME[d.mapPicker]} ${tail}; the other side chooses its edge die.` });
+      const chooser = PLAYER[other(d.mapPicker)];
+      const tail = d.map === null ? `${PLAYER[d.mapPicker]} picks the map and ${chooser} chooses his edge die` : `the map is fixed, so ${chooser} chooses his edge die`;
+      log(d, { step: 'mapRoll', side: 'axis', dice: r, text: `The Axis player rolls ${rollText(r)}, ${sum(r) % 2 === 0 ? 'even' : 'odd'}: ${tail}.` });
     },
   },
   {
@@ -203,16 +212,16 @@ const STEPS: StepDef[] = [
     apply: (d, c) => {
       if (c.what !== 'mapPick') return;
       d.map = c.map;
-      log(d, { step: 'mapPick', side: d.mapPicker, choice: c, text: `The ${SIDE_NAME[d.mapPicker!]} pick map ${c.map}.` });
+      log(d, { step: 'mapPick', side: d.mapPicker, choice: c, text: `${Cap(PLAYER[d.mapPicker!])} picks map ${c.map}.` });
     },
   },
   {
     kind: 'auto', id: 'edgeRoll', what: 'edgeRoll', side: (d) => other(d.mapPicker!), when: (d) => d.edges === null,
-    label: (d) => `The ${SIDE_NAME[other(d.mapPicker!)]} roll for their friendly edge (RS.1)`,
+    label: (d) => `${Cap(PLAYER[other(d.mapPicker!)])} rolls for his friendly edge (RS.1)`,
     run: (d) => {
       const side = other(d.mapPicker!);
       d.edgeDice = twoDice(d);
-      log(d, { step: 'edgeRoll', side, dice: [...d.edgeDice], text: `${SIDE_NAME[side]} roll white ${d.edgeDice[0]}, coloured ${d.edgeDice[1]}.` });
+      log(d, { step: 'edgeRoll', side, dice: [...d.edgeDice], text: `${Cap(PLAYER[side])} rolls white ${d.edgeDice[0]} and coloured ${d.edgeDice[1]}.` });
     },
   },
   {
@@ -233,19 +242,20 @@ const STEPS: StepDef[] = [
       const edge = RSG.edgeByDie[value];
       d.edges = { [side]: edge, [other(side)]: OPPOSITE[edge] } as Record<Side, Edge>;
       const kind = edge === 'top' || edge === 'bottom' ? 'wide' : 'narrow';
-      log(d, { step: 'mapEdgeDie', side, choice: c, text: `${SIDE_NAME[side]} use the ${c.die} die (${value}): their edge is the ${edge} (${kind}).` });
+      log(d, { step: 'mapEdgeDie', side, choice: c, text: `${Cap(PLAYER[side])} takes the ${c.die} die (${value}): his friendly edge is the ${edge} edge, a ${kind} battlefield.` });
     },
   },
   {
     // RS.2.1 year (the Axis is always Germany, R0); 1939/1940, and years the fixed options cannot have, are re-rolled
     kind: 'auto', id: 'year', what: 'year', side: () => 'axis', when: (d) => d.year === null,
-    label: () => 'The Axis roll for the year (RS.2)',
+    label: () => 'The Axis player rolls for the year (RS.2)',
     run: (d) => {
       for (let i = 0; ; i++) {
         const r = twoDice(d);
         const y = RSG.germanYear[sum(r)];
         const ok = yearOk(d.fixed, y);
-        log(d, { step: 'year', side: 'axis', dice: r, text: `Year roll ${r[0]}+${r[1]}: ${y}${ok ? '.' : ', no base-game Allies for it here: re-roll.'}` });
+        const why = y < 1941 ? ', a year without base-game Allies: re-roll.' : ', ruled out by the fixed options: re-roll.';
+        log(d, { step: 'year', side: 'axis', dice: r, text: `Year roll ${rollText(r)}: ${y}${ok ? '.' : why}` });
         if (ok) {
           d.year = y;
           return;
@@ -263,7 +273,8 @@ const STEPS: StepDef[] = [
         const r = twoDice(d);
         const n = RSG.alliedNation[sum(r)][d.year!];
         const ok = nationOk(d.fixed, n, d.year!);
-        log(d, { step: 'allied', side: 'allied', dice: r, text: `Allied nation roll ${r[0]}+${r[1]}: ${n ?? 'France or Britain'}${ok ? '.' : ', not in the base game: re-roll.'}` });
+        const why = n ? ', ruled out by the fixed troop quality: re-roll.' : ', not in the base game: re-roll.';
+        log(d, { step: 'allied', side: 'allied', dice: r, text: `Allied nation roll ${rollText(r)}: ${n ?? 'France or Britain'}${ok ? '.' : why}` });
         if (ok) {
           d.allied = n;
           return;
@@ -283,15 +294,15 @@ const STEPS: StepDef[] = [
       const draw = () => cup.splice(Math.floor(random(d) * cup.length), 1)[0];
       const open = draw();
       d.openChits.push(open);
-      log(d, { step: 'chits', side: null, text: `Open Objective chit: ${open}.` });
+      log(d, { step: 'chits', side: null, text: `The open Objective chit is ${open}.` });
       for (const side of SIDES) {
         const c = draw();
         if (OBJECTIVE_CHITS[c].secret) {
           d.secretChits[side].push(c);
-          log(d, { step: 'chits', side, text: `${SIDE_NAME[side]} draw a secret Objective chit.` });
+          log(d, { step: 'chits', side, text: `${Cap(PLAYER[side])} draws a secret Objective chit.` });
         } else {
           d.openChits.push(c);
-          log(d, { step: 'chits', side, text: `${SIDE_NAME[side]} draw chit ${c}: it has no secret side and goes open.` });
+          log(d, { step: 'chits', side, text: `${Cap(PLAYER[side])} draws chit ${c}, which has no secret side, so it goes open.` });
         }
       }
     },
@@ -302,12 +313,13 @@ const STEPS: StepDef[] = [
     kind: 'auto', id: 'obPoints', what: 'obPoints', side: () => null, when: always,
     label: () => 'The OB point values move the VP marker (RS.5)',
     run: (d) => {
-      const a = obOf(d, 'axis').size;
-      const b = obOf(d, 'allied').size;
+      const ax = obOf(d, 'axis');
+      const al = obOf(d, 'allied');
+      const [a, b] = [ax.size, al.size];
       d.vp = b.points - a.points;
       log(d, {
         step: 'obPoints', side: null, vp: d.vp,
-        text: `Axis ${a.label} (${a.points}) v ${d.allied} ${b.label} (${b.points}): VP ${vpText(d.vp)}.`,
+        text: `German ${obLabel(ax.ob, d.ob.axis!.size)} (${a.points} points) v ${d.allied} ${obLabel(al.ob, d.ob.allied!.size)} (${b.points} points): ${vpText(d.vp)}.`,
       });
     },
   },
@@ -324,8 +336,8 @@ const STEPS: StepDef[] = [
       const fixed = d.fixed.defender !== undefined;
       const def = fixed ? d.fixed.defender! : d.vp > 0 ? 'axis' : d.vp < 0 ? 'allied' : null;
       d.postures = def ? ({ [def]: 'defend', [other(def)]: 'attack' } as Record<Side, Posture>) : { axis: 'recon', allied: 'recon' };
-      const text = def ? `the ${SIDE_NAME[def]} defend, the ${SIDE_NAME[other(def)]} attack` : 'Recon v Recon';
-      log(d, { step: 'posture', side: def, vp: d.vp, text: `VP ${vpText(d.vp)}: ${text}${fixed ? ' (fixed)' : ''}.` });
+      const text = def ? `${PLAYER[def]} defends and ${PLAYER[other(def)]} attacks` : 'Recon v Recon';
+      log(d, { step: 'posture', side: def, vp: d.vp, text: `${Cap(vpText(d.vp))}: ${text}${fixed ? ' (postures fixed)' : ''}.` });
     },
   },
   {
@@ -352,8 +364,10 @@ const STEPS: StepDef[] = [
       const cost = c.buy.reduce((n, id) => n + fortOb(id)!.vp, 0);
       d.fortifications = [...c.buy];
       give(d, other(side), cost);
-      const what = c.buy.length ? c.buy.map((id) => fortOb(id)!.name).join(', ') : 'no Fortifications';
-      log(d, { step: 'fortifications', side, choice: c, vp: d.vp, text: `The ${SIDE_NAME[side]} buy ${what} for ${cost} VP: VP ${vpText(d.vp)}.` });
+      const text = c.buy.length
+        ? `${Cap(PLAYER[side])} buys ${listText(c.buy.map((id) => fortOb(id)!.name))} for ${cost} VP; ${vpText(d.vp)}.`
+        : `${Cap(PLAYER[side])} buys no Fortifications.`;
+      log(d, { step: 'fortifications', side, choice: c, vp: d.vp, text });
     },
   },
   {
@@ -365,13 +379,16 @@ const STEPS: StepDef[] = [
       const def = defenderOf(d);
       d.control = Array<Side | null>(OBJECTIVES).fill(def);
       if (!def) {
-        log(d, { step: 'control', side: null, vp: d.vp, text: 'Recon: Objectives start uncontrolled.' });
+        log(d, { step: 'control', side: null, vp: d.vp, text: 'Recon: the Objectives start uncontrolled.' });
         return;
       }
       let v = 0;
       for (const c of d.openChits) for (let n = 1; n <= OBJECTIVES; n++) v += chitValue(c, n);
       give(d, def, v);
-      log(d, { step: 'control', side: def, vp: d.vp, text: `The ${SIDE_NAME[def]} control every Objective; open chits give them ${v} VP: VP ${vpText(d.vp)}.` });
+      const text = v
+        ? `${Cap(PLAYER[def])} controls every Objective, and the open chits give him ${v} VP; ${vpText(d.vp)}.`
+        : `${Cap(PLAYER[def])} controls every Objective; the open chits give him no VP.`;
+      log(d, { step: 'control', side: def, vp: d.vp, text });
     },
   },
   {
@@ -388,13 +405,13 @@ const STEPS: StepDef[] = [
       if (c.what !== 'assetRequest') return;
       const side = attackerOf(d)!;
       d.asset = { requested: c.request, roll: null, radio: null, cost: 0 };
-      log(d, { step: 'assetRequest', side, choice: c, text: `The ${SIDE_NAME[side]} ${c.request ? 'make' : 'make no'} Asset Request.` });
+      log(d, { step: 'assetRequest', side, choice: c, text: `${Cap(PLAYER[side])} makes ${c.request ? 'an' : 'no'} Asset Request.` });
     },
   },
   {
     // RS.11.1: Radios only, and only the column's Radio for the year (if any), paid toward the Defender
     kind: 'auto', id: 'assetRoll', what: 'assetRoll', side: (d) => attackerOf(d), when: (d) => !!d.asset?.requested && !d.asset.roll,
-    label: () => 'Asset Request roll on the Support Table (RS.11.1)',
+    label: (d) => `${Cap(PLAYER[attackerOf(d)!])} rolls for his Asset Request (RS.11.1)`,
     run: (d) => {
       const side = attackerOf(d)!;
       const a = d.asset!;
@@ -406,8 +423,11 @@ const STEPS: StepDef[] = [
         a.cost = e.vp;
         give(d, other(side), e.vp);
       }
-      const what = e ? `${RSG.support[nationOf(d, side)].items[e.item].label} for ${e.vp} VP: VP ${vpText(d.vp)}` : 'no Radio on that column for the year';
-      log(d, { step: 'assetRoll', side, dice: [...a.roll], vp: d.vp, text: `Asset Request roll ${a.roll[0]}+${a.roll[1]}: ${what}.` });
+      const head = `${Cap(PLAYER[side])} rolls ${rollText(a.roll)} for his Asset Request`;
+      const text = a.radio
+        ? `${head} and gets the ${a.radio.replace(/^.*:/, '')} Radio for ${a.cost} VP; ${vpText(d.vp)}.`
+        : `${head}: that column has no Radio for ${d.year}.`;
+      log(d, { step: 'assetRoll', side, dice: [...a.roll], vp: d.vp, text });
     },
   },
   {
@@ -419,12 +439,12 @@ const STEPS: StepDef[] = [
       const b = obOf(d, 'allied').size.initiative;
       if (a !== b) {
         d.initiative = a > b ? 'axis' : 'allied';
-        log(d, { step: 'initiative', side: d.initiative, text: `Initiative ${a} v ${b}: the ${SIDE_NAME[d.initiative]} take the Initiative card and the first Turn.` });
+        log(d, { step: 'initiative', side: d.initiative, text: `Initiative numbers ${signed(a)} v ${signed(b)}: ${PLAYER[d.initiative]} takes the Initiative card and the first Turn.` });
         return;
       }
       const c = coin(d);
       d.initiative = c === 'heads' ? 'axis' : 'allied';
-      log(d, { step: 'initiative', side: d.initiative, coin: c, text: `Initiative ${a} v ${b}, a tie: coin flip ${c}, the ${SIDE_NAME[d.initiative]} take it.` });
+      log(d, { step: 'initiative', side: d.initiative, coin: c, text: `Initiative numbers ${signed(a)} v ${signed(b)}, a tie: the coin comes up ${c}, so ${PLAYER[d.initiative]} takes the Initiative card and the first Turn.` });
     },
   },
 ];
@@ -452,29 +472,29 @@ export function newRsgDraft(opts: RsgOptions): RsgDraft {
   if (opts.humanSide) {
     if (!SIDES.includes(opts.humanSide)) throw new Error(`No side "${opts.humanSide}".`);
     d.humanSide = opts.humanSide;
-    note(`Player one takes the ${SIDE_NAME[opts.humanSide]}.`);
+    note(`Player one plays the ${SIDE_NAME[opts.humanSide]}.`);
   }
   if (fixed.map !== undefined) {
     d.map = fixed.map;
-    note(`Map ${fixed.map}.`);
+    note(`Map ${fixed.map} (fixed).`);
   }
   if (fixed.axisEdge) {
     d.edges = { axis: fixed.axisEdge, allied: OPPOSITE[fixed.axisEdge] };
-    note(`Axis edge: ${fixed.axisEdge}.`);
+    note(`The Axis friendly edge is the ${fixed.axisEdge} edge (fixed).`);
   }
   if (fixed.year !== undefined) {
     d.year = fixed.year;
-    note(`Year ${fixed.year}.`);
+    note(`The year is ${fixed.year} (fixed).`);
   }
   if (fixed.allied) {
     d.allied = fixed.allied;
-    note(`Allies: ${fixed.allied}.`);
+    note(`The Allies are ${fixed.allied} (fixed).`);
   }
   for (const side of SIDES) {
     const q = fixed.quality?.[side];
     if (q) {
       d.quality[side] = q;
-      note(`${SIDE_NAME[side]} troop quality: ${q}.`);
+      note(`${side === 'axis' ? 'Axis' : 'Allied'} troop quality: ${QUALITY_NAME[q]} (fixed).`);
     }
   }
   return d;

@@ -3,6 +3,7 @@
 // re-exports only what the UI and the AI need.
 import { COUNTERS, MAP_IDS, RSG } from '../data';
 import { random } from '../rng';
+import { rsgCounterCap } from './mix';
 import type { ObSize, RsgFortificationOb, RsgOb, RsgObSize } from '../rsgTypes';
 import { type Edge, type Nation, type Quality, type Side, SIDES } from '../types';
 import type { RsgDraft, RsgFixed, RsgLogEntry, RsgObOption, RsgRadioChance, RsgSupportOption } from './types';
@@ -32,7 +33,29 @@ export const leadOf = (vp: number, side: Side) => (side === 'axis' ? vp : -vp);
 export const give = (d: RsgDraft, side: Side, n: number) => {
   d.vp += side === 'axis' ? n : -n;
 };
-export const vpText = (vp: number) => (vp === 0 ? 'on 0' : `${Math.abs(vp)} toward the ${vp > 0 ? 'Axis' : 'Allies'}`);
+/** 'the Axis player' / 'the Allied player', for narration (`Cap` it at the start of a sentence). */
+export const PLAYER: Record<Side, string> = { axis: 'the Axis player', allied: 'the Allied player' };
+export const Cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+export const QUALITY_NAME: Record<Quality, string> = { elite: 'Elite', line: 'Line', green: 'Green' };
+/** 'the VP marker is on 0' / 'the VP marker is 7 towards the Allies'. */
+export const vpText = (vp: number) => `the VP marker is ${vp === 0 ? 'on 0' : `${Math.abs(vp)} towards the ${vp > 0 ? 'Axis' : 'Allies'}`}`;
+/** A number for narration, with a true minus sign: '−4'. */
+export const signed = (n: number) => (n < 0 ? `−${-n}` : `${n}`);
+const SIZE_NOUN: Record<ObSize, string> = { company: 'Company', detachment: 'Detachment', platoon: 'Platoon' };
+/** 'Fallschirmjaeger Company' (the tables' own labels mix 'Company' and 'Coy.'). */
+export const obLabel = (ob: RsgOb, size: ObSize) => `${ob.name} ${SIZE_NOUN[size]}`;
+const RANK: Record<string, string> = { Pvt: 'Private', Cpl: 'Corporal', Sgt: 'Sergeant', Lt: 'Lieutenant', Cpt: 'Captain' };
+/** A Leader's name with his rank in full, as the Support Tables print it: 'German/Sgt Grein' → 'Sergeant Grein'. */
+export const leaderName = (type: string) => name(type).replace(/^(Pvt|Cpl|Sgt|Lt|Cpt) /, (_, r: string) => `${RANK[r]} `);
+/** A dice roll for narration: '3+5 = 8'. */
+export const rollText = (r: [number, number]) => `${r[0]}+${r[1]} = ${r[0] + r[1]}`;
+/** Items in order of first mention, copies grouped: 'Wpn Team w/ LMG, 2 × SMG Squad and Sgt Kaminsky'. */
+export function listText(labels: string[]): string {
+  const counts = new Map<string, number>();
+  for (const l of labels) counts.set(l, (counts.get(l) ?? 0) + 1);
+  const parts = [...counts].map(([l, n]) => (n > 1 ? `${n} × ${l}` : l));
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : (parts[0] ?? 'nothing');
+}
 export const sum = (d: [number, number]) => d[0] + d[1];
 export const name = (type: string) => COUNTERS[type]?.name ?? type;
 export const defenderOf = (d: RsgDraft): Side | null => (d.postures ? (SIDES.find((s) => d.postures![s] === 'defend') ?? null) : null);
@@ -54,7 +77,7 @@ export function rsgObOptions(nation: Nation, year: number, quality: Quality): Rs
     for (const size of SIZES) {
       const s = ob.sizes[size];
       out.push({
-        letter: ob.letter, size, chit: s.chit, label: s.label, name: ob.name, quality: ob.quality, points: s.points,
+        letter: ob.letter, size, chit: s.chit, label: obLabel(ob, size), name: ob.name, quality: ob.quality, points: s.points,
         initiative: s.initiative, orders: s.orders, surrender: s.surrender, leaders: s.leaders, units: obUnits(s, year),
       });
     }
@@ -80,12 +103,30 @@ export function rsgLeaderIndex(nation: Nation, year: number, quality: Quality, w
   return Math.max(0, Math.min(7, white + m));
 }
 
-/** The non-Radio items of `side`'s Support Table column `roll` available in the year, Leaders he has not got (RS.7). */
+/** What `side` holds before buying: its OB's pieces (year pieces included) and its Leaders. */
+export function holdings(d: RsgDraft, side: Side): Record<string, number> {
+  const have = obUnits(obOf(d, side).size, d.year!);
+  for (const l of d.leaders[side]) addAll(have, { [l]: 1 });
+  return have;
+}
+
+/** How many more counters of each piece type of `pieces` the counter mix has for `side` (mix.ts ruling). */
+export function supportRoom(d: RsgDraft, side: Side, types: Iterable<string>): Record<string, number> {
+  const have = holdings(d, side);
+  const room: Record<string, number> = {};
+  for (const t of types) room[t] = Math.max(0, rsgCounterCap(t) - (have[t] ?? 0));
+  return room;
+}
+
+/**
+ * The non-Radio items of `side`'s Support Table column `roll` available in the year that the counter mix still has
+ * (at least one of; Leaders he has not got), with how many he could take (RS.7).
+ */
 export function supportOptions(d: RsgDraft, side: Side, roll: number): RsgSupportOption[] {
   const table = RSG.support[nationOf(d, side)];
   const year = d.year!;
   const owned = new Set(d.leaders[side]);
-  const out: RsgSupportOption[] = [];
+  const all: RsgSupportOption[] = [];
   const seen = new Set<string>();
   for (const e of table.columns[roll] ?? []) {
     const item = table.items[e.item];
@@ -94,43 +135,51 @@ export function supportOptions(d: RsgDraft, side: Side, roll: number): RsgSuppor
     if (item.kind === 'leaderEither') {
       for (const l of item.oneOf ?? []) {
         if (owned.has(l)) continue;
-        out.push({ id: `${item.id}:${l}`, item: item.id, label: name(l), kind: item.kind, vp: e.vp, pieces: { [l]: 1 }, once: true, group: item.id });
+        all.push({ id: `${item.id}:${l}`, item: item.id, label: leaderName(l), kind: item.kind, vp: e.vp, pieces: { [l]: 1 }, left: 1, once: true, group: item.id });
       }
       continue;
     }
     const pieces = { ...item.pieces };
     const leader = item.kind === 'leader';
     if (leader && Object.keys(pieces).some((p) => owned.has(p))) continue;
-    const o: RsgSupportOption = { id: item.id, item: item.id, label: item.label, kind: item.kind, vp: e.vp, pieces, once: leader };
+    const o: RsgSupportOption = { id: item.id, item: item.id, label: item.label, kind: item.kind, vp: e.vp, pieces, left: 1, once: leader };
     if (item.kind === 'unitWithWeapon' && item.carrier) {
       o.carrier = item.carrier;
       o.weapon = Object.keys(pieces).find((p) => p !== item.carrier);
     }
-    out.push(o);
+    all.push(o);
   }
-  return out;
+  const room = supportRoom(d, side, all.flatMap((o) => Object.keys(o.pieces)));
+  for (const o of all) o.left = Math.min(...Object.entries(o.pieces).map(([t, n]) => Math.floor(room[t] / n)));
+  return all.filter((o) => o.left >= 1);
 }
 
 /**
- * RS.7 purchase rules: at least one item if the column offers any; a Leader once; one Leader of an "A or B" row.
+ * RS.7 purchase rules: at least one item if the column offers any; a Leader once; one Leader of an "A or B" row; no
+ * more of a piece type than the counter mix has left (`room`, mix.ts ruling; types shared by items add up).
  * Ruling: the 2025 text allows several purchases but sets no limit; here every purchase but the last must leave the VP
- * marker on the buyer's side (the last may carry it past 0, which hands the roll to the opponent). Counter-mix limits
- * are not modelled (the module has no counter mix), except that named Leaders are unique.
+ * marker on the buyer's side (the last may carry it past 0, which hands the roll to the opponent).
  */
-export function supportError(options: RsgSupportOption[], lead: number, buy: string[]): string | null {
+export function supportError(options: RsgSupportOption[], lead: number, buy: string[], room: Record<string, number>): string | null {
   if (!Array.isArray(buy)) return 'The purchase must be a list of options.';
   if (!buy.length) return options.length ? 'He must buy at least one item from the column (RS.7).' : null;
   const byId = new Map(options.map((o) => [o.id, o]));
   const ids = new Set<string>();
   const groups = new Set<string>();
+  const used: Record<string, number> = {};
   const costs: number[] = [];
   for (const id of buy) {
     const o = byId.get(id);
     if (!o) return `"${id}" is not on this column for the year.`;
     if (o.once && ids.has(o.id)) return `${o.label} can be bought only once.`;
     if (o.group) {
-      if (groups.has(o.group) && !ids.has(o.id)) return `Only one Leader of that row per roll (FAQ RS.7).`;
+      if (groups.has(o.group) && !ids.has(o.id)) return 'Only one Leader of that row per roll (FAQ RS.7).';
       groups.add(o.group);
+    }
+    for (const [t, n] of Object.entries(o.pieces)) {
+      used[t] = (used[t] ?? 0) + n;
+      const k = room[t] ?? 0;
+      if (used[t] > k) return `The counter mix has only ${k} more ${name(t)} counter${k === 1 ? '' : 's'} (project ruling).`;
     }
     ids.add(o.id);
     costs.push(o.vp);
@@ -144,7 +193,7 @@ export function supportError(options: RsgSupportOption[], lead: number, buy: str
 
 export const fortOb = (id: string): RsgFortificationOb | undefined => RSG.fortifications.find((f) => f.id === id);
 
-/** RS.9: within the budget, Minefields of one strength. Ruling: counter-mix limits are not modelled. */
+/** RS.9: within the budget, Minefields of one strength. Ruling: Fortifications have no counter-mix data and stay unlimited. */
 export function fortError(budget: number, buy: string[]): string | null {
   if (!Array.isArray(buy)) return 'The purchase must be a list of Fortification OBs.';
   let total = 0;

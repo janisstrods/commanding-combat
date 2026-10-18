@@ -1,8 +1,8 @@
 // The RSG's heuristic choices: rsgAuto, the AI's default (and "surprise me") until Task 12 refines it.
 import { COUNTERS, RSG } from '../data';
 import type { ObSize } from '../rsgTypes';
-import type { CounterType, Nation, Side } from '../types';
-import { SIDE_NAME, nationOf, obOf, rsgLeaderIndex, supportError } from './tables';
+import type { CounterType, Nation, Posture, Side } from '../types';
+import { PLAYER, holdings, nationOf, rsgLeaderIndex, supportError } from './tables';
 import { rsgStep } from './steps';
 import type { RsgChoice, RsgChoiceStep, RsgDraft, RsgSupportOption } from './types';
 
@@ -52,32 +52,105 @@ function autoOb(st: Extract<RsgChoiceStep, { what: 'ob' }>, rnd: () => number): 
   return { what: 'ob', letter: best.letter, size: best.size };
 }
 
+/** What a side's force has, for judging what to buy. */
+interface ForceMix {
+  squads: number;
+  leaders: number;
+  mgs: number;
+  /** Mortars and guns. */
+  heavy: number;
+  /** Flamethrowers and Satchel Charges. */
+  assault: number;
+}
+
+function addToMix(m: ForceMix, pieces: Record<string, number>): void {
+  for (const [t, n] of Object.entries(pieces)) {
+    const c = COUNTERS[t];
+    if (!c) continue;
+    if (c.kind === 'squad') m.squads += n;
+    else if (c.kind === 'leader') m.leaders += n;
+    else if (c.weaponClass === 'mg') m.mgs += n;
+    else if (c.weaponClass === 'mortar' || c.weaponClass === 'gun') m.heavy += n;
+    else if (c.weaponClass === 'flamethrower' || c.weaponClass === 'satchel') m.assault += n;
+  }
+}
+
+/** The posture `side` can expect after buying: as fixed, else Defender (he buys because he leads, and keeps a lead). */
+function expectedPosture(d: RsgDraft, side: Side): Posture {
+  const f = d.fixed.defender;
+  if (f === undefined) return 'defend';
+  return f === null ? 'recon' : f === side ? 'defend' : 'attack';
+}
+
+const BY_POSTURE = (p: Posture, defend: number, recon: number, attack: number) => (p === 'defend' ? defend : p === 'recon' ? recon : attack);
+
+/** How well item `o` suits a force like `m` in posture `p` (1 = no preference). */
+function fit(o: RsgSupportOption, m: ForceMix, p: Posture, nation: Nation): number {
+  if (o.kind === 'leader' || o.kind === 'leaderEither') {
+    // every OB comes at the Playbook ratio; a Leader is still worth more than his points until the force is over-led
+    const per = m.leaders ? m.squads / m.leaders : Infinity;
+    return per > SQUADS_PER_LEADER[nation] ? 1.6 : per === SQUADS_PER_LEADER[nation] ? 1.35 : 0.6;
+  }
+  if (o.weapon) {
+    const cls = COUNTERS[o.weapon]?.weaponClass;
+    if (cls === 'mg') return BY_POSTURE(p, 1.5, 1.25, 1.05) * (m.mgs * 3 < m.squads ? 1.15 : 0.75);
+    if (cls === 'mortar' || cls === 'gun') return BY_POSTURE(p, 1.25, 1.1, 1) * (m.heavy < 2 ? 1 : 0.6);
+    return BY_POSTURE(p, 0.85, 1.1, 1.35) * (m.assault < 2 ? 1 : 0.7);
+  }
+  const c = COUNTERS[Object.keys(o.pieces)[0]];
+  if (!c) return 1;
+  // a Defender wants reach, an Attacker assault troops (boxed FP or fast)
+  return BY_POSTURE(p, c.front.range >= 5 ? 1.1 : 0.95, 1.05, c.front.boxed.fp || c.front.move >= 5 ? 1.15 : 1);
+}
+
+/** Value factor of the n-th copy of one item in a purchase (n = 0, 1, 2); no 4th copy. */
+const COPY_FACTOR = [1, 0.7, 0.45];
+const MAX_ITEMS = 6;
+/** Below this adjusted value per VP a further purchase adds too little (a Line Squad is about 1). */
+const STOP_BELOW = 0.72;
+
+/**
+ * Support purchases: the best item for its VP, judged by its design value (Playbook p. 34), how it suits the force and
+ * the expected posture (Leaders when short of them; MG teams, mortars and guns to defend; assault troops and weapons to
+ * attack), with fewer points for each further copy (at most 3) and for each further purchase. The first buy may take
+ * up to half the lead; the rest come out of a budget of 40–65 % of it, and buying stops when the next item adds little.
+ */
 function autoSupport(d: RsgDraft, st: Extract<RsgChoiceStep, { what: 'supportBuy' }>, rnd: () => number): RsgChoice {
   if (!st.options.length) return { what: 'supportBuy', buy: [] };
   const nation = nationOf(d, st.side);
-  const { size } = obOf(d, st.side);
-  const squads = Object.entries(size.units).reduce((n, [t, k]) => n + (COUNTERS[t]?.kind === 'squad' ? k : 0), 0);
-  const wantLeader = d.leaders[st.side].length * SQUADS_PER_LEADER[nation] < squads;
-  const bonus = (o: RsgSupportOption) => {
-    if (o.kind === 'leader' || o.kind === 'leaderEither') return wantLeader ? 1.5 : 0.8;
-    const cls = o.weapon ? COUNTERS[o.weapon]?.weaponClass : undefined;
-    // the buyer leads on VP and so expects to defend: MGs first, then mortars and guns
-    return cls === 'mg' ? 1.25 : cls === 'mortar' || cls === 'gun' ? 1.1 : 1;
-  };
-  const ranked = st.options
-    .map((o) => ({ o, s: (piecesValue(o.pieces) / (o.vp * 100)) * bonus(o) * (0.9 + 0.2 * rnd()) }))
-    .sort((a, b) => b.s - a.s)
-    .map((x) => x.o);
-  const budget = Math.floor(st.lead * (0.3 + 0.4 * rnd()));
+  const posture = expectedPosture(d, st.side);
+  const mix: ForceMix = { squads: 0, leaders: 0, mgs: 0, heavy: 0, assault: 0 };
+  addToMix(mix, holdings(d, st.side));
+  const jitter = new Map(st.options.map((o) => [o.id, 0.9 + 0.2 * rnd()]));
+  const budget = Math.floor(st.lead * (0.4 + 0.25 * rnd()));
   const buy: string[] = [];
+  const legal = (o: RsgSupportOption) => supportError(st.options, st.lead, [...buy, o.id], st.room) === null;
+  const score = (o: RsgSupportOption) => {
+    const n = buy.filter((id) => id === o.id).length;
+    if (n >= COPY_FACTOR.length) return 0;
+    const value = piecesValue(o.pieces) / (o.vp * 100);
+    return value * fit(o, mix, posture, nation) * COPY_FACTOR[n] * (1 - 0.05 * Math.max(0, buy.length - 1)) * jitter.get(o.id)!;
+  };
   let spent = 0;
-  for (let n = 0; n < 20; n++) {
-    const o = ranked.find((x) => spent + x.vp <= budget && supportError(st.options, st.lead, [...buy, x.id]) === null);
-    if (!o) break;
-    buy.push(o.id);
-    spent += o.vp;
+  for (let k = 0; k < MAX_ITEMS; k++) {
+    const room = k === 0 ? Math.max(budget, Math.floor(st.lead / 2)) : budget - spent;
+    let best: RsgSupportOption | null = null;
+    let top = 0;
+    for (const o of st.options) {
+      if (o.vp > room || !legal(o)) continue;
+      const s = score(o);
+      if (s > top) [best, top] = [o, s];
+    }
+    if (!best || (k > 0 && top < STOP_BELOW)) break;
+    buy.push(best.id);
+    spent += best.vp;
+    addToMix(mix, best.pieces);
   }
-  if (!buy.length) buy.push([...ranked].sort((a, b) => a.vp - b.vp)[0].id);
+  if (!buy.length) {
+    // he must buy one: the cheapest, the better one on a tie
+    const o = [...st.options].sort((a, b) => a.vp - b.vp || score(b) - score(a))[0];
+    buy.push(o.id);
+  }
   return { what: 'supportBuy', buy };
 }
 
@@ -104,7 +177,7 @@ function autoForts(st: Extract<RsgChoiceStep, { what: 'fortifications' }>, rnd: 
  */
 export function rsgAuto(d: RsgDraft, side: Side, rnd: () => number): RsgChoice {
   const st = rsgStep(d);
-  if (st.kind !== 'choice' || st.side !== side) throw new Error(`The RSG does not wait for a choice by the ${SIDE_NAME[side]}.`);
+  if (st.kind !== 'choice' || st.side !== side) throw new Error(`The RSG does not wait for a choice by ${PLAYER[side]}.`);
   switch (st.what) {
     case 'mapPick':
       return { what: 'mapPick', map: st.options[Math.floor(rnd() * st.options.length)].map };

@@ -2,7 +2,7 @@
 import { RSG } from '../data';
 import { DISCARD_CAPABILITY, HAND_SIZE } from '../setup';
 import { type FortKind, type Posture, type ScenarioDef, type Side, type SideSetup, type SpecialRules, SIDES } from '../types';
-import { addAll, attackerOf, defenderOf, fortOb, nationOf, obOf, obUnits } from './tables';
+import { addAll, attackerOf, defenderOf, fortOb, nationOf, obLabel, obOf, obUnits } from './tables';
 import { rsgStep } from './steps';
 import type { RsgDraft } from './types';
 
@@ -55,7 +55,7 @@ export function rsgFinish(d: RsgDraft): ScenarioDef {
   const special: SpecialRules = { controlAfterSetup: true };
   if (d.fortifications.length) special.fortificationsLast = true;
   if (carried.axis || carried.allied) special.carried = carried;
-  const label = (side: Side) => `${nationOf(d, side)} ${obOf(d, side).size.label}`;
+  const label = (side: Side) => `${nationOf(d, side)} ${obLabel(obOf(d, side).ob, d.ob[side]!.size)}`;
   return {
     id: 'rsg',
     name: `Random ${year}: ${label('axis')} v ${label('allied')}`,
