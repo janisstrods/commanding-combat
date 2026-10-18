@@ -31,7 +31,7 @@ describe('the own-Turn search', () => {
     expect(mem.last?.label).toMatch(/^Fire/);
     expect(mem.last?.stop).toBe('clear');
     const full = newMemory(5);
-    chooseAnswer(redact(s, 'axis'), d, { side: 'axis', level: 'line', seed: 5, deterministic: true, patch: { clear: 0, even: 0, worlds: 40 } }, full);
+    chooseAnswer(redact(s, 'axis'), d, { side: 'axis', level: 'line', seed: 5, deterministic: true, patch: { clear: 0, even: 0 } }, full);
     expect(full.last?.stop).toBe('worlds');
     expect(mem.last!.sims!).toBeLessThan(full.last!.sims!);
   });

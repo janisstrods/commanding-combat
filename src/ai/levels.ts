@@ -32,8 +32,8 @@ export interface LevelCfg {
   reply: boolean;
   /**
    * The look-ahead's own Orders may be Moves too (a narrow Move plan), not only Fire, Recover or the end of the Turn;
-   * and the opponent's simulated reply Turn may give Move Orders too. Elite: with both it beat Line far more often than
-   * without (design/ai-balance.md).
+   * and the opponent's simulated reply Turn may give Move Orders too. With them Line (look-ahead) beat v1.0's Line 18
+   * of 24 and Elite (look-ahead and reply) beat Line far more often (design/ai-balance.md).
    */
   rolloutMoves: boolean;
   replyMoves: boolean;
@@ -60,7 +60,7 @@ export const LEVELS: Record<AiLevel, LevelCfg> = {
   },
   line: {
     level: 'line', budgetMs: 8000, worlds: 128, minSims: 8, maxCands: 18, fireActs: 5, moveActs: 8, moveVariants: 3,
-    noise: 0, sloppy: 0, reroll: true, lookahead: false, reply: false, rolloutMoves: false, replyMoves: false,
+    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: false, rolloutMoves: true, replyMoves: false,
     keep: 0.6, clear: 3, even: 0.3, battlePlan: true, planWeight: 0.5, planZone: 4,
   },
   elite: {
