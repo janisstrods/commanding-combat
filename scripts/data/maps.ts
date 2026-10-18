@@ -5,11 +5,13 @@
 //   2. upgraded to any higher-ranked type its note names ("also: Building", ...), or that the module's terrain file gives
 //      where the transcription records a disagreement (the art contains it), or that MAP_RULES names (lead rulings);
 //   3. bridges per MAP_RULES (Major / Minor);
-//   4. Task 4's masks audit (design/data/masks-audit.json `typeUpgrades`) on top, when that file exists.
+//   4. Task 4's masks audit (design/data/masks-audit.json, per map: typeUpgrades, levelFixes, crest, buildings) on
+//      top, when that file exists: its type and level win, its crest list replaces the neighbour rule, and its
+//      building groups are merged with MAP_RULES' groups.
 // An upgrade to an impassable / water type (Water, Stream, Marsh) is refused when a road, trail or railway runs through
 // the hex: the path shows the designer meant the hex to be crossed (recorded as "not upgraded").
-// Crest hexes: every hex with a lower neighbour (contours lie inside the higher hex: FAQ, every crest hex's centre dot is
-// at the higher level; the hex at the top of a Cliff is a crest hex). Task 4's masks compute crests from the art.
+// Crest hexes: the audit's list when present, else every hex with a lower neighbour (contours lie inside the higher
+// hex: FAQ, every crest hex's centre dot is at the higher level; the hex at the top of a Cliff is a crest hex).
 // Building ids: each Building hex is its own building unless MAP_RULES groups hexes of one drawn building.
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -106,24 +108,38 @@ export interface MapReport {
   id: string;
   upgrades: string[];
   refused: string[];
+  levels: string[];
   buildings: string[];
   candidates: string[];
   crests: number;
+  crestSource: 'masks audit' | 'neighbour rule';
+  crestDiffs: string[];
+  /** Audit type entries that only confirm the type the notes already gave. */
+  auditConfirmed: number;
 }
 
 const PATH_KINDS: PathKind[] = ['Road', 'Trail', 'Railway'];
 const HEXSIDE_FEATURES: HexsideFeature[] = ['Fence', 'Hedge', 'Wall', 'Cliff'];
 
-function auditUpgrades(audit: any, id: string): Record<string, TerrainType> {
-  const t = audit?.typeUpgrades;
-  if (!t) return {};
-  const out: Record<string, TerrainType> = {};
-  if (Array.isArray(t)) {
-    for (const u of t) if (String(u.map) === id) out[u.hex] = normaliseType(u.to ?? u.type);
-  } else if (t[id]) {
-    for (const [hex, v] of Object.entries<any>(t[id])) out[hex] = normaliseType(typeof v === 'string' ? v : (v.to ?? v.type));
-  }
-  return out;
+/** One map's entry of design/data/masks-audit.json (Task 4). */
+export interface MapAudit {
+  typeUpgrades: Record<string, TerrainType>;
+  levelFixes: Record<string, number>;
+  /** Crest hexes, or null when the audit gives no list. */
+  crest: string[] | null;
+  buildings: string[][];
+}
+
+export function auditFor(audit: any, id: string): MapAudit | null {
+  const a = audit?.[id];
+  if (!a || typeof a !== 'object') return null;
+  const labels = (xs: string[]) => xs.map((l) => (parseHex(l), l));
+  return {
+    typeUpgrades: Object.fromEntries(Object.entries<string>(a.typeUpgrades ?? {}).map(([h, t]) => [(parseHex(h), h), normaliseType(t)])),
+    levelFixes: Object.fromEntries(Object.entries<number>(a.levelFixes ?? {}).map(([h, v]) => [(parseHex(h), h), v])),
+    crest: Array.isArray(a.crest) ? labels(a.crest) : null,
+    buildings: (a.buildings ?? []).map(labels),
+  };
 }
 
 function adjacent(a: string, b: string, what: string): void {
@@ -132,10 +148,21 @@ function adjacent(a: string, b: string, what: string): void {
 
 export function buildMap(id: string, src: any, printed: string[], audit: any): { map: MapOut; report: MapReport } {
   const rules = MAP_RULES[id] ?? {};
-  const report: MapReport = { id, upgrades: [], refused: [], buildings: [], candidates: [], crests: 0 };
+  const report: MapReport = {
+    id,
+    upgrades: [],
+    refused: [],
+    levels: [],
+    buildings: [],
+    candidates: [],
+    crests: 0,
+    crestSource: 'neighbour rule',
+    crestDiffs: [],
+    auditConfirmed: 0,
+  };
   const disagreements: any[] = src.agreement_with_module_file?.disagreements ?? [];
   const moduleSays = new Map<string, TerrainType[]>(disagreements.map((d) => [d.where, moduleTypes(String(d.module))]));
-  const fromAudit = auditUpgrades(audit, id);
+  const fromAudit = auditFor(audit, id);
 
   const hexes: Record<string, MapHexOut> = {};
   for (const h of ALL_HEXES) {
@@ -169,13 +196,19 @@ export function buildMap(id: string, src: any, printed: string[], audit: any): {
       const whys = [...new Set(ok.filter((c) => c.to === terrain).map((c) => c.why))];
       report.upgrades.push(`${lbl} ${base} → ${terrain} (${whys.join('; ')})`);
     }
-    const audited = fromAudit[lbl];
+    const audited = fromAudit?.typeUpgrades[lbl];
     if (audited && audited !== terrain) {
       report.upgrades.push(`${lbl} ${terrain} → ${audited} (masks audit)`);
       terrain = audited;
-    }
+    } else if (audited) report.auditConfirmed++;
     if (typeof t.elevation !== 'number') throw new Error(`Map ${id} ${lbl}: no elevation`);
-    const hex: MapHexOut = { terrain, elevation: t.elevation };
+    let elevation: number = t.elevation;
+    const fix = fromAudit?.levelFixes[lbl];
+    if (fix !== undefined && fix !== elevation) {
+      report.levels.push(`${lbl} level ${elevation} → ${fix} (masks audit)`);
+      elevation = fix;
+    }
+    const hex: MapHexOut = { terrain, elevation };
     if (paths.length) hex.paths = paths;
     hexes[lbl] = hex;
   }
@@ -183,27 +216,46 @@ export function buildMap(id: string, src: any, printed: string[], audit: any): {
     if (hexes[lbl].terrain !== rules.bridges![lbl]) throw new Error(`Map ${id} ${lbl}: bridge ruling not applied`);
   }
 
-  // crest hexes
+  // crest hexes: the audit's list, else the neighbour rule
+  const lowerNeighbour = (h: number) => neighbours(h).some((n) => hexes[label(n)].elevation < hexes[label(h)].elevation);
+  const auditCrest = fromAudit?.crest ? new Set(fromAudit.crest) : null;
+  if (auditCrest) report.crestSource = 'masks audit';
   for (const h of ALL_HEXES) {
-    const me = hexes[label(h)];
-    if (neighbours(h).some((n) => hexes[label(n)].elevation < me.elevation)) {
-      me.crest = true;
+    const lbl = label(h);
+    const byRule = lowerNeighbour(h);
+    const crest = auditCrest ? auditCrest.has(lbl) : byRule;
+    if (auditCrest && crest !== byRule) report.crestDiffs.push(`${lbl} ${crest ? 'crest (no lower neighbour)' : 'not crest (has a lower neighbour)'}`);
+    if (crest) {
+      hexes[lbl].crest = true;
       report.crests++;
     }
   }
 
-  // buildings
-  let next = 0;
-  const groups = rules.buildings ?? [];
-  for (const g of groups) {
-    for (const lbl of g) if (hexes[lbl].terrain !== 'Building') throw new Error(`Map ${id}: building group hex ${lbl} is ${hexes[lbl].terrain}`);
+  // buildings: the audit's groups merged with MAP_RULES' groups (groups sharing a hex become one building)
+  const groupSources: { hexes: string[]; source: string }[] = [
+    ...(fromAudit?.buildings ?? []).map((g) => ({ hexes: g, source: 'masks audit' })),
+    ...(rules.buildings ?? []).map((g) => ({ hexes: g, source: 'transcription note' })),
+  ];
+  const merged: { hexes: Set<string>; sources: Set<string> }[] = [];
+  for (const g of groupSources) {
+    for (const lbl of g.hexes) if (hexes[lbl].terrain !== 'Building') throw new Error(`Map ${id}: building group hex ${lbl} is ${hexes[lbl].terrain}`);
+    const hits = merged.filter((m) => g.hexes.some((x) => m.hexes.has(x)));
+    const into = { hexes: new Set(g.hexes), sources: new Set([g.source]) };
+    for (const m of hits) {
+      m.hexes.forEach((x) => into.hexes.add(x));
+      m.sources.forEach((x) => into.sources.add(x));
+      merged.splice(merged.indexOf(m), 1);
+    }
+    merged.push(into);
   }
+  let next = 0;
   for (const h of ALL_HEXES) {
     const lbl = label(h);
     if (hexes[lbl].terrain !== 'Building' || hexes[lbl].building !== undefined) continue;
-    const g = groups.find((x) => x.includes(lbl));
-    for (const m of g ?? [lbl]) hexes[m].building = next;
-    if (g) report.buildings.push(`building ${next}: ${g.join(', ')}`);
+    const g = merged.find((x) => x.hexes.has(lbl));
+    const members = g ? [...g.hexes].sort((a, b) => parseHex(a) - parseHex(b)) : [lbl];
+    for (const m of members) hexes[m].building = next;
+    if (g) report.buildings.push(`building ${next}: ${members.join(', ')} (${[...g.sources].join(', ')})`);
     next++;
   }
   // multi-hex candidates for Task 4: adjacent Building hexes in different buildings
@@ -292,23 +344,35 @@ export function mapNotes(reports: MapReport[], missing: string[], auditUsed: boo
     'Terrain type per hex = the highest-ranked type depicted in the hex (§T78.1, hierarchy §T-TEC): the transcription\'s',
     'centre-dot terrain, upgraded to any higher type its note names ("also: …"), that the module file gives where the',
     'transcription records a disagreement, or that a lead ruling names. Upgrades to Water / Stream / Marsh are refused',
-    'where a road, trail or railway crosses the hex. Elevation is always the transcription\'s. Crest = the hex has a',
-    'lower neighbour. Building ids: one per Building hex unless grouped below. Task 4\'s masks audit',
-    `(design/data/masks-audit.json \`typeUpgrades\`) is applied on top when present (${auditUsed ? 'present: applied' : 'not present yet'}).`,
+    'where a road, trail or railway crosses the hex. Elevation is the transcription\'s unless the audit fixes it.',
+    `Task 4's masks audit (design/data/masks-audit.json, per map; ${auditUsed ? 'present: applied' : 'not present yet'}) goes on`,
+    'top: its typeUpgrades and levelFixes win, its crest list gives the crest flags (fallback: the hex has a lower',
+    'neighbour), and its building groups are merged with the groups from the transcription notes into shared building',
+    'ids; every other Building hex is a building of its own.',
     '',
   ];
   if (missing.length) lines.push(`Maps not transcribed yet: ${missing.join(', ')}.`, '');
-  lines.push('| Map | Upgrades | Crest hexes | Grouped buildings | Multi-hex candidates |', '|---|---|---|---|---|');
+  lines.push(
+    '| Map | Type upgrades | Level fixes | Crest hexes (source) | Multi-hex buildings | Adjacent separate buildings |',
+    '|---|---|---|---|---|---|',
+  );
   for (const r of reports) {
-    lines.push(`| ${r.id} | ${r.upgrades.length} | ${r.crests} | ${r.buildings.length} | ${r.candidates.length} |`);
+    lines.push(
+      `| ${r.id} | ${r.upgrades.length} | ${r.levels.length} | ${r.crests} (${r.crestSource}) | ${r.buildings.length} | ${r.candidates.length} |`,
+    );
   }
   for (const r of reports) {
-    if (!r.upgrades.length && !r.refused.length && !r.buildings.length && !r.candidates.length) continue;
+    if (!r.upgrades.length && !r.refused.length && !r.levels.length && !r.buildings.length && !r.candidates.length && !r.crestDiffs.length) continue;
     lines.push('', `### Map ${r.id}`, '');
     for (const u of r.upgrades) lines.push(`- Upgrade: ${u}`);
+    if (r.auditConfirmed) lines.push(`- The masks audit confirms ${r.auditConfirmed} of these types.`);
     for (const u of r.refused) lines.push(`- Not upgraded: ${u}`);
-    for (const b of r.buildings) lines.push(`- Grouped: ${b}`);
-    if (r.candidates.length) lines.push(`- Adjacent Building hexes kept as separate buildings (Task 4: check the art; * = Objective hex): ${r.candidates.join(', ')}`);
+    for (const l of r.levels) lines.push(`- Level: ${l}`);
+    for (const c of r.crestDiffs) lines.push(`- Crest (masks audit differs from the neighbour rule): ${c}`);
+    for (const b of r.buildings) lines.push(`- Multi-hex building: ${b}`);
+    if (r.candidates.length) {
+      lines.push(`- Adjacent Building hexes that are separate buildings (* = Objective hex): ${r.candidates.join(', ')}`);
+    }
   }
   return lines;
 }

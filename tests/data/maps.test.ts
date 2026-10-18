@@ -12,6 +12,12 @@ type Raw = {
   paths: ({ between: [string, string] } | { hex: string; side: HexSide })[];
 };
 const RAW = Object.values(import.meta.glob<Raw>('../../src/data/maps/*.json', { eager: true, import: 'default' }));
+
+/** Task 4's masks audit, per map (optional file). */
+type Audit = Record<string, { typeUpgrades: Record<string, TerrainType>; levelFixes: Record<string, number>; crest: string[]; buildings: string[][] }>;
+const AUDIT: Audit | undefined = Object.values(
+  import.meta.glob<Audit>('../../design/data/masks-audit.json', { eager: true, import: 'default' }),
+)[0];
 const H = parseHex;
 
 const TYPES: TerrainType[] = ['Open', 'Woods', 'Brush', 'Orchard', 'Field', 'Building', 'MajorBridge', 'MinorBridge', 'Gully', 'Water', 'Stream', 'Marsh'];
@@ -53,7 +59,7 @@ describe('maps', () => {
         expect(Object.keys(m.paths).length).toBeGreaterThan(0);
       });
 
-      it('marks crest hexes exactly where a neighbour is lower', () => {
+      it.skipIf(!!AUDIT?.[raw.id]?.crest)('marks crest hexes exactly where a neighbour is lower (no audit list)', () => {
         for (const h of ALL_HEXES) {
           const lower = neighbours(h).some((n) => m.elevation[n] < m.elevation[h]);
           expect(m.crest[h], `hex ${h}`).toBe(lower);
@@ -85,6 +91,23 @@ describe('maps', () => {
       });
     });
   }
+
+  it.skipIf(!AUDIT)('reflects every masks-audit entry (types, levels, crests, multi-hex buildings)', () => {
+    for (const [id, a] of Object.entries(AUDIT!)) {
+      const m = loadMap(id);
+      for (const [hex, t] of Object.entries(a.typeUpgrades ?? {})) expect(m.terrain[H(hex)], `map ${id} ${hex}`).toBe(t);
+      for (const [hex, lv] of Object.entries(a.levelFixes ?? {})) expect(m.elevation[H(hex)], `map ${id} ${hex}`).toBe(lv);
+      if (a.crest) {
+        const crest = new Set(a.crest.map(H));
+        for (const h of ALL_HEXES) expect(m.crest[h], `map ${id} crest ${h}`).toBe(crest.has(h));
+      }
+      for (const g of a.buildings ?? []) {
+        const ids = new Set(g.map((hex) => m.building[H(hex)]));
+        expect(ids.size, `map ${id} building ${g.join(',')}`).toBe(1);
+        expect([...ids][0]).toBeGreaterThanOrEqual(0);
+      }
+    }
+  });
 
   it('applies the terrain rulings (§T78.1 upgrades and bridges)', () => {
     expect(loadMap('1').terrain[H('D3')]).toBe('Woods');
