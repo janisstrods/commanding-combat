@@ -8,6 +8,7 @@ import { CARDS } from '../engine/data';
 import { attackFp, fireOptions, inRange, shooter } from '../engine/fire';
 import { distance, neighbours } from '../engine/hex';
 import { losCheck } from '../engine/los';
+import { nightPenalty } from '../engine/scenarioRules';
 import { smokeOptions } from '../engine/orders/fire';
 import { cover, currentStats, hexCover } from '../engine/stats';
 import { isLeader, isUnit, radioOf, typeOf } from '../engine/state';
@@ -18,13 +19,13 @@ import {
 import { actionValue, cardCost, cardCtx, keepValue, weakestFirst, type CardCtx } from './cards';
 import { chooseAnswer as chooseItems, itemScores, safety } from './choose';
 import { deployAnswer, type DeployMemo } from './deploy';
-import { contestOdds, pSumBelow } from './dice';
+import { SUM, contestOdds, pSumBelow } from './dice';
 import { projectedMargin } from './evaluate';
 import type { LevelCfg } from './levels';
 import { holdsFixedWeapon, moveAnswer, planMoves } from './moves';
 import type { Rng } from './rand';
 import { safeAnswer } from './sim';
-import { fireEV, fireOn, knownTotalOdds, meleeStrength, meleeWinChance, sideShooters, stackLoss, unitsAt, unitsOnMap } from './tactics';
+import { fireEV, fireOn, knownTotalOdds, meleeStrength, meleeWinChance, sideShooters, stackLoss, suppressCost, unitsAt, unitsOnMap } from './tactics';
 import { breakCost, breakLoss, pieceValue, typeValue } from './values';
 
 /** What the AI means to do with the Order it is giving (planner.ts makes it; the sub-decisions follow it). */
@@ -694,15 +695,18 @@ function attackWorth(s: GameState, side: Side, pieces: PieceId[], targets: HexId
 /**
  * Re-roll only when the roll matters and the swing is large: our own bad Fire Attack / Defense / melee / Rally roll, the
  * enemy's very good one, or a Sudden Death roll that ends the game against us (or keeps it going while we lead). The
- * Initiative card itself is worth about a VP (ties, a later re-roll), so the expected gain must beat that.
+ * Initiative card itself is worth about a VP (ties, a later re-roll), so the expected gain must beat that. Fire Attack
+ * and Defense rolls are judged on their totals (the decision's `stake`): the result now against a fresh roll's average.
  */
-function rerollWanted(s: GameState, d: Extract<Decision, { kind: 'reroll' }>, pc: PolicyCtx): boolean {
+export function rerollWanted(s: GameState, d: Extract<Decision, { kind: 'reroll' }>, pc: PolicyCtx): boolean {
   const me = pc.me;
   const card = CARDS[d.roll.card];
   if (!card) return false;
   const sum = card.white + card.red;
   const own = d.roll.side === me;
   const COST = 1.1;
+  const judged = rerollGain(s, d, sum);
+  if (judged !== null) return (own ? judged : -judged) > COST + 0.2;
   switch (d.roll.purpose) {
     case 'suddenDeath': {
       const ends = sum < s.time;
@@ -738,6 +742,47 @@ function rerollWanted(s: GameState, d: Extract<Decision, { kind: 'reroll' }>, pc
     default:
       return false;
   }
+}
+
+/**
+ * What a re-roll of a Fire Attack or Defense roll is worth to the roller (its expected result over a fresh roll less the
+ * result of this one, in evaluation points; negative when the roll went its way), from the decision's `stake`: the
+ * attack's FP with its pieces and targets, or the defender's Morale + Cover and the total it must beat. Null when the
+ * roll has no stake (another purpose, or an old decision without one).
+ */
+export function rerollGain(s: GameState, d: Extract<Decision, { kind: 'reroll' }>, sum: number): number | null {
+  const st = d.stake;
+  if (!st) return null;
+  const roller = d.roll.side;
+  if (d.roll.purpose === 'fireAttack' && st.pieces?.length && st.hexes?.length) {
+    // worth of the attack to the firer at a known total (fire.ts: the Night penalty comes off after the roll)
+    const firers = st.pieces.map((id) => hexOfPiece(s, id)).filter((h) => h >= 0);
+    const night = nightPenalty(s, firers, st.hexes);
+    const pieces = st.pieces.filter((id) => !!s.pieces[id]);
+    if (!pieces.length) return null;
+    const at = (k: number) => st.hexes!.reduce((n, h) => n + fireEV(s, roller, { pieces, target: h }, { total: st.base + k - night }), 0);
+    let avg = 0;
+    for (let k = 2; k <= 12; k++) avg += SUM[k] * at(k);
+    return avg - at(sum);
+  }
+  if (d.roll.purpose === 'defense' && st.against !== undefined && st.unit && s.pieces[st.unit]) {
+    // the defender's loss at this total: below the Attack Total it breaks, equal it is Suppressed (broken if moving)
+    const u = s.pieces[st.unit];
+    const brk = breakCost(s, u);
+    const tie = s.turn.moving.includes(u.id) ? brk : suppressCost(s, u);
+    const loss = (k: number) => (st.base + k < st.against! ? brk : st.base + k === st.against ? tie : 0);
+    let avg = 0;
+    for (let k = 2; k <= 12; k++) avg += SUM[k] * loss(k);
+    return loss(sum) - avg;
+  }
+  return null;
+}
+
+function hexOfPiece(s: GameState, id: PieceId): HexId {
+  const p = s.pieces[id];
+  if (!p) return -1;
+  if (p.where === 'carried' && p.carrier) return s.pieces[p.carrier]?.hex ?? -1;
+  return p.where === 'map' ? p.hex : -1;
 }
 
 /** Worth of our last attack with an Attack Roll of `sum` (the total then known). */

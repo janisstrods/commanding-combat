@@ -495,6 +495,22 @@ export interface Reveal {
   purpose: RevealPurpose;
 }
 
+/**
+ * What a roll's total is built on, offered with the re-roll question (§9.1); all of it is open to both players. The
+ * total is `base` + the dice sum.
+ */
+export interface RollStake {
+  /** Fire Attack: the attack's FP with Action bonuses and Airburst (not the Night penalty). Defense: Morale + Cover. */
+  base: number;
+  /** Fire Attack: the firing pieces and the target hex(es). */
+  pieces?: PieceId[];
+  hexes?: HexId[];
+  /** Defense: the Attack Total less Concealment; below it the unit breaks, equal is a tie (§O20.3.4). */
+  against?: number;
+  /** Defense: the defending unit. */
+  unit?: PieceId;
+}
+
 export type RevealPurpose =
   | 'fireAttack'
   | 'targeting'
@@ -794,8 +810,8 @@ export type Decision =
     }
   /** A reaction window: play one of these Actions, or pass. Asked again after each play until the player passes. */
   | { kind: 'react'; side: Side; window: WindowKind; options: ActionOption[]; info: WindowInfo }
-  /** The Initiative holder may cancel the most recent roll (§9.1). */
-  | { kind: 'reroll'; side: Side; roll: Reveal }
+  /** The Initiative holder may cancel the most recent roll (§9.1). `stake`: what the roll's total is built on, if any. */
+  | { kind: 'reroll'; side: Side; roll: Reveal; stake?: RollStake }
   /** A generic choice among items. */
   | { kind: 'choose'; side: Side; reason: ChoiceReason; items: ChoiceItem[]; min: number; max: number; context?: unknown }
   /** Deployment: place one piece from staging on a legal hex (or let the engine finish). */

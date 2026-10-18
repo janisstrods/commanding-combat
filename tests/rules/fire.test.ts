@@ -322,3 +322,24 @@ describe('the Defense result is fixed at the roll, before its trigger (§1.9.1 r
     expect(s.pieces.p1.broken).toBe(true);
   });
 });
+
+describe('the re-roll question carries what the roll is built on (§9.1, public information)', () => {
+  it('the Attack Roll: the FP and the target; the Defense roll: Morale + Cover and the Attack Total to beat', () => {
+    const s = build({
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5', weapon: 'German/LMG' }, // p0, p1
+        { type: 'American/Line Squad', hex: 'E2' }, // p2
+      ],
+      axis: { top: rolls(G, [7]) },
+      allied: { top: rolls(A, [8]) },
+    });
+    const r = attack(s, ['p0', 'p1'], 'E2');
+    const asked = r.decisions.filter((d): d is Extract<Decision, { kind: 'reroll' }> => d.kind === 'reroll');
+    const fa = r.events.find((e): e is FireEvent => e.kind === 'fireAttack')!;
+    const df = r.events.find((e): e is DefenseEvent => e.kind === 'defense')!;
+    expect(asked.map((d) => d.roll.purpose)).toEqual(['fireAttack', 'defense']);
+    expect(asked[0].stake).toEqual({ base: fa.fp, pieces: ['p0', 'p1'], hexes: [H('E2')] });
+    expect(asked[1].stake).toEqual({ base: df.morale, against: fa.total, unit: 'p2' });
+    expect(fa.total).toBe(fa.fp + 7);
+  });
+});

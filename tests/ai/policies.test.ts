@@ -107,6 +107,68 @@ describe('the Initiative re-roll', () => {
   });
 });
 
+describe('the Initiative re-roll of Fire Attack and Defense rolls (judged on the totals)', () => {
+  // German Rifle Squad: Morale 7 (6 broken), in the open (Cover 0); the AI (Axis) holds the Initiative
+  const defense = (sum: number, against: number, broken = true, side: Side = 'axis') => {
+    const nation = side === 'axis' ? 'German' : 'American';
+    const roll = card(nation, { sum, trigger: null });
+    const s = build({
+      initiative: 'axis',
+      [side]: { discards: [roll] },
+      pieces: [
+        { type: side === 'axis' ? 'German/Rifle Squad' : 'American/Line Squad', hex: 'E5', broken },
+        { type: side === 'axis' ? 'American/Line Squad' : 'German/Rifle Squad', hex: 'E8' },
+      ],
+    });
+    const base = 6 + (broken ? 0 : 1);
+    return ask(s, { kind: 'reroll', side: 'axis', roll: { side, card: roll, purpose: 'defense' }, stake: { base, against, unit: 'p0' } }, 'axis');
+  };
+
+  it('re-rolls its own Defense roll that eliminates a broken Squad when a fresh roll would likely save it', () => {
+    // 6 + 3 = 9 against 12: eliminated; a fresh roll holds on 7+ (21/36)
+    expect(defense(3, 12)).toEqual({ kind: 'reroll', yes: true });
+  });
+
+  it('keeps the same low roll when the attack total is so high that a fresh roll would fail as well', () => {
+    // against 19: only 13+ holds, which 2d6 cannot roll
+    expect(defense(3, 19)).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  it('keeps the same low roll when the attack total is so low that it already holds', () => {
+    // 6 + 3 = 9 against 7: holds
+    expect(defense(3, 7)).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  it("re-rolls the enemy's lucky Defense roll that saved a broken Squad an average roll would have eliminated", () => {
+    // the broken American Line Squad (Morale + Cover 6) rolls 11 against 15: 6 + 11 = 17 holds; a fresh roll eliminates
+    // it on 8 or less — but not against 9, where only 2 does
+    expect(defense(11, 15, true, 'allied')).toEqual({ kind: 'reroll', yes: true });
+    expect(defense(11, 9, true, 'allied')).toEqual({ kind: 'reroll', yes: false });
+  });
+
+  const attack = (sum: number, fpBase: number) => {
+    const roll = card('German', { sum, trigger: null });
+    const s = build({
+      initiative: 'axis',
+      axis: { discards: [roll] },
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5' },
+        { type: 'American/Line Squad', hex: 'E8', broken: true },
+        { type: 'American/Line Squad', hex: 'E8', broken: true },
+      ],
+    });
+    return ask(s, { kind: 'reroll', side: 'axis', roll: { side: 'axis', card: roll, purpose: 'fireAttack' }, stake: { base: fpBase, pieces: ['p0'], hexes: [H('E8')] } }, 'axis');
+  };
+
+  it('re-rolls its own low Attack Roll when an average roll would eliminate two broken Squads', () => {
+    expect(attack(3, 9)).toEqual({ kind: 'reroll', yes: true });
+  });
+
+  it('keeps the same low Attack Roll when its FP is so high that the total still eliminates them', () => {
+    expect(attack(3, 20)).toEqual({ kind: 'reroll', yes: false });
+  });
+});
+
 describe('choices', () => {
   it('a Sniper picks the enemy unit it hurts most (a broken one dies), never its own', () => {
     const s = build({
