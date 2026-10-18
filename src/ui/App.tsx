@@ -8,6 +8,7 @@ import { MainMenu } from './screens/MainMenu';
 import { ContinuePlaceholder, NotFound, PlayPlaceholder } from './screens/Placeholders';
 import { ScenarioPicker } from './screens/ScenarioPicker';
 
+const RsgScreen = lazy(() => import('./screens/rsg/RsgScreen').then((m) => ({ default: m.RsgScreen })));
 const MapGallery = lazy(() => import('../dev/MapGallery').then((m) => ({ default: m.MapGallery })));
 
 type ArtView = 'counters' | 'cards';
@@ -30,6 +31,8 @@ function screenFor(route: Route) {
       return <Credits />;
     case 'continue':
       return <ContinuePlaceholder />;
+    case 'random':
+      return <RsgScreen />;
     case 'play':
       return <PlayPlaceholder scenario={route.scenario} side={route.side} level={route.level} seed={route.seed} />;
     case 'galleryMap':

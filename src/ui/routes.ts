@@ -11,6 +11,8 @@ export type Route =
   | { kind: 'menu' }
   | { kind: 'scenarios'; selected?: string }
   | { kind: 'credits' }
+  /** The Random Scenario Generator (Task 13). */
+  | { kind: 'random' }
   /** Resume the autosaved battle. */
   | { kind: 'continue' }
   | { kind: 'play'; scenario: string; side: Side; level: AiLevel; seed?: number }
@@ -57,6 +59,8 @@ export function parseRoute(hash: string): Route {
       return rest.length === 0 ? { kind: 'credits' } : notFound;
     case 'continue':
       return rest.length === 0 ? { kind: 'continue' } : notFound;
+    case 'random':
+      return rest.length === 0 ? { kind: 'random' } : notFound;
     case 'play': {
       if (rest.length < 3 || rest.length > 4) return notFound;
       const [scenario, side, level, seedText] = rest;
@@ -95,6 +99,8 @@ export function routeHash(r: Route): string {
       return '#/credits';
     case 'continue':
       return '#/continue';
+    case 'random':
+      return '#/random';
     case 'play':
       return `#/play/${encodeURIComponent(r.scenario)}/${r.side}/${r.level}${r.seed === undefined ? '' : `/${r.seed}`}`;
     case 'galleryMap':

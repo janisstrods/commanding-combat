@@ -30,7 +30,7 @@ function savedLabel(): string | null {
 }
 
 /** Set when Task 13 (the Random Scenario Generator) lands. */
-export const RANDOM_BATTLE_READY = false;
+export const RANDOM_BATTLE_READY = true;
 
 export function MainMenu(p: { onContinue?: () => void; notice?: string | null }) {
   const [rules, setRules] = useState(false);
@@ -56,7 +56,13 @@ export function MainMenu(p: { onContinue?: () => void; notice?: string | null })
           <Button size="lg" variant={saved ? 'secondary' : 'primary'} onClick={() => navigate({ kind: 'scenarios' })}>
             New Scenario
           </Button>
-          <Button size="lg" variant="secondary" disabled={!RANDOM_BATTLE_READY} title={RANDOM_BATTLE_READY ? undefined : 'Coming soon'}>
+          <Button
+            size="lg"
+            variant="secondary"
+            disabled={!RANDOM_BATTLE_READY}
+            title={RANDOM_BATTLE_READY ? undefined : 'Coming soon'}
+            onClick={() => navigate({ kind: 'random' })}
+          >
             Random Battle {RANDOM_BATTLE_READY ? null : <Stamp tone="ink">Coming soon</Stamp>}
           </Button>
           {!saved ? (
