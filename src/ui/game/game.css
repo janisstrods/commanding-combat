@@ -78,7 +78,7 @@
   align-items: center;
   justify-content: center;
 }
-.gs-board > .board-svg { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .35)); }
+.gs-board .board-svg { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .35)); }
 
 .bb-piece.is-clickable { cursor: pointer; }
 .bb-piece.is-flipping { animation: bb-flip .45s ease-in-out; transform-box: fill-box; transform-origin: center; }

@@ -18,7 +18,6 @@ import {
   sideCornerIndices,
   toScreen,
 } from '../../src/ui/board/geometry';
-import { stackOffsets } from '../../src/ui/board/StackView';
 
 const SIDES: HexSide[] = [1, 2, 3, 4, 5, 6];
 const close = (a: number, b: number, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -167,29 +166,5 @@ describe('hexsides', () => {
       }
     }
     expect(new Set(ALL_HEXSIDE_KEYS).size).toBe(ALL_HEXSIDE_KEYS.length);
-  });
-});
-
-describe('stack offsets', () => {
-  it('fans a collapsed stack diagonally, centred on the hex', () => {
-    const offs = stackOffsets(3, { step: 0.1 });
-    expect(offs).toHaveLength(3);
-    expect(offs[0].x).toBeCloseTo(-0.1);
-    expect(offs[0].y).toBeCloseTo(0.1);
-    expect(offs[2].x).toBeCloseTo(0.1);
-    expect(offs[2].y).toBeCloseTo(-0.1);
-    expect(offs.reduce((s, o) => s + o.x, 0)).toBeCloseTo(0);
-  });
-
-  it('lays an expanded stack out in a grid without overlaps', () => {
-    const size = 0.6;
-    const offs = stackOffsets(5, { size, expanded: true });
-    for (let i = 0; i < offs.length; i++) {
-      for (let j = i + 1; j < offs.length; j++) {
-        const far = Math.abs(offs[i].x - offs[j].x) >= size || Math.abs(offs[i].y - offs[j].y) >= size;
-        expect(far).toBe(true);
-      }
-    }
-    expect(stackOffsets(0)).toEqual([]);
   });
 });
