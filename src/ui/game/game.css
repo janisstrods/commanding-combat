@@ -467,3 +467,8 @@
 @media (prefers-reduced-motion: reduce) {
   .bb-flash, .gs-toast, .gs-show, .gs-show__card, .bb-attack__line, .bb-attack__ring, .bb-piece.is-flipping { animation: none; }
 }
+
+/* a choice made on the board, with the list folded away as a fallback */
+.gp-prompt__fold { margin: 4px 0 2px; font-size: 13px; }
+.gp-prompt__fold summary { cursor: pointer; color: var(--kit-ink-soft); }
+.gp-prompt__hexes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; max-height: 160px; overflow: auto; }

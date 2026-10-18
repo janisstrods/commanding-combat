@@ -15,6 +15,8 @@ import { PURPOSE_TEXT, isRollPurpose, pieceName, sideName } from './names';
 import { WINDOW_PAUSE_MS, type Opponent } from './opponent';
 import { loadRerollPolicy, offerReroll, saveRerollPolicy, type RerollPolicy, type RollContext } from './reroll';
 import { clearSave, makeSave, newDriver, writeSave, type SessionConfig } from './session';
+import { setupChoice } from './prompts';
+import { deployForMe } from '../../ai/deploy';
 
 export type Speed = 'slow' | 'normal' | 'fast' | 'instant';
 export const SPEEDS: readonly Speed[] = ['slow', 'normal', 'fast', 'instant'];
@@ -125,6 +127,8 @@ export class GameController {
   private orders = 0;
   /** Random answers still to give for the human (dev `?auto=N`). */
   private autoLeft = 0;
+  /** "Deploy / Place the rest for me": the computer settles the rest of the human's set-up. */
+  private setupAuto = false;
   private rollCtx: RollContext = {};
   /**
    * The longest time (ms, capped) the opponent has needed for a reaction decision. Every one of its reaction windows
@@ -354,6 +358,14 @@ export class GameController {
     if (this.view.pending) this.autoAnswer();
   }
 
+  /**
+   * "Deploy / Place the rest for me": from now until the battle starts, the human's set-up decisions (pieces still to
+   * place, Fortification hexes) are answered with the computer's own choices. The pending one is answered by its button.
+   */
+  autoSetup(): void {
+    if (this.driver.state.phase === 'setup') this.setupAuto = true;
+  }
+
   /** "Pass for the rest of this Move": pass now and at every later window of this kind until the next Order. */
   passRest(): void {
     const d = this.view.pending;
@@ -455,7 +467,13 @@ export class GameController {
       } else this.plan = [];
     } else if (d.kind === 'react' && this.autoPass && this.autoPass.window === d.window && this.autoPass.orders === this.orders) {
       a = { kind: 'done' };
+    } else if (this.setupAuto && s.phase === 'setup' && (d.kind === 'deploy' || (d.kind === 'choose' && d.reason === 'placement'))) {
+      const view = viewOf(s, this.human);
+      if (d.kind === 'choose') a = { kind: 'choose', items: setupChoice(view, d) };
+      else a = deployForMe(view, d)[0] ?? { kind: 'done' };
+      if (answerError(s, d, a)) a = d.kind === 'deploy' ? { kind: 'done' } : this.randomFor(d, this.human);
     }
+    if (s.phase !== 'setup') this.setupAuto = false;
     if (!a) return false;
     return this.give(d, a);
   }

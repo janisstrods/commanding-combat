@@ -76,7 +76,19 @@ export function PromptPanel({
           })}
         </div>
       ) : null}
-      {model.list.length ? (
+      {model.list.length && model.listFolded ? (
+        <details className="gp-prompt__fold">
+          <summary>{model.listFolded}</summary>
+          <div className="gp-prompt__hexes">
+            {model.list.map((b) => (
+              <button key={b.key} type="button" className={`gp-chip ${b.on ? 'is-on' : ''}`} onClick={() => onButton(b)} disabled={b.disabled}>
+                {b.label}
+              </button>
+            ))}
+          </div>
+        </details>
+      ) : null}
+      {model.list.length && !model.listFolded ? (
         <div className="gp-prompt__list">
           {model.list.map((b) => (
             <button

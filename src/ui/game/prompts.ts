@@ -20,6 +20,7 @@ import { choiceWords, countText, itemHex, labelText } from './choiceText';
 import { PURPOSE_TEXT, WINDOW_TEXT, chitText, counterName, hexName, pieceName, sideName } from './names';
 import { firePreview, fpText, piecesIn, reachable } from './preview';
 import { pct } from './odds';
+import { chooseAnswer, fortPlacement } from '../../ai/choose';
 import { deployForMe } from '../../ai/deploy';
 
 /** The human's selection while he answers a decision (reset with every new decision). */
@@ -49,8 +50,11 @@ export interface PromptButton {
   answers?: Answer[];
   /** Change the selection instead. */
   sel?: Partial<Sel>;
-  /** A special request for the screen ('passRest': pass the rest of this Move's reaction windows). */
-  special?: 'passRest';
+  /**
+   * A special request for the screen: 'passRest' passes the rest of this Move's reaction windows; 'autoSetup' lets the
+   * computer settle the rest of the human's set-up (pieces and Fortifications) — with `answer(s)` given as well.
+   */
+  special?: 'passRest' | 'autoSetup';
   primary?: boolean;
   tone?: 'secondary' | 'ghost' | 'danger';
   disabled?: boolean;
@@ -96,6 +100,8 @@ export interface PromptModel {
   buttons: PromptButton[];
   /** A list of choices (Actions to play, choice items, generic answers). */
   list: PromptButton[];
+  /** Show `list` folded away under this label (the board is the main way to choose, e.g. hexes). */
+  listFolded?: string;
 }
 
 export interface ClickResult {
@@ -796,6 +802,15 @@ function choosePrompt(s: GameState, d: D<'choose'>, sel: Sel): PromptModel {
     m.buttons.push({ key: 'ok', label: `Confirm (${n})`, primary: true, answer: { kind: 'choose', items: picked.slice() }, disabled: n < d.min || n > d.max, hint: countText(d.min, d.max) });
   }
   if (d.min === 0) m.buttons.push({ key: 'none', label: w.none ?? 'None', answer: { kind: 'choose', items: [] }, tone: 'secondary' });
+  // hexes are chosen on the board: say so, and fold the list of hex labels away (a fallback)
+  if (d.items.length > 4 && d.items.every((it) => 'hex' in it)) {
+    m.text = `${m.text} Click a lit hex on the map.`;
+    m.listFolded = `Or pick from a list of the ${d.items.length} hexes`;
+  }
+  // a set-up Fortification: the computer may place this one and the rest
+  if (d.reason === 'placement' && s.phase === 'setup') {
+    m.buttons.push({ key: 'autoFort', label: 'Place the rest for me', special: 'autoSetup', answer: { kind: 'choose', items: setupChoice(s, d) }, tone: 'secondary' });
+  }
   return m;
 }
 
@@ -813,6 +828,38 @@ function chooseClickHex(s: GameState, d: D<'choose'>, sel: Sel, hex: HexId): Cli
   const hexItem = idx.find((i) => 'hex' in d.items[i]);
   if (hexItem !== undefined) return chooseIndex(s, d, sel, hexItem);
   return { sel: { ...sel, hex }, notice: 'Several choices in that hex: pick one from the list.' };
+}
+
+/** The computer's pick for one of the human's set-up choices (a Fortification's hex): the AI's own judgement. */
+export function setupChoice(s: GameState, d: D<'choose'>): number[] {
+  try {
+    // Foxholes, Trenches, a Pillbox or Bunker go with the human's own units (where they do him good from the start),
+    // best by the AI's judgement of each hex (Objectives, poor terrain Cover); Wire and Mines by the AI's choice, in
+    // front of his line toward the enemy
+    const kind = String((d.context as { fort?: string } | undefined)?.fort ?? '');
+    if (d.reason === 'placement' && kind && kind !== 'wire' && kind !== 'mines' && d.min === 1 && d.max === 1) {
+      const manned = d.items
+        .map((it, i) => ({ i, h: 'hex' in it ? it.hex : -1 }))
+        .filter((x) => x.h >= 0 && Object.values(s.pieces).some((p) => p.where === 'map' && p.hex === x.h && p.side === d.side && isUnit(p)));
+      if (manned.length) {
+        let best = manned[0];
+        let v = -Infinity;
+        for (const x of manned) {
+          const sc = fortPlacement(s, d.side, x.h, kind);
+          if (sc > v) {
+            v = sc;
+            best = x;
+          }
+        }
+        return [best.i];
+      }
+    }
+    const pick = chooseAnswer(s, d, d.side);
+    if (pick.length >= d.min && pick.length <= d.max) return pick;
+  } catch (e) {
+    console.error('set-up choice', e);
+  }
+  return d.items.slice(0, Math.max(d.min, Math.min(1, d.max))).map((_, i) => i);
 }
 
 // --------------------------------------------------------------------------------------------------------- deploy
@@ -845,7 +892,10 @@ function deployPrompt(s: GameState, d: D<'deploy'>, sel: Sel): PromptModel {
       m.buttons.push({ key: 'back', label: 'Back', sel: { hex: null }, tone: 'ghost' });
     }
   } else m.text = 'Everything is placed.';
-  m.buttons.push({ key: 'auto', label: setup ? 'Deploy the rest for me' : 'Place the rest for me', answer: { kind: 'done' }, answers: deployForMe(s, d), tone: 'secondary' });
+  m.buttons.push({
+    key: 'auto', label: setup ? 'Deploy the rest for me' : 'Place the rest for me', answer: { kind: 'done' }, answers: deployForMe(s, d), tone: 'secondary',
+    ...(setup ? { special: 'autoSetup' as const, text: 'Your remaining pieces and Fortifications are placed for you.' } : {}),
+  });
   return m;
 }
 

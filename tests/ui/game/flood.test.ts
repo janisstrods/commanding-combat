@@ -90,3 +90,37 @@ describe('prompt flood', () => {
     c.dispose();
   });
 });
+
+describe('"Deploy the rest for me"', () => {
+  it('settles the whole set-up, Fortifications included: the next thing asked is the battle itself', async () => {
+    stubStorage();
+    for (const [id, human] of [['8', 'axis'], ['11', 'allied']] as [string, Side][]) {
+      const c = new GameController(newSessionConfig(id, human, 'line', 9), new RandomOpponent(rng(9)));
+      c.view = { ...c.view, speed: 'instant' };
+      const shown: Decision[] = [];
+      c.subscribe(() => {
+        const p = c.view.pending;
+        if (p && shown[shown.length - 1] !== p) shown.push(p);
+      });
+      c.start();
+      await idle(c, () => !!c.view.pending);
+      // the human's first set-up decision: he presses "Deploy the rest for me"
+      while (c.view.pending && c.view.pending.kind !== 'deploy' && c.driver.state.phase === 'setup') {
+        c.autoAnswer();
+        await idle(c, () => !!c.view.pending);
+      }
+      if (c.driver.state.phase === 'setup') {
+        c.autoSetup();
+        c.answer({ kind: 'done' });
+        await idle(c, () => !!c.view.pending && c.driver.state.phase === 'play');
+        const after = shown.slice(shown.indexOf(shown.find((x) => x.kind === 'deploy')!) + 1);
+        expect(after.filter((x) => x.kind === 'choose' && x.reason === 'placement')).toEqual([]);
+        expect(c.driver.state.phase).toBe('play');
+        // the human's set-up Fortifications are all on the map
+        const want = Object.values(c.driver.state.scenario.sides[human].fortifications).reduce((n, x) => n + (x ?? 0), 0);
+        expect(c.driver.state.fort.filter(Boolean).length).toBeGreaterThanOrEqual(want);
+      }
+      c.dispose();
+    }
+  });
+});

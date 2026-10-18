@@ -290,3 +290,45 @@ describe('choice wording', () => {
     expect(m.list.map((b) => b.answer)).toEqual([{ kind: 'choose', items: [0] }, { kind: 'choose', items: [1] }]);
   });
 });
+
+describe('set-up placements', () => {
+  /** Scenario 8 or 11 played to the human's first Fortification placement. */
+  function toPlacement(id: string, human: Side) {
+    const d = newDriver(newSessionConfig(id, human, 'line', 5));
+    const rnd = rng(5);
+    for (let i = 0; i < 400 && d.pending; i++) {
+      const p = d.pending;
+      if (p.side === human && p.kind === 'choose' && p.reason === 'placement') return d;
+      d.answer(p.kind === 'deploy' ? { kind: 'done' } : randomAnswer(d.state, p, rnd));
+    }
+    throw new Error('no placement');
+  }
+
+  it('hexes are picked on the board; the list of hex labels is folded away', () => {
+    const d = toPlacement('8', 'axis');
+    const dec = d.pending as Extract<Decision, { kind: 'choose' }>;
+    const s = viewOf(d.state, 'axis');
+    const m = promptFor(s, dec, NO_SEL, 'axis');
+    expect(m.selectable.length).toBe(dec.items.length);
+    expect(m.listFolded).toMatch(/list of the \d+ hexes/);
+    expect(m.text).toMatch(/Click a lit hex/);
+    const r = clickHex(s, dec, NO_SEL, m.selectable[3]);
+    expect(r.answer).toEqual({ kind: 'choose', items: [3] });
+  });
+
+  it("'Place the rest for me' is offered and places this one legally (Foxholes with the human's units)", () => {
+    for (const [id, human] of [['8', 'axis'], ['11', 'allied']] as [string, Side][]) {
+      const d = toPlacement(id, human);
+      const dec = d.pending as Extract<Decision, { kind: 'choose' }>;
+      const s = viewOf(d.state, human);
+      const b = promptFor(s, dec, NO_SEL, human).buttons.find((x) => x.key === 'autoFort')!;
+      expect(b.special).toBe('autoSetup');
+      expect(answerError(s, dec, b.answer!)).toBeNull();
+      // Foxholes go with the human's own units
+      const hex = (dec.items[(b.answer as { items: number[] }).items[0]] as { hex: number }).hex;
+      const kind = (dec.context as { fort: string }).fort;
+      const placed = Object.values(s.pieces).some((p) => p.where === 'map' && p.side === human);
+      if (kind !== 'wire' && kind !== 'mines' && placed) expect(Object.values(s.pieces).some((p) => p.where === 'map' && p.hex === hex && p.side === human)).toBe(true);
+    }
+  });
+});

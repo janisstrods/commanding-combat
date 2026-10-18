@@ -77,7 +77,10 @@ const LABEL_TEXT: Record<string, Record<string, string>> = {
 export function choiceWords(reason: string, context?: unknown): ChoiceWords {
   const w = CHOICE_TEXT[reason] ?? { title: 'Choose', text: `Make a choice (${reason}).` };
   const ctx = context as { fort?: string; hex?: HexId } | undefined;
-  if (reason === 'placement' && ctx?.fort) return { ...w, text: `Choose the hex for your ${cap(ctx.fort)}.` };
+  if (reason === 'placement' && ctx?.fort) {
+    const crew = (context as { units?: unknown[] }).units?.length ? ' Its crew sets up there with it.' : '';
+    return { ...w, text: `Choose the hex for your ${cap(ctx.fort)}.${crew}` };
+  }
   const opt = context as { minefield?: number; card?: string } | undefined;
   if (reason === 'scenarioOption' && opt?.minefield !== undefined && opt.card) {
     return { ...w, text: `You may weaken your Minefield to ${opt.minefield} FP and start with this card in your opening hand (shown below).` };

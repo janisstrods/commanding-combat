@@ -141,8 +141,12 @@ export function GameScreen({
 
   const onButton = (b: PromptButton) => {
     if (b.disabled) return;
-    if (b.special === 'passRest') controller.passRest();
-    else if (b.answers?.length) controller.answer(b.answers[0], b.answers.slice(1));
+    if (b.special === 'passRest') {
+      controller.passRest();
+      return;
+    }
+    if (b.special === 'autoSetup') controller.autoSetup();
+    if (b.answers?.length) controller.answer(b.answers[0], b.answers.slice(1));
     else if (b.answer) controller.answer(b.answer);
     else if (b.sel) setSel((x) => ({ ...x, ...b.sel }));
   };
