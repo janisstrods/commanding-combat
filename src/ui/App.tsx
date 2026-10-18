@@ -5,7 +5,8 @@ import './kit';
 import { navigate, useRoute, type Route } from './routes';
 import { Credits } from './screens/Credits';
 import { MainMenu } from './screens/MainMenu';
-import { ContinuePlaceholder, NotFound, PlayPlaceholder } from './screens/Placeholders';
+import { BattleRoute } from './game/BattleRoute';
+import { NotFound } from './screens/Placeholders';
 import { ScenarioPicker } from './screens/ScenarioPicker';
 
 const RsgScreen = lazy(() => import('./screens/rsg/RsgScreen').then((m) => ({ default: m.RsgScreen })));
@@ -30,11 +31,10 @@ function screenFor(route: Route) {
     case 'credits':
       return <Credits />;
     case 'continue':
-      return <ContinuePlaceholder />;
+    case 'play':
+      return <BattleRoute route={route} />;
     case 'random':
       return <RsgScreen />;
-    case 'play':
-      return <PlayPlaceholder scenario={route.scenario} side={route.side} level={route.level} seed={route.seed} />;
     case 'galleryMap':
       return <MapGallery mapId={route.map} />;
     case 'galleryCounters':
@@ -49,7 +49,7 @@ function screenFor(route: Route) {
 export function App() {
   const route = useRoute();
   return (
-    <ErrorBoundary key={route.kind} onReset={() => navigate({ kind: 'menu' })}>
+    <ErrorBoundary key={route.kind === 'play' || route.kind === 'continue' ? 'battle' : route.kind} onReset={() => navigate({ kind: 'menu' })}>
       <Suspense fallback={<div className="kit-desk app-loading">Loading…</div>}>{screenFor(route)}</Suspense>
     </ErrorBoundary>
   );
