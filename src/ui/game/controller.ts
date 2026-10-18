@@ -11,6 +11,7 @@ import { sfx } from '../sound';
 import { storage } from '../storage';
 import { publicEvent, viewOf } from './hidden';
 import { fireStep, type FireShow } from './fireShow';
+import { rallyStep, type RallyShow } from './rallyShow';
 import { logEntry, vpBucket, type LogKind } from './log';
 import { PURPOSE_TEXT, isRollPurpose, pieceName, sideName } from './names';
 import { WINDOW_PAUSE_MS, type Opponent } from './opponent';
@@ -88,6 +89,8 @@ export interface ViewState {
   attack: AttackShow | null;
   /** The Fire Attack being shown step by step (fireShow.ts), until play moves on. */
   fire: FireShow | null;
+  /** The Recover / Rout / Commissar being shown (rallyShow.ts). */
+  rally: RallyShow | null;
   toast: { id: number; text: string; kind: 'turn' | 'notice' | 'big' } | null;
   /** The opponent is deciding. */
   thinking: boolean;
@@ -179,6 +182,7 @@ export class GameController {
       flipping: [],
       attack: null,
       fire: null,
+      rally: null,
       hexPick: null,
       banner: null,
       impacts: [],
@@ -288,6 +292,11 @@ export class GameController {
     if (this.view.fire) this.set({ fire: null });
   }
 
+  /** Close the Recover / Rout panel. */
+  closeRally(): void {
+    if (this.view.rally) this.set({ rally: null });
+  }
+
   /** End a reading pause (an Event's banner, a landed Random Hex), or else skip the rest of the animations now playing. */
   hurry(): void {
     if (this.drama.hurry()) return;
@@ -350,7 +359,7 @@ export class GameController {
     if (!d || this.busy || this.view.fatal || this.disposed) return;
     if (!this.give(d, a)) return;
     this.plan = rest.slice();
-    this.set({ pending: null, error: null, canUndo: false, ...(this.view.fire?.stage === 'done' ? { fire: null } : {}) });
+    this.set({ pending: null, error: null, canUndo: false, ...(this.view.fire?.stage === 'done' ? { fire: null } : {}), ...(this.view.rally?.done ? { rally: null } : {}) });
     this.run();
   }
 
@@ -440,6 +449,7 @@ export class GameController {
       slides: [],
       attack: null,
       fire: null,
+      rally: null,
       hexPick: null,
       banner: null,
       impacts: [],
@@ -628,6 +638,10 @@ export class GameController {
     const mine = (side: Side | undefined) => side === human;
     this.rollCtx = contextAfterEvent(this.rollCtx, e);
     this.stepFire(e, after);
+    const settled = this.rallySettled();
+    this.stepRally(e, after, before);
+    // a roll that left the unit as it was ("fails to rally", "holds") gets its moment on the counter too
+    if (e.kind === 'log' && this.rallySettled() > settled) await this.wait(550);
     switch (e.kind) {
       case 'turnStart': {
         this.orders++;
@@ -691,7 +705,7 @@ export class GameController {
       case 'move':
       case 'retreat': {
         const units = e.kind === 'move' ? e.units : [e.unit];
-        const ms = this.dur(e.kind === 'move' ? 300 : 260);
+        const ms = this.dur(e.kind === 'move' ? 300 : this.view.rally ? 480 : 260);
         sfx.step();
         if (ms > 0) {
           const slide: Slide = { id: seq++, units, from: e.from, to: e.to, ms };
@@ -731,6 +745,11 @@ export class GameController {
         this.set({ display: after });
         await this.wait(500);
         break;
+      // a Rally / Rout / Commissar roll: the panel says who rolls and what each roll does before the card is turned
+      case 'rallying':
+        this.set({ display: after });
+        await this.wait(mine(e.side) ? 600 : 1000);
+        break;
       case 'targeting':
         this.flash(e.target, `${e.product} vs ${e.need}: ${e.hit ? 'hit!' : 'miss'}`, e.hit ? 'fire' : 'info', 1500);
         this.set({ display: after });
@@ -752,13 +771,13 @@ export class GameController {
         break;
       }
       case 'rally':
-        this.flash(this.hexOf(after, e.piece), 'Rallied', 'good');
+        if (!this.inRally(e.piece)) this.flash(this.hexOf(after, e.piece), 'Rallied', 'good');
         this.set({ display: after, flipping: [...this.view.flipping, e.piece] });
         await this.wait(450);
         this.set({ flipping: this.view.flipping.filter((x) => x !== e.piece) });
         break;
       case 'suppress':
-        this.flash(this.hexOf(after, e.piece), 'Suppressed', 'hit');
+        if (!this.inRally(e.piece)) this.flash(this.hexOf(after, e.piece), 'Suppressed', 'hit');
         this.set({ display: after });
         await this.wait(350);
         break;
@@ -836,6 +855,28 @@ export class GameController {
         break;
       default:
         this.set({ display: after });
+    }
+  }
+
+  /** Is `piece` in the Recover / Rout scene (which labels its result itself)? */
+  private inRally(piece: string): boolean {
+    return !!this.view.rally?.units.some((u) => u.unit === piece);
+  }
+
+  private rallySettled(): number {
+    return this.view.rally?.units.filter((u) => u.result).length ?? 0;
+  }
+
+  /** The Recover / Rout shown after event `e`; once the Order is over it closes by itself after a while. */
+  private stepRally(e: GameEvent, after: GameState, before: GameState) {
+    const prev = this.view.rally;
+    const rally = rallyStep(prev, e, after, before);
+    if (rally === prev) return;
+    this.set({ rally });
+    if (rally && rally.done && !prev?.done) {
+      setTimeout(() => {
+        if (this.view.rally?.id === rally.id && this.view.rally.done) this.set({ rally: null });
+      }, Math.max(3000, this.dur(6000)));
     }
   }
 

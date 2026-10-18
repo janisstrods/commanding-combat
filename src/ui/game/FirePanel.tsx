@@ -12,7 +12,7 @@ import './fire.css';
 
 const STAGGER: Record<Speed, number> = { slow: 220, normal: 130, fast: 60, instant: 0 };
 
-type Corner = 'tr' | 'br' | 'bl';
+export type Corner = 'tr' | 'br' | 'bl';
 const CORNERS: readonly Corner[] = ['tr', 'br', 'bl']; // top left is the shown card's
 const MARGIN = 10;
 /** The panel's height for placing it (it grows as the attack goes on). */
@@ -22,9 +22,9 @@ const PLACE_HEIGHT = 330;
  * The corner of the board area where the panel covers the least of the attack: the one whose box is farthest from
  * the firing and target hexes, found on screen through the overlay's own transform (so it follows zoom and pan).
  */
-function placeCorner(panel: HTMLElement, fireId: number, hexes: HexId[], rotate180: boolean): Corner | null {
+export function placeCorner(panel: HTMLElement, overlay: string, hexes: HexId[], rotate180: boolean): Corner | null {
   const host = panel.offsetParent as HTMLElement | null;
-  const g = host?.querySelector<SVGGraphicsElement>(`.fo[data-fire="${fireId}"]`);
+  const g = host?.querySelector<SVGGraphicsElement>(overlay);
   const m = g?.getScreenCTM();
   if (!host || !m || !hexes.length) return null;
   const box = host.getBoundingClientRect();
@@ -121,7 +121,7 @@ export function FirePanel({
   const where = [...show.from, ...show.targets];
   const whereKey = where.join(',');
   useLayoutEffect(() => {
-    if (ref.current) setCorner(placeCorner(ref.current, show.id, where, rotate180) ?? 'tr');
+    if (ref.current) setCorner(placeCorner(ref.current, `.fo[data-fire="${show.id}"]`, where, rotate180) ?? 'tr');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show.id, whereKey, rotate180]);
   const step = STAGGER[speed];

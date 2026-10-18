@@ -873,6 +873,12 @@ export type GameEvent =
    */
   | { kind: 'defending'; unit: PieceId; morale: number; cover: number; attack: number; moving: boolean }
   | { kind: 'break'; piece: PieceId }
+  /**
+   * A Rally (Recover), Rout or Commissar roll is about to be made by `side` for broken `unit` in `hex` (for the display): its
+   * current Morale — `command` of it from a Leader in its hex — and the Cover of its hex; the roll is judged against
+   * their sum.
+   */
+  | { kind: 'rallying'; side: Side; unit: PieceId; hex: HexId; purpose: 'rally' | 'rout' | 'commissar'; morale: number; command: number; cover: number }
   | { kind: 'rally'; piece: PieceId }
   | { kind: 'suppress'; piece: PieceId }
   /** A Veteran marker placed on a unit (Battle Harden, §E44). */

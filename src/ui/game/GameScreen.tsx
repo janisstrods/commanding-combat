@@ -21,6 +21,7 @@ import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controll
 import { NATION_PLURAL, sideName } from './names';
 import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
 import { FirePanel } from './FirePanel';
+import { RallyPanel } from './RallyPanel';
 import { PromptPanel } from './PromptPanel';
 import { NO_SEL, clickCard, clickHex, clickPiece, promptFor, type ClickResult, type PromptButton, type Sel } from './prompts';
 import { REROLL_LABEL, REROLL_POLICIES, type RerollPolicy } from './reroll';
@@ -281,6 +282,7 @@ export function GameScreen({
           flipping={view.flipping}
           attack={view.attack}
           fire={view.fire}
+          rally={view.rally}
           losLine={losLine}
           expanded={expanded}
           onHexClick={onHexClick}
@@ -301,6 +303,7 @@ export function GameScreen({
           </div>
         ) : null}
         {view.fire ? <FirePanel key={view.fire.id} show={view.fire} s={s} human={human} speed={view.speed} rotate180={rotate} onClose={() => controller.closeFire()} /> : null}
+        {view.rally ? <RallyPanel key={view.rally.id} show={view.rally} s={s} human={human} speed={view.speed} rotate180={rotate} onClose={() => controller.closeRally()} /> : null}
         {view.toast ? (
           <div className={`gs-toast gs-toast--${view.toast.kind}`} key={view.toast.id}>
             {view.toast.text}

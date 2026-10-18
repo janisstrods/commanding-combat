@@ -7,7 +7,7 @@ import { pendingTargets, rally, suppress, watchReplacements } from '../casualtie
 import { roll } from '../deck';
 import { choose, type Gen } from '../decisions';
 import type { OrderHandler } from '../registry';
-import { cover, currentStats } from '../stats';
+import { cover, currentStats, leaderCommand } from '../stats';
 import { isLeader, typeOf, unitsOf } from '../state';
 import type { ChoiceReason, FlowCtx, GameState, PieceId, Side } from '../types';
 
@@ -26,6 +26,14 @@ export function activatePlayer(s: GameState, ctx: FlowCtx, by: Side, target: Sid
 /** A unit's Morale for Rally and Rout rolls: current Morale + the Cover of its hex (§T78.3). */
 export function rollMorale(s: GameState, id: PieceId): number {
   return currentStats(s, id).morale + cover(s, id);
+}
+
+/** Tell the display that `side` is about to roll for broken unit `id` (its Morale, the Leader's part of it, its Cover). */
+export function emitRallying(s: GameState, ctx: FlowCtx, side: Side, id: PieceId, purpose: 'rally' | 'rout' | 'commissar'): void {
+  const p = s.pieces[id];
+  const t = typeOf(p);
+  const command = p.where === 'map' && (t.kind === 'squad' || t.kind === 'team') ? leaderCommand(s, p.hex, p.side) : 0;
+  ctx.emit({ kind: 'rallying', side, unit: id, hex: p.hex, purpose, morale: currentStats(s, id).morale, command, cover: cover(s, id) });
 }
 
 const onMapBroken = (s: GameState, id: PieceId) => s.pieces[id]?.where === 'map' && s.pieces[id].broken;
@@ -62,6 +70,7 @@ export function* eachInOrder(
 export function* rallyRoll(s: GameState, ctx: FlowCtx, id: PieceId): Gen {
   const p = s.pieces[id];
   const morale = rollMorale(s, id);
+  emitRallying(s, ctx, p.side, id, 'rally');
   const w = watchReplacements(ctx);
   const r = yield* roll(s, w.ctx, p.side, 'rally');
   const targets = pendingTargets(s, id, w.by);
