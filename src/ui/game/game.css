@@ -472,3 +472,6 @@
 .gp-prompt__fold { margin: 4px 0 2px; font-size: 13px; }
 .gp-prompt__fold summary { cursor: pointer; color: var(--kit-ink-soft); }
 .gp-prompt__hexes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; max-height: 160px; overflow: auto; }
+/* Objective values that include the human's secret chits (gold, like his chits), and "+?" for the enemy's */
+.gp-obj__secret { padding: 0 3px; border-radius: 2px; background: var(--kit-brass-light); }
+.gp-obj__more { margin-left: 2px; font-size: 10.5px; font-weight: 700; color: var(--kit-ink-soft); }

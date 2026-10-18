@@ -1,12 +1,13 @@
 // Hover information: a hex (terrain, Cover, Hindrance, height, markers, Objective) and everything stacked in it, with
 // each unit's current values (Leader Command, Veteran, Suppressed, Wire and its Weapon already counted).
 import { CounterG } from '../../art';
-import { objectiveValue, objectivesAt } from '../../engine/objectives';
+import { objectivesAt } from '../../engine/objectives';
 import { currentStats, hexCover, weaponStats } from '../../engine/stats';
 import { typeOf } from '../../engine/state';
 import { TERRAIN, hasRoad } from '../../engine/terrain';
 import type { GameState, HexId, Piece, Side } from '../../engine/types';
 import { hexName, pieceName, sideName } from './names';
+import { objectiveWorth } from './objectiveWorth';
 import { piecesIn } from './preview';
 
 function Val({ now, printed, label }: { now: number; printed: number; label: string }) {
@@ -110,7 +111,7 @@ export function HexTip({ s, hex, human }: { s: GameState; hex: HexId; human: Sid
       ) : null}
       {objs.map((n) => (
         <div key={n} className="tip-hex__obj">
-          Objective {n}: {s.control[n - 1] ? `${sideName(s, s.control[n - 1]!)} control` : 'uncontrolled'}, worth {objectiveValue(s, n)} VP
+          Objective {n}: {s.control[n - 1] ? `${sideName(s, s.control[n - 1]!)} control` : 'uncontrolled'}, worth {worthShort(s, human, n)}
         </div>
       ))}
       {pieces.length ? (
@@ -122,4 +123,12 @@ export function HexTip({ s, hex, human }: { s: GameState; hex: HexId; human: Sid
       ) : null}
     </div>
   );
+}
+
+/** "4 VP (3 from your secret chit K) +?" */
+function worthShort(s: GameState, human: Side, n: number): string {
+  const w = objectiveWorth(s, human, n);
+  const mine = w.secret.filter((x) => x.mine);
+  const note = mine.length ? ` (${mine.map((x) => `${x.vp} from your secret chit ${x.chit}`).join(', ')})` : '';
+  return `${w.total} VP${note}${w.more ? ' +?' : ''}`;
 }
