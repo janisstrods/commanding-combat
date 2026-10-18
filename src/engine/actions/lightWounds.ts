@@ -1,7 +1,8 @@
 // Light Wounds (§A36, R-54): the instant a friendly Squad (broken or not) would break — never when it is eliminated
 // outright (casualties.ts opens the window from `breakPiece` only). The player loses 1 VP; the Squad goes back to the
 // counter mix and a Team of his OB troop quality takes its place, broken if it was, with its Weapon, Suppressed and
-// Veteran markers and its activation status (casualties.ts `replaceUnit`).
+// Veteran markers and its activation status (casualties.ts `replaceUnit`). Not playable when the counter mix has no
+// such Team left (mix.ts `actionMixError`, R-56).
 import { addVp, replaceUnit } from '../casualties';
 import { teamFor } from '../data';
 import type { ActionHandler } from '../registry';

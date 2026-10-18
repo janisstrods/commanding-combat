@@ -1,0 +1,29 @@
+{
+  "_source": "Project ruling R-56 (design/rules-reference.md §20, design/data-notes.md 'Counter mix'). The box's counter mix is not public and the VASSAL module has none (its palettes are unlimited, survey §3), so scripts/data/mix.ts derives one count per counter type and per Fortification kind from the game data (src/data: counters, scenarios, rsg, cards) with the rules below, and writes src/data/mix.json, the one table every counter-mix limit reads.",
+  "_rules": [
+    "Named Leaders (Heroes and Privates included) are unique: 1 each.",
+    "Every other counter type of a nation: the largest of the most any one base scenario uses (both sides together, set-up and Time Track), the most any one RSG Order of Battle of its nation holds (year pieces included), and 1 if a Support Table offers it.",
+    "Elite, Line and Green Teams, which Deploy (§E52, §8.2) and Light Wounds (§A36) take from the mix: that, plus the Teams one pass through the nation's Fate deck can make (teamsPerCard: 1 per Light Wounds Action, 2 per Deploy Event).",
+    "Fortification markers (no nation): the most any base scenario sets up (pre-placed ones included) or any one RSG Fortification OB holds, plus the most one pass through the two Fate decks of a base-game pairing can place during play (fortPlacers; a Scenario Defender Action counts in one deck only). The Pillbox is unique (fixed: the rules say there is one)."
+  ],
+  "teamsPerCard": {
+    "actions": { "Light Wounds": 1 },
+    "events": { "Deploy": 2 }
+  },
+  "fortPlacers": {
+    "foxholes": { "actions": ["Dig In", "Hidden Entrenchments"], "events": ["Shellholes", "Entrench"] },
+    "trench": {},
+    "bunker": {},
+    "pillbox": { "fixed": 1, "actions": ["Hidden Pillbox"] },
+    "wire": { "actions": ["Hidden Wire"], "events": ["Rubble"] },
+    "mines": { "actions": ["Hidden Mines"], "events": ["Booby Trap"] }
+  },
+  "pairings": [["German", "American"], ["German", "Russian"]],
+  "notInMix": [
+    "Smoke: the 50 Smoke chits of src/data/counters.json smokeMix (the module's draw pile), drawn at random and returned when removed (state.ts smokeCup).",
+    "Objective chits: the 22 chits A-X (no I, O), drawn from the cup (state.ts chitCup).",
+    "Blaze: no limit. No source gives a count, Blazes never leave the map, and Breeze can spread them any number of times; a cap would need a ruling on which Blazes spread first.",
+    "Suppressed and Veteran markers: no limit (at most one of each per unit, §8.1).",
+    "The Spotting Round: one, on the map or not (state.ts spottingRound)."
+  ]
+}

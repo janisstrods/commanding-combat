@@ -1,8 +1,10 @@
 // Deploy (§E52, R-03): the receiver may replace one of his Squads on the map by two Teams of his OB troop quality. The
 // Teams are broken if the Squad was and share its activation status (casualties.ts `deploySquad`). Each of the Squad's
 // markers (Weapon, Suppressed, Veteran) goes to one Team; with two or more he chooses how they split (S7 precedent).
+// R-56: without two such Teams left in the counter mix no Squad can Deploy.
 import { deploySquad } from '../casualties';
 import { choose, type Gen } from '../decisions';
+import { teamOf, teamsLeft } from '../mix';
 import type { EventHandler } from '../registry';
 import { typeOf } from '../state';
 import type { FlowCtx, GameState, Piece, PieceId, Side } from '../types';
@@ -15,6 +17,10 @@ export const deployEvent: EventHandler = function* (s, ctx, receiver) {
   const squads = mapUnits(s, receiver, (p) => typeOf(p).kind === 'squad');
   if (!squads.length) {
     note(ctx, receiver, 'Deploy: no Squad of his on the map.');
+    return;
+  }
+  if (teamsLeft(s, receiver) < 2) {
+    note(ctx, receiver, `Deploy: the counter mix has no two ${teamOf(s, receiver).split('/')[1]}s left.`);
     return;
   }
   const pick = yield* choose(s, ctx, receiver, 'deploy', squads.map((p) => ({ piece: p.id })), 0, 1);
