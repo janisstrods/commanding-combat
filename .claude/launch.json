@@ -10,7 +10,7 @@
     {
       "name": "pages-preview",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["vite", "preview", "--base", "/combat-commander/", "--port", "4174", "--strictPort"],
+      "runtimeArgs": ["vite", "preview", "--base", "/commanding-combat/", "--port", "4174", "--strictPort"],
       "port": 4174
     }
   ]

@@ -53,13 +53,13 @@ paraphrases; art is original; names, numbers and terrain facts are data.
 
 ## Publishing
 
-- Planned (awaiting the user's go-ahead): repo `janisstrods/combat-commander`, GitHub Pages from `main:/docs`, live at
-  `https://strods.work/combat-commander/` (the same custom domain as cnc-claude). The user creates the repository and
-  turns Pages on; nothing has been pushed yet.
+- Repo: https://github.com/janisstrods/commanding-combat. GitHub Pages serves `main:/docs`; live site
+  https://strods.work/commanding-combat/ (the same custom domain as cnc-claude; also reachable as
+  https://janisstrods.github.io/commanding-combat/).
 - `docs/` is generated build output (`npm run build`): never hand-edit it; commit it together with the source changes of
   a release. `docs/.nojekyll` comes from `public/.nojekyll`; keep it.
 - `vite.config.ts` uses `base: './'` and routes are hash-based (`#/...`), so the site works under a sub-path. Check the
-  built site under the sub-path with the `pages-preview` launch config (http://localhost:4174/combat-commander/).
+  built site under the sub-path with the `pages-preview` launch config (http://localhost:4174/commanding-combat/).
 - No GitHub Actions (the push token lacks the `workflow` scope). Push over HTTPS with the macOS keychain; `gh` and SSH
   are not set up.
 - Every publish is a release: add it at the top of `RELEASES` in `src/version.ts` (named after a scenario or a place in
