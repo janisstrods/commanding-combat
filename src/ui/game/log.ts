@@ -39,10 +39,13 @@ export function vpTotalText(vp: number): string {
 
 /** The log line of an event (already filtered by `publicEvent`), or null for events the log does not tell. */
 export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | null {
-  const who = (side: Side) => sideName(s, side);
+  // "You" for the human, the nation for the computer (both take the same plural verbs)
+  const who = (side: Side) => (side === viewer ? 'You' : sideName(s, side));
+  const whom = (side: Side) => (side === viewer ? 'you' : `the ${sideName(s, side)}`);
+  const their = (side: Side) => (side === viewer ? 'your' : 'their');
   switch (e.kind) {
     case 'turnStart':
-      return { kind: 'turn', side: e.side, text: `Turn ${e.number}: ${who(e.side)}${you(e.side, viewer)}` };
+      return { kind: 'turn', side: e.side, text: `Turn ${e.number}: ${sideName(s, e.side)}${you(e.side, viewer)}` };
     case 'cardPlayed':
       return {
         kind: 'card',
@@ -76,9 +79,9 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     case 'reroll':
       return { kind: 'roll', side: e.by, text: `${who(e.by)} use the Initiative to cancel the roll; it is rolled again.` };
     case 'trigger':
-      return { kind: 'roll', side: e.side, text: `${e.trigger}! (${who(e.side)})` };
+      return { kind: 'roll', side: e.side, text: `${e.trigger}! (${whom(e.side)})` };
     case 'event':
-      return { kind: 'card', side: e.side, text: `Event: ${e.event} (${who(e.side)}).` };
+      return { kind: 'card', side: e.side, text: `Event: ${e.event} (${whom(e.side)}).` };
     case 'activate':
       return { kind: 'info', side: e.side, text: `${e.order === 'Op Fire' ? 'Op Fire' : e.order}: ${names(s, e.units)} activated.` };
     case 'move':
@@ -125,45 +128,67 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     }
     case 'melee': {
       const t = `Axis ${e.totals.axis}, Allies ${e.totals.allied}`;
-      const lost = e.losers.length === 2 ? 'both sides are eliminated' : e.losers.length === 1 ? `the ${who(e.losers[0])} are eliminated` : 'nobody loses';
+      const lost = e.losers.length === 2 ? 'both sides are eliminated' : e.losers.length === 1 ? `${whom(e.losers[0])} are wiped out` : 'nobody loses';
       return { kind: 'fire', text: `Melee in ${hexName(e.hex)}: ${t} — ${lost}.` };
     }
     case 'vp': {
       const side: Side = e.delta > 0 ? 'axis' : 'allied';
-      return { kind: 'vp', side, text: `${who(side)} +${Math.abs(e.delta)} VP (${vpWhy(e.why)}). VP: ${vpTotalText(e.total)}.` };
+      return { kind: 'vp', side, text: `+${Math.abs(e.delta)} VP to ${whom(side)} (${vpWhy(e.why)}). VP: ${vpTotalText(e.total)}.` };
     }
     case 'control':
       return { kind: 'vp', side: e.side ?? undefined, text: e.side ? `${who(e.side)} take control of Objective ${e.objective}.` : `Objective ${e.objective} is no longer controlled.` };
     case 'chit': {
       if (e.open) return { kind: 'vp', side: e.side ?? undefined, text: `Objective chit ${e.chit} is open: ${chitText(e.chit)}.` };
-      if (e.chit === UNKNOWN_CHIT || e.side !== viewer) return { kind: 'vp', side: e.side ?? undefined, text: `${who(e.side!)} draw a secret objective.` };
+      if (e.chit === UNKNOWN_CHIT || e.side !== viewer) return { kind: 'vp', side: e.side ?? undefined, text: `${sideName(s, e.side!)} draw a secret objective.` };
       return { kind: 'vp', side: e.side, text: `You draw secret objective ${e.chit}: ${chitText(e.chit)}.` };
     }
     case 'time':
-      return { kind: 'time', side: e.side, text: `Time advances to ${e.time} (${who(e.side)}).` };
+      return { kind: 'time', side: e.side, text: `Time advances to ${e.time} (${whom(e.side)}).` };
     case 'suddenDeath':
       return { kind: 'time', text: `Sudden Death roll ${e.roll} against Time ${e.time}: ${e.ends ? 'the battle ends' : 'the battle goes on'}.` };
     case 'reinforce':
       return { kind: 'info', text: `Reinforcements arrive: ${names(s, e.pieces)}.` };
     case 'log':
-      return { kind: 'info', side: e.side, text: e.text };
+      return { kind: 'info', side: e.side, text: engineText(e.text, e.side, s, viewer) };
     case 'reshuffle':
-      return { kind: 'card', side: e.side, text: `${who(e.side)} reshuffle their Fate deck.` };
+      return { kind: 'card', side: e.side, text: `${who(e.side)} reshuffle ${their(e.side)} Fate deck.` };
     case 'transfer':
       return { kind: 'move', text: `${pieceName(s, e.weapon)} passes from ${pieceName(s, e.from)} to ${pieceName(s, e.to)}.` };
     case 'fix':
       return { kind: 'result', text: `${pieceName(s, e.piece)} is repaired.` };
     case 'initiative':
-      return { kind: 'info', side: e.side, text: `The ${who(e.side)} now hold the Initiative.` };
+      return { kind: 'info', side: e.side, text: `${e.side === viewer ? 'You' : `The ${sideName(s, e.side)}`} now hold the Initiative.` };
     case 'replace':
       return { kind: 'result', text: `${pieceName(s, e.piece)} is replaced by ${names(s, e.by)}.` };
     case 'gameOver':
-      return { kind: 'end', side: e.winner, text: `The ${who(e.winner)} win by ${END_REASON_TEXT[e.reason] ?? e.reason}.` };
+      return { kind: 'end', side: e.winner, text: `${e.winner === viewer ? 'You win' : `The ${sideName(s, e.winner)} win`} by ${END_REASON_TEXT[e.reason] ?? e.reason}.` };
     case 'window':
       return null;
     default:
       return null;
   }
+}
+
+/**
+ * The engine's own log text for the human: "the axis player" becomes "you" or "the Germans", a Recover / Rout
+ * activation and the end of a Turn are told in plain words, counter type ids lose their nation prefix.
+ */
+export function engineText(text: string, side: Side | undefined, s: GameState, viewer: Side): string {
+  const name = (x: string) => (x === viewer ? 'you' : `the ${sideName(s, x as Side)}`);
+  const own = (x: string) => (x === viewer ? 'your' : 'their');
+  const act = /^(Recover|Rout): the (axis|allied) player activates (himself|the (axis|allied) player)\.$/.exec(text);
+  if (act) {
+    const [, order, by, , target] = act;
+    const By = name(by);
+    if (order === 'Recover') return `Recover: ${By} rally ${own(by)} broken units.`;
+    if (!target || target === by) return `Rout: ${By} rout ${own(by)} own broken units.`;
+    return `Rout: ${By} rout ${target === viewer ? 'your' : `the ${sideName(s, target as Side)}’`} broken units.`;
+  }
+  let t = text;
+  if (side && /the Turn (ends|passes)\.$/.test(t)) t = t.replace(/the Turn (ends|passes)\.$/, (_m, v) => `${side === viewer ? 'your' : `the ${sideName(s, side)}’`} Turn ${v}.`);
+  t = t.replace(/\bthe (axis|allied) player\b/g, (_m, x) => name(x));
+  t = t.replace(/\b(German|American|Russian)\/([A-Z][\w .:'()-]*)/g, (_m, _n, rest) => rest);
+  return t;
 }
 
 function cap(x: string): string {

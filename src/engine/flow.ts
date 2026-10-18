@@ -67,9 +67,14 @@ export function* turnFlow(s: GameState, ctx: FlowCtx): Gen {
   while (t.passDiscards === null) {
     const orders = t.ordersGiven < pl.orders ? orderOptions(s, side) : [];
     const canPass = t.ordersGiven === 0;
-    if (!canPass && !orders.length) break;
+    if (!canPass && !orders.length) {
+      const why = t.ordersGiven >= pl.orders ? `All ${pl.orders} Orders given` : 'No other Order possible';
+      ctx.emit({ kind: 'log', text: `${why}: the Turn ends.`, side });
+      break;
+    }
     const maxDiscard = canPass ? Math.min(pl.discard, pl.hand.length) : 0;
     if (canPass && !orders.length && maxDiscard === 0) {
+      ctx.emit({ kind: 'log', text: 'No Order possible and no card to discard: the Turn passes.', side });
       yield* pass(s, ctx, side, []);
       break;
     }

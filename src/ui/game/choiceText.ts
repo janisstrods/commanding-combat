@@ -65,6 +65,7 @@ export const CHOICE_TEXT: Record<string, ChoiceWords> = {
   meleeOrder: { title: 'Melee', text: 'Several melees are due: choose the one fought next.' },
   initiativeChoice: { title: 'Initiative', text: 'You hold the Initiative. Keep it and move second, or give it away and move first.' },
   placement: { title: 'Set-up', text: 'Choose the hex for this Fortification.' },
+  scenarioOption: { title: 'Scenario option', text: 'Before the opening hands are dealt, this scenario offers you a choice.' },
 };
 
 /** Labels of 'label' items, by reason and label. */
@@ -77,6 +78,10 @@ export function choiceWords(reason: string, context?: unknown): ChoiceWords {
   const w = CHOICE_TEXT[reason] ?? { title: 'Choose', text: `Make a choice (${reason}).` };
   const ctx = context as { fort?: string; hex?: HexId } | undefined;
   if (reason === 'placement' && ctx?.fort) return { ...w, text: `Choose the hex for your ${cap(ctx.fort)}.` };
+  const opt = context as { minefield?: number; card?: string } | undefined;
+  if (reason === 'scenarioOption' && opt?.minefield !== undefined && opt.card) {
+    return { ...w, text: `You may weaken your Minefield to ${opt.minefield} FP and start with this card in your opening hand (shown below).` };
+  }
   if ((reason === 'overstackEliminate' || reason === 'overstackDeploy' || reason === 'defenseOrder') && ctx?.hex !== undefined) {
     return { ...w, text: `${w.text} (${hexName(ctx.hex)})` };
   }

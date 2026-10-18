@@ -150,3 +150,20 @@ describe('what the human sees in a whole random game', () => {
     c.dispose();
   });
 });
+
+describe('the log speaks plainly', () => {
+  it("tells the engine's Recover / Rout and end-of-Turn lines with nations and 'you'", async () => {
+    const { engineText, logEntry } = await import('../../../src/ui/game/log');
+    const { build } = await import('../../support/build');
+    const s = build({ axis: { nation: 'German' }, allied: { nation: 'Russian' } });
+    expect(engineText('Recover: the allied player activates himself.', 'allied', s, 'allied')).toBe('Recover: you rally your broken units.');
+    expect(engineText('Rout: the axis player activates the allied player.', 'axis', s, 'allied')).toBe('Rout: the Germans rout your broken units.');
+    expect(engineText('Rout: the allied player activates the axis player.', 'allied', s, 'allied')).toBe('Rout: you rout the Germans’ broken units.');
+    expect(engineText('No other Order possible: the Turn ends.', 'allied', s, 'allied')).toBe('No other Order possible: your Turn ends.');
+    expect(engineText('All 3 Orders given: the Turn ends.', 'axis', s, 'allied')).toBe('All 3 Orders given: the Germans’ Turn ends.');
+    expect(engineText('No room to set up German/Rifle Squad.', 'axis', s, 'allied')).toBe('No room to set up Rifle Squad.');
+    expect(logEntry({ kind: 'cardPlayed', side: 'allied', card: 'R-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('You play Fire as an Order.');
+    expect(logEntry({ kind: 'cardPlayed', side: 'axis', card: 'G-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('Germans play Fire as an Order.');
+    expect(logEntry({ kind: 'vp', delta: -2, total: -2, why: 'elimination' }, s, 'allied')?.text).toBe('+2 VP to you (elimination). VP: 2 to the Allies.');
+  });
+});

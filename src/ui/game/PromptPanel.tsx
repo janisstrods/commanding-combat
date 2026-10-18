@@ -68,7 +68,7 @@ export function PromptPanel({
           ))}
         </div>
       ) : null}
-      {model.showCards.length && d.kind !== 'choose' ? (
+      {model.showCards.length && (d.kind !== 'choose' || !model.list.some((b) => b.card)) ? (
         <div className="gp-prompt__cards">
           {model.showCards.map((id) => {
             const c = card(id);

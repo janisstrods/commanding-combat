@@ -234,7 +234,7 @@ function* reinforcements(s: GameState, ctx: FlowCtx): Gen {
       updateControl(s, ctx, hex);
     }
     if (placed.length) ctx.emit({ kind: 'reinforce', pieces: placed });
-    for (const u of units) ctx.emit({ kind: 'log', text: `No room on the edge for reinforcement ${u.type}.`, side });
+    for (const u of units) ctx.emit({ kind: 'log', text: `No room on the edge for the reinforcing ${typeOf(u).name}.`, side });
   }
 }
 

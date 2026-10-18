@@ -9,6 +9,7 @@ import { Button, NATION_COLORS, Segmented } from '../kit';
 import { AI_LEVELS, DEFAULT_AI_LEVEL, navigate, type AiLevel } from '../routes';
 import { storage } from '../storage';
 import './screens.css';
+import { SpecialRulesList } from './ScenarioDialog';
 
 const PICK_KEY = 'cce-picker-v1';
 
@@ -195,6 +196,7 @@ function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pic
           </tbody>
         </table>
         </div>
+        <SpecialRulesList scn={scn} />
       </article>
       <div className="picker-map">
         {map ? <Board map={map} rotate180={turnFor(mine.edge)} showLabels={false} showCompass={false} edgeLabels={edges} marginScale={2} ppu={44} title={`Map ${scn.map}`} /> : null}

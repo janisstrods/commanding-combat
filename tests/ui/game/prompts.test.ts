@@ -264,3 +264,29 @@ describe('each decision kind', () => {
     expect(clickHex(s, odd, NO_SEL, 3)).toEqual({});
   });
 });
+
+describe('choice wording', () => {
+  it('every ChoiceReason of the engine has its own wording', async () => {
+    const { readFileSync } = await import('node:fs');
+    const types = readFileSync('src/engine/types.ts', 'utf8');
+    const block = types.slice(types.indexOf('export type ChoiceReason ='), types.indexOf('export type ChoiceItem'));
+    const reasons = [...block.matchAll(/\|\s*'([A-Za-z]+)'/g)].map((m) => m[1]);
+    const { CHOICE_TEXT } = await import('../../../src/ui/game/choiceText');
+    expect(reasons.length).toBeGreaterThan(40);
+    expect(reasons.filter((r) => !CHOICE_TEXT[r])).toEqual([]);
+  });
+
+  it("'scenarioOption' explains the offer and shows the card", () => {
+    const s = build({});
+    const card = cardsWhere('German', { sum: 7, trigger: null })[0];
+    const d: Decision = {
+      kind: 'choose', side: 'axis', reason: 'scenarioOption', items: [{ label: 'Keep 8 FP Mines' }, { label: `7 FP Mines and card ${card} in hand` }],
+      min: 1, max: 1, context: { minefield: 7, card },
+    };
+    const m = promptFor(s, d, NO_SEL, 'axis');
+    expect(m.title).toBe('Scenario option');
+    expect(m.text).toMatch(/Minefield to 7 FP/);
+    expect(m.showCards).toEqual([card]);
+    expect(m.list.map((b) => b.answer)).toEqual([{ kind: 'choose', items: [0] }, { kind: 'choose', items: [1] }]);
+  });
+});

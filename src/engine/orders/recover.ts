@@ -19,7 +19,8 @@ export function playerActivated(s: GameState, target: Side): boolean {
 /** Record that `by` activated `target` with a Recover or Rout. */
 export function activatePlayer(s: GameState, ctx: FlowCtx, by: Side, target: Side, order: 'Recover' | 'Rout'): void {
   s.turn.playerActivations.push(`${by}>${target}`);
-  ctx.emit({ kind: 'log', text: by === target ? `${order}: ${by} activates himself.` : `${order}: ${by} activates ${target}.`, side: by });
+  const whom = by === target ? 'himself' : `the ${target} player`;
+  ctx.emit({ kind: 'log', text: `${order}: the ${by} player activates ${whom}.`, side: by });
 }
 
 /** A unit's Morale for Rally and Rout rolls: current Morale + the Cover of its hex (§T78.3). */

@@ -11,7 +11,9 @@ import { other } from '../../engine/types';
 import { Button, Modal, Segmented, Toggle, Tooltip } from '../kit';
 import { RulesDialog } from '../screens/RulesDialog';
 import { ResultDialog } from '../screens/Result';
+import { ScenarioDialog } from '../screens/ScenarioDialog';
 import { isMuted, setMuted } from '../sound';
+import { terrainImage } from '../board';
 import { BattleBoard } from './BattleBoard';
 import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controller';
 import { NATION_PLURAL, sideName } from './names';
@@ -63,6 +65,10 @@ export function GameScreen({
   const [expanded, setExpanded] = useState<HexId | null>(null);
   const [los, setLos] = useState<{ on: boolean; from: HexId | null; to: HexId | null }>({ on: false, from: null, to: null });
   const [rules, setRules] = useState(false);
+  // the briefing opens by itself at the start of a new battle whose scenario has special rules
+  const [briefing, setBriefing] = useState(
+    () => controller.driver.answers.length === 0 && !controller.autoPlaying && (controller.driver.state.scenario.special.notes ?? []).length > 0,
+  );
   const [settings, setSettings] = useState(false);
   const [confirmMenu, setConfirmMenu] = useState(false);
   const [resultOpen, setResultOpen] = useState(true);
@@ -72,7 +78,17 @@ export function GameScreen({
 
   useEffect(() => {
     (window as unknown as { __cce?: GameController }).__cce = controller;
-    controller.start();
+    // paint the map first (it takes a moment on the main thread), then start the battle: the opponent's first
+    // decisions (its deployment) would otherwise keep the flat stand-in terrain on screen
+    let started = false;
+    const go = () => {
+      if (started) return;
+      started = true;
+      controller.start();
+    };
+    terrainImage(controller.driver.state.map).then(go, go);
+    const t = setTimeout(go, 2500);
+    return () => clearTimeout(t);
   }, [controller]);
 
   // a new decision: fresh selection
@@ -227,6 +243,9 @@ export function GameScreen({
           <Button variant={los.on ? 'primary' : 'ghost'} size="sm" onClick={() => setLos((l) => ({ on: !l.on, from: null, to: null }))} title="Line of sight (L): click a hex, then another">
             Line of sight
           </Button>
+          <Button variant="ghost" size="sm" onClick={() => setBriefing(true)} title="The scenario's briefing and special rules">
+            Scenario
+          </Button>
           <Button variant="ghost" size="sm" onClick={() => setRules(true)}>
             Rules
           </Button>
@@ -336,6 +355,7 @@ export function GameScreen({
       </footer>
 
       <RulesDialog open={rules} onClose={() => setRules(false)} />
+      <ScenarioDialog open={briefing} onClose={() => setBriefing(false)} s={s} human={human} />
       <Modal open={settings} title="Settings" onClose={() => setSettings(false)} width={520} footer={<Button onClick={() => setSettings(false)}>Done</Button>}>
         <div className="gs-settings">
           <div className="gs-settings__row">

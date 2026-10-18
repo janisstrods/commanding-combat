@@ -343,6 +343,11 @@ export class GameController {
     this.answer(this.randomFor(d, this.human));
   }
 
+  /** Dev: random answers are being given for the human (`?auto=N`). */
+  get autoPlaying(): boolean {
+    return this.autoLeft > 0;
+  }
+
   /** Dev: answer the human's next `n` decisions at random (`?auto=N`). */
   autoPlay(n: number): void {
     this.autoLeft = n;
@@ -400,6 +405,9 @@ export class GameController {
     this.busy = true;
     try {
       for (;;) {
+        // give the page a turn between steps (painting, input), also when nothing animates (instant speed)
+        await sleep(0);
+        if (this.disposed) return;
         const asked = this.askAhead();
         await this.playEvents();
         if (this.disposed) return;

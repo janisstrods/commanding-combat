@@ -143,7 +143,7 @@ function* deploySide(s: GameState, ctx: FlowCtx, side: Side, area: HexId[], skip
     if (!left.length) return;
     const options = left.map((p) => ({ p, hexes: placesFor(s, p, area) })).filter((o) => o.hexes.length);
     if (!options.length) {
-      for (const p of left) ctx.emit({ kind: 'log', text: `No room to set up ${p.type}.`, side });
+      for (const p of left) ctx.emit({ kind: 'log', text: `No room to set up the ${typeOf(p).name}.`, side });
       return;
     }
     // units before Weapons when the engine places them, so every Weapon finds a carrier
