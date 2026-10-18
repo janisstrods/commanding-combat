@@ -11,7 +11,7 @@ import { GridLayer, HexsideLayer, LabelLayer, ObjectiveLayer } from './HexLayer'
 import { MaskOverlay, type MaskOverlayMode } from './MaskOverlay';
 import { BoardScale, StackOrigin } from './StackView';
 import { DEFAULT_PPU, TerrainLayer } from './TerrainLayer';
-import { useBoardZoom, type BoardZoom } from './useBoardZoom';
+import { SettledZoom, useBoardZoom, type BoardZoom } from './useBoardZoom';
 import './board.css';
 
 export interface LosLine {
@@ -78,9 +78,11 @@ function ZoomableBoard(p: BoardProps & { zoomKey: string }) {
   const z = useBoardZoom(boardViewBox(), { storageKey: p.zoomKey, keys: p.zoomKeys, onGestureStart: () => p.onHexHover?.(null) });
   return (
     <div ref={z.containerRef} className={`board-zoom ${p.className ?? ''}`} style={p.style}>
-      <BoardScale.Provider value={z.settled.px}>
-        <BoardSvg {...p} className={undefined} style={undefined} svgRef={z.svgRef} viewBox={z.viewBoxAttr()} />
-      </BoardScale.Provider>
+      <SettledZoom.Provider value={z.settled}>
+        <BoardScale.Provider value={z.settled.px}>
+          <BoardSvg {...p} className={undefined} style={undefined} svgRef={z.svgRef} viewBox={z.viewBoxAttr()} />
+        </BoardScale.Provider>
+      </SettledZoom.Provider>
       <ZoomControls z={z} />
     </div>
   );

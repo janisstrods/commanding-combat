@@ -1,8 +1,9 @@
 // Zoom and pan gestures for the board: mouse wheel and trackpad pinch (ctrl+wheel; Safari's gesture events) zoom around
 // the pointer, a drag pans (one finger on touch), two fingers pinch and pan. The view lives in a ref and goes straight
 // to the SVG's viewBox, so a gesture re-renders nothing; React state (`settled`) changes only once a gesture has ended,
-// for the counter layout and the zoom buttons. A drag never counts as a click. The view is kept in localStorage.
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+// for the counter layout, the zoom buttons and the terrain's sharper tiles. A drag never counts as a click. The view is
+// kept in localStorage.
+import { createContext, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { storage } from '../storage';
 import { clampView, fitScale, fitView, lerpView, maxZoom, panBy, parseView, pinchView, sameView, scaleStep, serializeView, viewBoxOf, wheelFactor, zoomAt, type Rect, type Size, type View } from './zoom';
 
@@ -13,6 +14,29 @@ export interface Settled {
   max: number;
   /** Screen px per hex unit, rounded to a quarter octave (for the counter layout). */
   px: number;
+  /** The board rectangle in view (the viewBox), and its screen px per hex unit (not rounded). */
+  box: Rect;
+  scale: number;
+  /** Device pixels per screen px. */
+  dpr: number;
+}
+
+/** The settled zoom of the board being drawn (null outside a zoomable board). */
+export const SettledZoom = createContext<Settled | null>(null);
+
+function sameSettled(a: Settled, b: Settled): boolean {
+  const near = (x: number, y: number) => Math.abs(x - y) < 1e-4;
+  return (
+    near(a.k, b.k) &&
+    a.max === b.max &&
+    a.px === b.px &&
+    near(a.scale, b.scale) &&
+    a.dpr === b.dpr &&
+    near(a.box.x, b.box.x) &&
+    near(a.box.y, b.box.y) &&
+    near(a.box.w, b.box.w) &&
+    near(a.box.h, b.box.h)
+  );
 }
 
 export interface BoardZoom {
@@ -45,7 +69,7 @@ export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: bo
   const key = opts.storageKey ? STORAGE_PREFIX + opts.storageKey : null;
   const view = useRef<View>(parseView(key ? storage.get(key) : null) ?? fitView(world));
   const size = useRef<Size | null>(null);
-  const [settled, setSettled] = useState<Settled>({ k: view.current.k, max: 3, px: 0 });
+  const [settled, setSettled] = useState<Settled>({ k: view.current.k, max: 3, px: 0, box: world, scale: 0, dpr: 1 });
   const settleTimer = useRef(0);
   const anim = useRef(0);
   const worldRef = useRef(world);
@@ -72,8 +96,11 @@ export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: bo
         const vp = size.current;
         if (!vp) return;
         const v = view.current;
-        const next: Settled = { k: v.k, max: maxZoom(vp, worldRef.current), px: scaleStep(fitScale(vp, worldRef.current) * v.k) };
-        setSettled((s) => (Math.abs(s.k - next.k) < 1e-4 && s.max === next.max && s.px === next.px ? s : next));
+        const w = worldRef.current;
+        const scale = fitScale(vp, w) * v.k;
+        const dpr = window.devicePixelRatio > 0 ? window.devicePixelRatio : 1;
+        const next: Settled = { k: v.k, max: maxZoom(vp, w), px: scaleStep(scale), box: viewBoxOf(v, vp, w), scale, dpr };
+        setSettled((s) => (sameSettled(s, next) ? s : next));
         if (key) storage.set(key, serializeView(v));
       };
       if (now) run();
