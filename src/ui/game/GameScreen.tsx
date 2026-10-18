@@ -375,8 +375,9 @@ export function GameScreen({
               onChange={(v) => controller.setRerollPolicy(v)}
             />
             <small>
-              While you hold the Initiative you may cancel any roll. “When it matters” asks only after a Fire Attack, Defense, melee,
-              rally, rout or Sudden Death roll that went against you.
+              While you hold the Initiative you may cancel any roll. “When it matters” asks only after a roll that went against you
+              (Fire Attack, Targeting, Defense, melee, rally, rout, Mines, Artillery Impact or Sudden Death) when a re-roll would
+              probably do better.
             </small>
           </div>
           <SoundToggle />

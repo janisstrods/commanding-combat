@@ -13,7 +13,7 @@ import { publicEvent, viewOf } from './hidden';
 import { logEntry, vpBucket, type LogKind } from './log';
 import { PURPOSE_TEXT, isRollPurpose, pieceName, sideName } from './names';
 import { WINDOW_PAUSE_MS, type Opponent } from './opponent';
-import { loadRerollPolicy, offerReroll, saveRerollPolicy, type RerollPolicy, type RollContext } from './reroll';
+import { contextAfterAnswer, contextAfterEvent, loadRerollPolicy, offerReroll, saveRerollPolicy, type RerollPolicy, type RollContext } from './reroll';
 import { clearSave, makeSave, newDriver, writeSave, type SessionConfig } from './session';
 import { setupChoice } from './prompts';
 import { deployForMe } from '../../ai/deploy';
@@ -100,9 +100,6 @@ export interface ViewState {
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const emptyVp = (): VpBreakdown => ({ Eliminations: 0, Exits: 0, Objectives: 0, Time: 0, Other: 0 });
-
-/** FP Actions played just before a Fire Attack roll (for the re-roll judgement). */
-const FP_ACTIONS = new Set(['Bore Sighting', 'Crossfire', 'Hand Grenades', 'Marksmanship', 'Sustained Fire']);
 
 let seq = 1;
 
@@ -299,8 +296,7 @@ export class GameController {
 
   /** Remember what the re-roll judgement needs from an accepted answer. */
   private noteAnswer(d: Decision, a: Answer) {
-    if (a.kind === 'fire') this.rollCtx = { ...this.rollCtx, spec: { side: d.side, pieces: a.spec.pieces.slice(), target: a.spec.target, bonus: 0 } };
-    if (a.kind === 'activatePlayer' && d.kind === 'activate' && d.order === 'Rout') this.rollCtx = { ...this.rollCtx, routed: a.player };
+    this.rollCtx = contextAfterAnswer(this.rollCtx, d, a);
   }
 
   /** The human answers his pending decision (the screen's click). `rest`: more answers of a path to send after it. */
@@ -578,11 +574,11 @@ export class GameController {
     const entry = e.kind === 'place' && e.piece && full.phase === 'setup' ? null : logEntry(e, after, human);
     if (entry) this.addLog(entry);
     const mine = (side: Side | undefined) => side === human;
+    this.rollCtx = contextAfterEvent(this.rollCtx, e);
     switch (e.kind) {
       case 'turnStart': {
         this.orders++;
         this.autoPass = null;
-        this.rollCtx = {};
         this.set({ display: after, attack: null });
         if (mine(e.side)) {
           sfx.turn();
@@ -595,12 +591,7 @@ export class GameController {
         break;
       }
       case 'cardPlayed': {
-        if (e.as === 'order') {
-          this.orders++;
-          this.rollCtx = {};
-        } else if (FP_ACTIONS.has(e.name) && this.rollCtx.spec) {
-          this.rollCtx = { ...this.rollCtx, spec: { ...this.rollCtx.spec, bonus: this.rollCtx.spec.bonus + 2 } };
-        }
+        if (e.as === 'order') this.orders++;
         sfx.card();
         const caption = `${sideName(after, e.side)}${mine(e.side) ? ' (you)' : ''}: ${e.name}${e.as === 'order' ? ' Order' : ''}`;
         this.showCard({ card: e.card, side: e.side, caption, highlight: e.as === 'order' ? 'order' : 'action' }, mine(e.side) ? 900 : 1700);
@@ -661,7 +652,6 @@ export class GameController {
       case 'fireAttack': {
         const from = [...new Set(e.pieces.map((id) => this.hexOf(before, id)).filter((h) => h >= 0))];
         const targets = e.hexes?.length ? e.hexes : [e.target];
-        this.rollCtx = { ...this.rollCtx, attack: { side: e.side, total: e.total, targets, pieces: e.pieces.slice() } };
         if (e.pieces.length > 2) sfx.burst(6);
         else sfx.shot();
         const attack = { id: seq++, from, targets };
