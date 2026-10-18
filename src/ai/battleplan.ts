@@ -141,7 +141,8 @@ export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePla
   const mine = goodUnits(s, me).filter((u) => !holdsFixedWeapon(s, u));
   if (!n || !mine.length) return null;
   const posture = s.players[me].posture;
-  const left = Math.max(1, s.suddenDeath - s.time);
+  // own Turns left before Sudden Death, roughly (a Time space lasts about four Turns of each player)
+  const turnsLeft = Math.max(2, (s.suddenDeath - s.time) * 4);
   let best: { i: number; aim: 'take' | 'hold'; u: number; worth: number } | null = null;
   for (let i = 0; i < n; i++) {
     const hex = s.map.objectives[i];
@@ -154,10 +155,11 @@ export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePla
     let u: number;
     let aim: 'take' | 'hold';
     if (!ours) {
-      // to take: worth, discounted by the distance to cover (against the time left) and the enemy around it
+      // to take: worth, discounted by the Turns needed to get there (about three hexes a Turn) against the Turns left,
+      // and by the enemy around it
       aim = 'take';
-      const feasible = Math.max(0.05, 1 - 0.07 * dist - 0.06 * foes) * Math.min(1, (left * 2.5) / Math.max(1, dist));
-      u = worth * feasible * (posture === 'defend' ? 0.6 : 1);
+      const inTime = Math.max(0.1, Math.min(1, 1.2 - dist / 3 / turnsLeft));
+      u = (worth * inTime * (posture === 'defend' ? 0.6 : 1)) / (1 + 0.12 * foes);
     } else {
       // to hold: worth, scaled by how strongly the enemy threatens it (none near: little to do)
       aim = 'hold';

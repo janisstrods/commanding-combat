@@ -8,11 +8,13 @@
 // Positions come from v1-green vs v1-green games (fixed, whatever the current AI does): the first own-Turn decision of
 // each listed Turn with at least two Orders to choose from. Options: --players (default line), --scenario (default
 // 1,2,3,4,5,6,8,9,10,11,12), --turns (default 3,7,12), --seed (default 1), --scale / --budget / --effort as in
-// ai-match.ts; --calibrate [--sims n] (default 240, Elite-like players 120) and --reps (default 2).
+// ai-match.ts; --calibrate [--sims n] (default 240, Elite-like players 120) and --reps (default 2); --plans: the battle
+// plan the side to move would make in each position (--turns 1,2: the first plans).
 import { scenario } from '../src/engine/data';
 import { GameDriver } from '../src/engine/driver';
 import { newGame, redact, cloneState } from '../src/engine/state';
 import type { Decision, GameState } from '../src/engine/types';
+import { describePlan, makePlan } from '../src/ai/battleplan';
 import { chooseAnswer, newMemory } from '../src/ai/index';
 import * as v1 from './ai-v1/index';
 import { budgetMsOf, makeBrain, parsePlayer, playerOk, type Budget, type Player } from './ai-players';
@@ -127,6 +129,15 @@ function main(): void {
   for (const id of ids) all.push(...positions(id, seed, turns));
   console.log(`${all.length} positions`);
   if (a.calibrate === 'true') return calibrate(players, all, a);
+  if (a.plans === 'true') {
+    // the battle plan each position's side would make now (first plans: --turns 1,2)
+    for (const pos of all) {
+      const v = redact(pos.state, pos.d.side);
+      const plan = makePlan(v, pos.d.side, 'probe');
+      console.log(`S${pos.scenario} ${plan ? describePlan(v, pos.d.side, plan, null) : 'no plan'}`);
+    }
+    return;
+  }
   const stats: Record<string, { ms: number[]; sims: number[]; clock: number[] }> = {};
   for (const pos of all) {
     const row: string[] = [];
