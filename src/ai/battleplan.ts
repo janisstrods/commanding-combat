@@ -1,13 +1,13 @@
 // The AI's battle plan: an intent it keeps across Turns, where the planner (planner.ts) otherwise looks one Order ahead.
 // Made at the AI's first own Turn from its own view (`redact(state, side)`: open chits, its own secret chits, the
 // board), kept in its memory (worker side) and re-made only when the position changes sharply. It names
-//  - the Objective the main effort goes for (to take it, or to hold it when it is ours and threatened);
+//  - the Objective the main effort goes for (to take it, or to hold it when it is ours);
 //  - the main-effort units (they close on it) and a support group (it covers it from firing positions: hexes in range
 //    with a clear line of sight to it);
 //  - a rough timing: the Time by which the main effort should be on it, from the Sudden Death space.
-// The evaluation (evaluate.ts `planTerm` weight) then scores the main effort's progress and the support group in
-// position, so the search does not drift off the plan for small gains elsewhere. Every plan and re-plan is logged in
-// the memory (the match scripts print the log).
+// The evaluation (evaluate.ts, weight `plan`: `planTerm` below) then scores the main effort's progress and the support
+// group in position, so the search does not drift off the plan for small gains elsewhere. Every plan and re-plan is
+// logged in the memory (the match scripts print the log).
 import { distance, label } from '../engine/hex';
 import { hexsideCoverAgainst, losCheck } from '../engine/los';
 import { chitValue, objectiveValue } from '../engine/objectives';
@@ -25,7 +25,7 @@ export interface BattlePlan {
   reason: string;
   /** The Objective (index into map.objectives) the main effort is for. */
   target: number;
-  /** 'take': it is not ours; 'hold': ours, and the enemy threatens it. */
+  /** 'take': it is not ours; 'hold': it is ours. */
   aim: 'take' | 'hold';
   /** Its worth to us when the plan was made (VP-like). */
   worth: number;
