@@ -1,49 +1,92 @@
-// The Action handlers by name (Task 9 owns this file): one import line and one entry per Action file in this folder.
-// A missing entry stays a stub (registry.ts): its Action is never offered.
+// The Action handlers by name, one file per Action in this folder; a missing entry stays a stub (registry.ts): its
+// Action is never offered. Entries are getters that read the handler when it is used, never while modules load (see
+// orders/index.ts and tests/engine/load-order.test.ts). Add one namespace import and one getter per Action.
 import type { ActionName } from '../types';
 import type { ActionHandler } from '../registry';
-import { commandConfusionAction } from '../orders/confusion';
-import { opFireAction } from '../orders/fire';
-import { ambushAction } from './ambush';
-import { assaultFireAction } from './assaultFire';
-import { boreSightingAction } from './boreSighting';
-import { concealmentAction } from './concealment';
-import { crossfireAction } from './crossfire';
-import { demolitionsAction } from './demolitions';
-import { digInAction } from './digIn';
-import { handGrenadesAction } from './handGrenades';
-import { hiddenEntrenchmentsAction } from './hiddenEntrenchments';
-import { hiddenMinesAction } from './hiddenMines';
-import { hiddenPillboxAction } from './hiddenPillbox';
-import { hiddenUnitAction } from './hiddenUnit';
-import { hiddenWireAction } from './hiddenWire';
-import { lightWoundsAction } from './lightWounds';
-import { marksmanshipAction } from './marksmanship';
-import { noQuarterAction } from './noQuarter';
-import { smokeGrenadesAction } from './smokeGrenades';
-import { sprayFireAction } from './sprayFire';
-import { sustainedFireAction } from './sustainedFire';
+import * as ambushMod from './ambush';
+import * as assaultFireMod from './assaultFire';
+import * as boreSightingMod from './boreSighting';
+import * as concealmentMod from './concealment';
+import * as crossfireMod from './crossfire';
+import * as demolitionsMod from './demolitions';
+import * as digInMod from './digIn';
+import * as handGrenadesMod from './handGrenades';
+import * as hiddenEntrenchmentsMod from './hiddenEntrenchments';
+import * as hiddenMinesMod from './hiddenMines';
+import * as hiddenPillboxMod from './hiddenPillbox';
+import * as hiddenUnitMod from './hiddenUnit';
+import * as hiddenWireMod from './hiddenWire';
+import * as lightWoundsMod from './lightWounds';
+import * as marksmanshipMod from './marksmanship';
+import * as noQuarterMod from './noQuarter';
+import * as orders_confusionMod from '../orders/confusion';
+import * as orders_fireMod from '../orders/fire';
+import * as smokeGrenadesMod from './smokeGrenades';
+import * as sprayFireMod from './sprayFire';
+import * as sustainedFireMod from './sustainedFire';
 
 export const ACTION_HANDLERS: Partial<Record<ActionName, ActionHandler>> = {
-  Ambush: ambushAction,
-  'Assault Fire': assaultFireAction,
-  'Bore Sighting': boreSightingAction,
-  'Command Confusion': commandConfusionAction,
-  Concealment: concealmentAction,
-  Crossfire: crossfireAction,
-  Demolitions: demolitionsAction,
-  'Dig In': digInAction,
-  Fire: opFireAction,
-  'Hand Grenades': handGrenadesAction,
-  'Hidden Entrenchments': hiddenEntrenchmentsAction,
-  'Hidden Mines': hiddenMinesAction,
-  'Hidden Pillbox': hiddenPillboxAction,
-  'Hidden Unit': hiddenUnitAction,
-  'Hidden Wire': hiddenWireAction,
-  'Light Wounds': lightWoundsAction,
-  Marksmanship: marksmanshipAction,
-  'No Quarter': noQuarterAction,
-  'Smoke Grenades': smokeGrenadesAction,
-  'Spray Fire': sprayFireAction,
-  'Sustained Fire': sustainedFireAction,
+  get Ambush() {
+    return ambushMod.ambushAction;
+  },
+  get 'Assault Fire'() {
+    return assaultFireMod.assaultFireAction;
+  },
+  get 'Bore Sighting'() {
+    return boreSightingMod.boreSightingAction;
+  },
+  get 'Command Confusion'() {
+    return orders_confusionMod.commandConfusionAction;
+  },
+  get Concealment() {
+    return concealmentMod.concealmentAction;
+  },
+  get Crossfire() {
+    return crossfireMod.crossfireAction;
+  },
+  get Demolitions() {
+    return demolitionsMod.demolitionsAction;
+  },
+  get 'Dig In'() {
+    return digInMod.digInAction;
+  },
+  get Fire() {
+    return orders_fireMod.opFireAction;
+  },
+  get 'Hand Grenades'() {
+    return handGrenadesMod.handGrenadesAction;
+  },
+  get 'Hidden Entrenchments'() {
+    return hiddenEntrenchmentsMod.hiddenEntrenchmentsAction;
+  },
+  get 'Hidden Mines'() {
+    return hiddenMinesMod.hiddenMinesAction;
+  },
+  get 'Hidden Pillbox'() {
+    return hiddenPillboxMod.hiddenPillboxAction;
+  },
+  get 'Hidden Unit'() {
+    return hiddenUnitMod.hiddenUnitAction;
+  },
+  get 'Hidden Wire'() {
+    return hiddenWireMod.hiddenWireAction;
+  },
+  get 'Light Wounds'() {
+    return lightWoundsMod.lightWoundsAction;
+  },
+  get Marksmanship() {
+    return marksmanshipMod.marksmanshipAction;
+  },
+  get 'No Quarter'() {
+    return noQuarterMod.noQuarterAction;
+  },
+  get 'Smoke Grenades'() {
+    return smokeGrenadesMod.smokeGrenadesAction;
+  },
+  get 'Spray Fire'() {
+    return sprayFireMod.sprayFireAction;
+  },
+  get 'Sustained Fire'() {
+    return sustainedFireMod.sustainedFireAction;
+  },
 };
