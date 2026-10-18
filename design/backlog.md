@@ -13,6 +13,12 @@ saying what shipped and what is left. The parts still open are candidates for la
 - Measure each change with `scripts/ai-match.ts` (Elite vs Line, both ways) and record the tables in
   `design/ai-balance.md`.
 
+**Status (v1.1.0): done.** Line thinks up to 8 s and Elite up to 20 s per own-Turn decision, and a search stops early
+once one choice is clearly ahead. The time buys a look-ahead through the rest of the AI's own Turn, Move Orders
+included (Elite also plays the opponent's reply), which is what made the difference. A thinking indicator shows while
+the AI decides (`ThinkingIndicator.tsx`). Tables in `design/ai-balance.md`. Left: time each level on a quiet machine;
+re-measure the effort-mode rates of the look-ahead levels (`scripts/ai-effort.ts` overstates them).
+
 **A battle plan.** The AI plans one Turn at a time. Give it a longer-term plan that it keeps across Turns:
 - at set-up (and at the first own Turn), choose a plan from the scenario: which Objectives to take or hold, a main
   effort and a supporting effort (which units go where), and a rough timing against the Time track / Sudden Death;
@@ -23,6 +29,10 @@ saying what shipped and what is left. The parts still open are candidates for la
   chit revealed or changed, Sudden Death getting near, reinforcements arriving, or the plan's target taken;
 - log the plan and each re-plan in the match logs, so `ai-match.ts` runs show why the AI did what it did.
 
+**Status (v1.1.0): done, small effect.** The plan, its re-plan triggers and their logging are in. At full weight it lost
+games, so it ships at half weight and only steers the last 4 hexes before its target; in a paired test it neither
+helps nor costs (24–24).
+
 **Strength targets from the v1.0.0 match runs** (the previous session's AI proposal). In v1.0.0 Line beats Green 20–4,
 Elite beats Line only 29–19 (60 %), and Line-vs-Line attackers win 40 % over the attack/defend scenarios; scenarios 3
 and 11 are very hard for the German attacker. All runs so far used 0.2–0.3 of the real time budgets.
@@ -32,6 +42,15 @@ and 11 are very hard for the German attacker. All runs so far used 0.2–0.3 of 
 - Lift the German attacker in scenarios 3 and 11 to a fair share.
 - Let the AI's re-roll of its own Defense rolls take the attack total into account (today it judges the dice alone).
 - Back every change with head-to-head runs against the previous AI; keep hidden information unchanged.
+
+**Status (v1.1.0): partly reached** (`design/ai-balance.md`, effort mode, the frozen v1.0.0 AI as baseline):
+- Line beats v1.0.0's Line 18 of 24 (75 %): reached.
+- Elite beats Line 22 of 40 (55 %): **missed**. Elite led Line without look-ahead 65 %, but Line now looks ahead the same
+  way; the stronger Line was kept since it is the default opponent. Next: a deeper or better-informed Elite search.
+- German attacker, Line vs Line: S3 1 of 8, S11 2 of 8 (v1.0.0 on the same seeds: 0 and 2): **missed**. Attackers win
+  28 of 71 over the nine attack/defend scenarios; 3, 10 and 11 stay hardest.
+- The AI's Fire Attack and Defense re-rolls weigh the attack total: done. Its move planning knows Mines and Wire.
+- Not run: Elite against v1.0.0's Elite.
 
 ## 2. Visuals
 

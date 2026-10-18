@@ -5,6 +5,12 @@
  */
 export const RELEASES = [
   {
+    number: '1.1.0',
+    name: 'Commando School',
+    notes:
+      'A zoomable board with every unit in sight and new counter art; Fire Attacks, rallies and routs shown step by step; a randomiser for Snipers and Events; Orders as headings in the log; your secret chits in the Objective values; Artillery Boxes; a computer opponent that plans across Turns and thinks longer; a much smaller first load',
+  },
+  {
     number: '1.0.0',
     name: 'Rush to Contact',
     notes:
