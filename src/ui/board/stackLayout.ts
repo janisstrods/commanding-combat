@@ -37,9 +37,9 @@ export const WEAPON_REL = 0.62;
 /** A lone unit counter's side (the largest a counter gets inside a hex). */
 export const MAX_UNIT = 1.12;
 /** Below this many screen pixels a unit counter is too small to read: a crowded stack fans out. */
-export const READABLE_PX = 26;
+export const READABLE_PX = 22;
 /** A fanned-out stack's unit counters are this many screen pixels... */
-export const FAN_PX = 34;
+export const FAN_PX = 32;
 /** ...unless that would make them larger than this (zoomed far out: the overview stays tidy instead). */
 export const FAN_MAX = 0.95;
 /** An expanded stack's unit counters: this many screen pixels, within EXPANDED_MIN..EXPANDED_MAX hex units. */

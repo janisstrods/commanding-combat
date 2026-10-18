@@ -39,7 +39,7 @@ function fmt(v: number) {
   return String(Math.round(v * 10000) / 10000);
 }
 
-export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: boolean }): BoardZoom {
+export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: boolean; onGestureStart?: () => void }): BoardZoom {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const key = opts.storageKey ? STORAGE_PREFIX + opts.storageKey : null;
@@ -50,6 +50,8 @@ export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: bo
   const anim = useRef(0);
   const worldRef = useRef(world);
   worldRef.current = world;
+  const gestureCb = useRef(opts.onGestureStart);
+  gestureCb.current = opts.onGestureStart;
 
   const viewBoxAttr = useCallback(() => {
     const w = worldRef.current;
@@ -230,6 +232,7 @@ export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: bo
           }
         }
         el.classList.add('is-panning');
+        gestureCb.current?.();
       }
     };
     const onMove = (e: PointerEvent) => {
@@ -256,6 +259,7 @@ export function useBoardZoom(world: Rect, opts: { storageKey?: string; keys?: bo
           /* ignore */
         }
         el.classList.add('is-panning');
+        gestureCb.current?.();
       }
       setView(panBy(drag.view, vp, worldRef.current, dx, dy));
     };

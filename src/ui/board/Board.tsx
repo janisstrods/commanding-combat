@@ -74,7 +74,8 @@ export function Board(p: BoardProps) {
 }
 
 function ZoomableBoard(p: BoardProps & { zoomKey: string }) {
-  const z = useBoardZoom(boardViewBox(), { storageKey: p.zoomKey, keys: p.zoomKeys });
+  // a pan or pinch carries the map away from the pointer: drop the hover (and the caller's tooltip) meanwhile
+  const z = useBoardZoom(boardViewBox(), { storageKey: p.zoomKey, keys: p.zoomKeys, onGestureStart: () => p.onHexHover?.(null) });
   return (
     <div ref={z.containerRef} className={`board-zoom ${p.className ?? ''}`} style={p.style}>
       <BoardScale.Provider value={z.settled.px}>
@@ -94,14 +95,19 @@ function ZoomControls({ z }: { z: BoardZoom }) {
       <button type="button" onClick={() => z.zoomBy(1.5)} disabled={k >= max - 1e-3} aria-label="Zoom in" title="Zoom in (+, wheel or pinch)">
         +
       </button>
-      <button type="button" onClick={() => z.zoomBy(1 / 1.5)} disabled={k <= 1 + 1e-3} aria-label="Zoom out" title="Zoom out (-)">
-        −
-      </button>
-      <button type="button" onClick={z.fit} disabled={k <= 1 + 1e-3} aria-label="Show the whole map" title="Show the whole map (0)">
-        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-          <path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
-        </svg>
-      </button>
+      {/* zoomed out all the way, only + is offered (the map stays clear) */}
+      {k > 1 + 1e-3 ? (
+        <>
+          <button type="button" onClick={() => z.zoomBy(1 / 1.5)} aria-label="Zoom out" title="Zoom out (-)">
+            −
+          </button>
+          <button type="button" onClick={z.fit} aria-label="Show the whole map" title="Show the whole map (0)">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+            </svg>
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }
