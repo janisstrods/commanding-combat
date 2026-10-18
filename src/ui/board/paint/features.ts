@@ -357,27 +357,9 @@ function largestRect(grid: Uint8Array, w: number, h: number): [number, number, n
 
 const PATH_KINDS: ReadonlySet<LinearKind> = new Set(['road', 'trail', 'railway']);
 
-/**
- * Where to put the house of building hex `h` on a per-hex map: near the centre, parallel to and clear of any road through
- * the hex. The hexes of one multi-hex building make one building, with wings between them.
- */
+/** Where to put the house of building hex `h` on a per-hex map: near the centre, parallel to and clear of its roads. */
 export function buildingFootprint(map: MapDef, h: HexId, pieces: LinearPiece[]): Block[] {
   const c = centre(h);
-  const id = map.building[h];
-  const mates = id !== undefined && id >= 0 ? SIDES.map((s) => neighbour(h, s)).filter((n): n is HexId => n !== null && map.building[n] === id) : [];
-  if (mates.length) {
-    // one building over several hexes (a château, a school): a block on each hex centre and a wing to each other part,
-    // all under the same roof
-    const seed = Math.floor(hash3(id, 99, 7) * 1e9);
-    const first = centre(mates[0]);
-    const out: Block[] = [{ x: c.x, y: c.y, len: 0.78, wid: 0.56, angle: Math.atan2(first.y - c.y, first.x - c.x), seed }];
-    for (const n of mates) {
-      if (n < h) continue; // each wing once
-      const cn = centre(n);
-      out.push({ x: (c.x + cn.x) / 2, y: (c.y + cn.y) / 2, len: Math.hypot(cn.x - c.x, cn.y - c.y), wid: 0.44, angle: Math.atan2(cn.y - c.y, cn.x - c.x), seed });
-    }
-    return out;
-  }
   const seed = Math.floor(hash3(h, 7, 31) * 1e9);
   const pts: Point[] = [];
   for (const p of pieces) if (PATH_KINDS.has(p.kind)) for (const q of p.points) if (len(sub(q, c)) < 1.1) pts.push(q);
@@ -412,66 +394,226 @@ export function buildingFootprint(map: MapDef, h: HexId, pieces: LinearPiece[]):
   const a = pts[Math.max(0, qi - 1)];
   const b = pts[Math.min(pts.length - 1, qi + 1)];
   const angle = Math.atan2(b.y - a.y, b.x - a.x);
-  const room = Math.min(1, Math.max(0.6, (clearOf(best) - 0.11) / hw));
-  return [{ x: best.x, y: best.y, len: hl * 2, wid: hw * 2 * room, angle, seed }];
+  // as big as fits beside the road (a cramped hex gets a shed)
+  for (let k = 1; k >= 0.3; k -= 0.1) {
+    const house = { x: best.x, y: best.y, len: hl * 2 * Math.min(1, k + 0.2), wid: hw * 2 * k, angle, seed };
+    if (!pts.some((q) => blockCovers(house, q, 0.07))) return [house];
+  }
+  return [{ x: best.x, y: best.y, len: hl * 0.7, wid: hw * 0.6, angle, seed }];
+}
+
+/** Distance from p to the segment a-b. */
+function segDist(p: Point, a: Point, b: Point): number {
+  const ab = sub(b, a);
+  const l2 = ab.x * ab.x + ab.y * ab.y;
+  const t = l2 ? Math.max(0, Math.min(1, ((p.x - a.x) * ab.x + (p.y - a.y) * ab.y) / l2)) : 0;
+  return len(sub(p, add(a, mul(ab, t))));
+}
+
+/**
+ * The houses of a per-hex map: one per building hex (clear of its roads); the hexes of one multi-hex building share a
+ * roof and are joined by wings wherever no road runs between them.
+ */
+function perHexBuildings(map: MapDef, pieces: LinearPiece[]): Block[] {
+  const roadPts = pieces.filter((p) => PATH_KINDS.has(p.kind)).flatMap((p) => p.points);
+  const houses = new Map<HexId, Block>();
+  const out: Block[] = [];
+  for (const h of ALL_HEXES) {
+    if (map.terrain[h] !== 'Building') continue;
+    const id = groupOf(map, h);
+    const [b] = buildingFootprint(map, h, pieces);
+    const house = id >= 0 ? { ...b, seed: groupSeed(id) } : b;
+    houses.set(h, house);
+    out.push(house);
+  }
+  for (const [h, a] of houses) {
+    const id = groupOf(map, h);
+    if (id < 0) continue;
+    for (const s of SIDES) {
+      const n = neighbour(h, s);
+      if (n === null || n < h || map.building[n] !== id) continue;
+      const b = houses.get(n);
+      if (!b) continue;
+      const wid = Math.min(a.wid, b.wid) * 0.8;
+      const pa = { x: a.x, y: a.y };
+      const pb = { x: b.x, y: b.y };
+      // a wing only where no road runs between the two houses
+      if (roadPts.some((q) => segDist(q, pa, pb) < wid / 2 + 0.1)) continue;
+      out.push({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, len: len(sub(pb, pa)), wid, angle: Math.atan2(b.y - a.y, b.x - a.x), seed: a.seed });
+    }
+  }
+  return out;
+}
+
+/** Whether point p lies inside block b (grown by `pad` on every side). */
+export function blockCovers(b: Block, p: Point, pad = 0): boolean {
+  const dx = p.x - b.x;
+  const dy = p.y - b.y;
+  const ca = Math.cos(b.angle);
+  const sa = Math.sin(b.angle);
+  return Math.abs(dx * ca + dy * sa) <= b.len / 2 + pad && Math.abs(-dx * sa + dy * ca) <= b.wid / 2 + pad;
 }
 
 /** Building blocks: from the mask's building cells, else one house per building hex (clear of its roads). */
 export function buildingBlocks(map: MapDef, f: TerrainField, pieces: LinearPiece[]): Block[] {
-  if (!f.fromMask) return ALL_HEXES.filter((h) => map.terrain[h] === 'Building').flatMap((h) => buildingFootprint(map, h, pieces));
-  return blocksOfClass(f, MASK.building, 0.62);
+  if (!f.fromMask) return perHexBuildings(map, pieces);
+  return blocksOfClass(f, MASK.building, 0.7).map((b) => {
+    const id = groupOf(map, hexAt(b.x, b.y));
+    return id >= 0 ? { ...b, seed: groupSeed(id) } : b;
+  });
+}
+
+const COVER_ANGLES = [0, 15, 30, 45, 60, 75].map((d) => (d * Math.PI) / 180);
+
+/**
+ * Rotated rectangles covering a component of cells: one block when the component is compact, else the largest
+ * rectangle at any of a few angles (the component's own axis, every 15 degrees), removed and repeated. Scraps under 4
+ * cells, or a single cell wide, stay uncovered (the ground pass paints building cells as built-up ground anyway).
+ */
+function coverCells(f: TerrainField, cells: number[], compact: number, seed: number): Block[] {
+  const { width: w, height: h, res } = f;
+  const step = 1 / res;
+  const remaining = new Set(cells);
+  const out: Block[] = [];
+  const cellAt = (x: number, y: number) => {
+    const i = Math.floor((x - f.x0) * res);
+    const j = Math.floor((y - f.y0) * res);
+    return i < 0 || j < 0 || i >= w || j >= h ? -1 : j * w + i;
+  };
+  for (let n = 0; n < 40 && remaining.size >= 4; n++) {
+    const pts = [...remaining].map((c) => cellCentre(f, c % w, Math.floor(c / w)));
+    const box = orientedBox(pts, step);
+    if (n === 0 && (remaining.size / (box.area * res * res) >= compact || remaining.size <= 6)) {
+      out.push({ x: box.x, y: box.y, len: box.len, wid: box.wid, angle: box.angle, seed });
+      break;
+    }
+    let best: { a: number; u0: number; u1: number; v0: number; v1: number; area: number } | null = null;
+    for (const a of [box.angle, ...COVER_ANGLES]) {
+      const ca = Math.cos(a);
+      const sa = Math.sin(a);
+      let umin = Infinity;
+      let umax = -Infinity;
+      let vmin = Infinity;
+      let vmax = -Infinity;
+      for (const p of pts) {
+        const u = p.x * ca + p.y * sa;
+        const v = -p.x * sa + p.y * ca;
+        umin = Math.min(umin, u);
+        umax = Math.max(umax, u);
+        vmin = Math.min(vmin, v);
+        vmax = Math.max(vmax, v);
+      }
+      const gw = Math.round((umax - umin) / step) + 1;
+      const gh = Math.round((vmax - vmin) / step) + 1;
+      const grid = new Uint8Array(gw * gh);
+      for (let gj = 0; gj < gh; gj++) {
+        for (let gi = 0; gi < gw; gi++) {
+          const u = umin + gi * step;
+          const v = vmin + gj * step;
+          grid[gj * gw + gi] = remaining.has(cellAt(u * ca - v * sa, u * sa + v * ca)) ? 1 : 0;
+        }
+      }
+      const r = largestRect(grid, gw, gh);
+      if (!r) continue;
+      const [i0, j0, i1, j1] = r;
+      if (i1 - i0 < 1 || j1 - j0 < 1) continue; // a single cell wide
+      const area = (i1 - i0 + 1) * (j1 - j0 + 1);
+      if (!best || area > best.area) {
+        best = { a, area, u0: umin + (i0 - 0.5) * step, u1: umin + (i1 + 0.5) * step, v0: vmin + (j0 - 0.5) * step, v1: vmin + (j1 + 0.5) * step };
+      }
+    }
+    if (!best || best.area < 4) break;
+    const ca = Math.cos(best.a);
+    const sa = Math.sin(best.a);
+    const uc = (best.u0 + best.u1) / 2;
+    const vc = (best.v0 + best.v1) / 2;
+    const L = best.u1 - best.u0;
+    const W = best.v1 - best.v0;
+    const x = uc * ca - vc * sa;
+    const y = uc * sa + vc * ca;
+    // a small piece hugging a block already placed is the ragged edge of that building, not an outbuilding: its cells
+    // stay built-up ground
+    const fringe = best.area < 12 && out.some((b) => blockCovers(b, { x, y }, 0.22));
+    if (!fringe) out.push(L >= W ? { x, y, len: L, wid: W, angle: best.a, seed } : { x, y, len: W, wid: L, angle: best.a + Math.PI / 2, seed });
+    let removed = 0;
+    for (const c of [...remaining]) {
+      const p = cellCentre(f, c % w, Math.floor(c / w));
+      const u = p.x * ca + p.y * sa;
+      const v = -p.x * sa + p.y * ca;
+      if (u >= best.u0 && u <= best.u1 && v >= best.v0 && v <= best.v1) {
+        remaining.delete(c);
+        removed++;
+      }
+    }
+    if (!removed) break;
+  }
+  return out;
 }
 
 function blocksOfClass(f: TerrainField, k: number, compact: number): Block[] {
-  const { width: w, height: h, res } = f;
+  const { width: w, height: h } = f;
   const { labels, count } = components(w, h, (i) => f.cls[i] === k, true);
   const members: number[][] = Array.from({ length: count }, () => []);
   for (let i = 0; i < labels.length; i++) if (labels[i] >= 0) members[labels[i]].push(i);
+  return members.flatMap((cells, ci) => (cells.length < 2 ? [] : coverCells(f, cells, compact, Math.floor(hash3(ci, cells[0], 13) * 1e9))));
+}
+
+/** The building id shared by several hexes (a multi-hex building), or -1. */
+function groupOf(map: MapDef, h: HexId | null): number {
+  if (h === null) return -1;
+  const id = map.building[h];
+  if (id === undefined || id < 0) return -1;
+  return map.building.some((b, x) => b === id && x !== h) ? id : -1;
+}
+
+/** One roof colour for all the blocks of one multi-hex building. */
+function groupSeed(id: number): number {
+  return Math.floor(hash3(id, 99, 7) * 1e9);
+}
+
+/**
+ * Bridges from the mask's bridge cells: a deck along the road (or track) that crosses each patch of bridge cells, as long
+ * as the patch is along the road and of a bridge's width; without a road, the patch's own box.
+ */
+function bridgeDecksFromCells(f: TerrainField, pieces: LinearPiece[]): Block[] {
+  const { width: w, height: h, res } = f;
+  const { labels, count } = components(w, h, (i) => f.cls[i] === MASK.bridge, true);
+  const members: Point[][] = Array.from({ length: count }, () => []);
+  for (let i = 0; i < labels.length; i++) if (labels[i] >= 0) members[labels[i]].push(cellCentre(f, i % w, Math.floor(i / w)));
+  const roads = pieces.filter((p) => PATH_KINDS.has(p.kind));
   const out: Block[] = [];
-  members.forEach((cells, ci) => {
-    if (cells.length < 2) return;
-    const pts = cells.map((i) => cellCentre(f, i % w, Math.floor(i / w)));
-    const box = orientedBox(pts, 1 / res);
-    const fill = cells.length / (box.area * res * res);
-    const seed = Math.floor(hash3(ci, cells[0], 13) * 1e9);
-    if (fill >= compact || cells.length <= 6) {
+  members.forEach((pts, k) => {
+    if (pts.length < 2) return;
+    const c = centroid(pts);
+    let best: { p: Point; a: number; d: number } | null = null;
+    for (const piece of roads) {
+      piece.points.forEach((q, i) => {
+        const d = len(sub(q, c));
+        if (best && d >= best.d) return;
+        const a0 = piece.points[Math.max(0, i - 1)];
+        const a1 = piece.points[Math.min(piece.points.length - 1, i + 1)];
+        best = { p: q, a: Math.atan2(a1.y - a0.y, a1.x - a0.x), d };
+      });
+    }
+    const seed = Math.floor(hash3(k, 5, 55) * 1e9);
+    const found = best as { p: Point; a: number; d: number } | null;
+    if (!found || found.d > 0.45) {
+      const box = orientedBox(pts, 1 / res);
       out.push({ x: box.x, y: box.y, len: box.len, wid: box.wid, angle: box.angle, seed });
       return;
     }
-    // irregular: peel off the largest axis-aligned rectangles
-    let i0 = Infinity;
-    let j0 = Infinity;
-    let i1 = -1;
-    let j1 = -1;
-    for (const c of cells) {
-      const i = c % w;
-      const j = Math.floor(c / w);
-      i0 = Math.min(i0, i);
-      j0 = Math.min(j0, j);
-      i1 = Math.max(i1, i);
-      j1 = Math.max(j1, j);
+    const ca = Math.cos(found.a);
+    const sa = Math.sin(found.a);
+    let u0 = Infinity;
+    let u1 = -Infinity;
+    for (const p of pts) {
+      const u = (p.x - found.p.x) * ca + (p.y - found.p.y) * sa;
+      u0 = Math.min(u0, u);
+      u1 = Math.max(u1, u);
     }
-    const bw = i1 - i0 + 1;
-    const bh = j1 - j0 + 1;
-    const grid = new Uint8Array(bw * bh);
-    for (const c of cells) grid[(Math.floor(c / w) - j0) * bw + (c % w) - i0] = 1;
-    let left = cells.length;
-    // (scraps of under a sixth of the building, or under 4 cells, are staircase edges, not wings)
-    const minArea = Math.max(4, Math.ceil(cells.length / 6));
-    for (let n = 0; n < 12 && left >= minArea; n++) {
-      const r = largestRect(grid, bw, bh);
-      if (!r) break;
-      const [a, b, c, d] = r;
-      const area = (c - a + 1) * (d - b + 1);
-      if (area < minArea) break;
-      for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) grid[j * bw + i] = 0;
-      left -= area;
-      const x = f.x0 + (i0 + (a + c + 1) / 2) / res;
-      const y = f.y0 + (j0 + (b + d + 1) / 2) / res;
-      const lw = (c - a + 1) / res;
-      const lh = (d - b + 1) / res;
-      out.push(lw >= lh ? { x, y, len: lw, wid: lh, angle: 0, seed: seed + n } : { x, y, len: lh, wid: lw, angle: Math.PI / 2, seed: seed + n });
-    }
+    const L = Math.min(0.85, Math.max(0.36, u1 - u0 + 1 / res));
+    const um = (u0 + u1) / 2;
+    out.push({ x: found.p.x + um * ca, y: found.p.y + um * sa, len: L, wid: L > 0.55 ? 0.26 : 0.2, angle: found.a, seed });
   });
   return out;
 }
@@ -479,8 +621,8 @@ function blocksOfClass(f: TerrainField, k: number, compact: number): Block[] {
 /** Bridge decks: from the mask's bridge cells, else one per bridge hex across its road (or its stream). */
 export function bridgeBlocks(map: MapDef, f: TerrainField, pieces: LinearPiece[]): Block[] {
   if (f.fromMask) {
-    const fromCells = blocksOfClass(f, MASK.bridge, 0);
-    if (fromCells.length) return fromCells;
+    const decks = bridgeDecksFromCells(f, pieces);
+    if (decks.length) return decks;
   }
   const out: Block[] = [];
   for (const h of ALL_HEXES) {

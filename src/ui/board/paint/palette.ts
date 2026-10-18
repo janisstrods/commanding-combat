@@ -15,6 +15,11 @@ export interface Palette {
     waterShallow: RGB;
     waterDeep: RGB;
     bank: RGB;
+    /** Built-up ground under and between buildings (yards, cobbles). */
+    yard: RGB;
+    /** Road and railway corridors of the mask, under the drawn roads and tracks. */
+    track: RGB;
+    ballast: RGB;
   };
   /** Crop colours of fields (one per field, chosen by hash), and how deep the furrows show. */
   fields: RGB[];
@@ -61,14 +66,17 @@ export const SUMMER: Palette = {
     waterShallow: [108, 144, 158],
     waterDeep: [70, 106, 134],
     bank: [124, 120, 84],
+    yard: [146, 138, 112],
+    track: [196, 180, 136],
+    ballast: [134, 126, 108],
   },
   fields: [
-    [206, 186, 118],
-    [190, 178, 106],
-    [178, 156, 108],
-    [168, 172, 98],
+    [216, 190, 104],
+    [200, 180, 100],
+    [170, 140, 94],
+    [150, 168, 78],
   ],
-  furrow: 0.085,
+  furrow: 0.12,
   // plateaus step up from olive to pale sand
   hills: [
     { color: [0, 0, 0], amount: 0 },
@@ -122,6 +130,9 @@ export const WINTER: Palette = {
     waterShallow: [190, 210, 222],
     waterDeep: [156, 186, 206],
     bank: [168, 170, 164],
+    yard: [196, 196, 192],
+    track: [196, 190, 178],
+    ballast: [150, 146, 138],
   },
   fields: [
     [220, 220, 214],

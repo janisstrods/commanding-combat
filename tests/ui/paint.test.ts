@@ -5,10 +5,21 @@ import { ALL_HEXES, centre, hexAt, hexsideKey, parseHex, type HexSide } from '..
 import { MASK, type MapDef, type TerrainMask } from '../../src/engine/types';
 import { BOUNDS } from '../../src/ui/board/geometry';
 import { areaClasses, cellCentre, cellIndexAt, components, contourSegments, smoothLevels, terrainField, type TerrainField } from '../../src/ui/board/paint/field';
-import { allLinearPieces, bridgeBlocks, buildingBlocks, linearPieces, orientedBox } from '../../src/ui/board/paint/features';
+import { allLinearPieces, blockCovers, bridgeBlocks, buildingBlocks, linearPieces, orientedBox, type Block } from '../../src/ui/board/paint/features';
 import { simulateMask } from '../../src/ui/board/paint/simulate';
 
 const near = (a: { x: number; y: number }, b: { x: number; y: number }, eps = 1e-6) => Math.hypot(a.x - b.x, a.y - b.y) < eps;
+
+/** Points spread over hex h (centre, two rings). */
+function hexSamples(h: number) {
+  const c = centre(h);
+  const out = [c];
+  for (const r of [0.3, 0.55, 0.78]) for (let k = 0; k < 12; k++) out.push({ x: c.x + r * Math.cos((k * Math.PI) / 6), y: c.y + r * Math.sin((k * Math.PI) / 6) });
+  return out;
+}
+
+/** Whether some building block covers part of hex h. */
+const covered = (blocks: Block[], h: number) => hexSamples(h).some((p) => blocks.some((b) => blockCovers(b, p)));
 
 describe('terrain field', () => {
   it('synthesizes one from the hexes of a map without a mask', () => {
@@ -129,22 +140,28 @@ describe('linear features', () => {
 });
 
 describe('buildings', () => {
-  it('puts one house in each building hex of a per-hex map, clear of its road', () => {
+  it('covers every building hex of a per-hex map with building art, never on its roads (map 6, multi-hex buildings)', () => {
     const map: MapDef = { ...loadMap('6'), mask: undefined };
     const f = terrainField(map);
     const pieces = allLinearPieces(map, f);
     const blocks = buildingBlocks(map, f, pieces);
     const buildingHexes = ALL_HEXES.filter((h) => map.terrain[h] === 'Building');
-    expect(blocks.length).toBeGreaterThanOrEqual(buildingHexes.length);
-    for (const h of buildingHexes) {
-      const own = blocks.filter((b) => hexAt(b.x, b.y) === h);
-      expect(own.length, `hex ${h}`).toBeGreaterThanOrEqual(1);
+    for (const h of buildingHexes) expect(covered(blocks, h), `hex ${h}`).toBe(true);
+    const roadPts = pieces.filter((p) => p.kind === 'road' || p.kind === 'trail' || p.kind === 'railway').flatMap((p) => p.points);
+    for (const b of blocks) {
+      for (const q of roadPts) expect(blockCovers(b, q, 0.04), `block at ${b.x.toFixed(2)},${b.y.toFixed(2)}`).toBe(false);
     }
-    const roadPts = pieces.filter((p) => p.kind === 'road').flatMap((p) => p.points);
-    for (const b of blocks.filter((x) => x.len < 0.9)) {
-      const d = Math.min(...roadPts.map((q) => Math.hypot(q.x - b.x, q.y - b.y)));
-      expect(d, `block at ${b.x},${b.y}`).toBeGreaterThan(b.wid / 2);
+    // the hexes of one building share a roof
+    const groups = new Map<number, Set<number>>();
+    for (const b of blocks) {
+      const h = hexAt(b.x, b.y);
+      const id = h === null ? -1 : map.building[h];
+      if (id < 0 || map.building.filter((x) => x === id).length < 2) continue;
+      if (!groups.has(id)) groups.set(id, new Set());
+      groups.get(id)!.add(b.seed);
     }
+    expect(groups.size).toBeGreaterThan(5);
+    for (const [id, seeds] of groups) expect(seeds.size, `building ${id}`).toBe(1);
   });
 
   it('fits an oriented box around a rotated rectangle of cells', () => {
@@ -180,9 +197,7 @@ describe('every map', () => {
       const f = terrainField(map);
       const pieces = allLinearPieces(map, f);
       const blocks = buildingBlocks(map, f, pieces);
-      for (const h of ALL_HEXES.filter((x) => map.terrain[x] === 'Building')) {
-        expect(blocks.some((b) => hexAt(b.x, b.y) === h), `building ${h}`).toBe(true);
-      }
+      for (const h of ALL_HEXES.filter((x) => map.terrain[x] === 'Building')) expect(covered(blocks, h), `building ${h}`).toBe(true);
       for (const kind of ['Road', 'Trail', 'Railway'] as const) {
         const lk = kind.toLowerCase();
         for (const h of ALL_HEXES) {
@@ -211,9 +226,43 @@ describe('every map', () => {
       for (const q of a) expect(Math.min(...b.map((r) => Math.hypot(q.x - r.x, q.y - r.y))), kind).toBeLessThan(0.3);
     }
     const blocks = buildingBlocks(masked, f, pieces);
-    for (const h of ALL_HEXES.filter((x) => plain.terrain[x] === 'Building')) {
-      expect(blocks.some((b) => hexAt(b.x, b.y) === h), `building ${h}`).toBe(true);
-    }
+    for (const h of ALL_HEXES.filter((x) => plain.terrain[x] === 'Building')) expect(covered(blocks, h), `building ${h}`).toBe(true);
     expect(bridgeBlocks(masked, f, pieces).length).toBeGreaterThanOrEqual(1);
   });
+
+  for (const id of MAP_IDS) {
+    it(`map ${id} (its terrain mask): building art over every building hex, none on a road cell`, () => {
+      const map = loadMap(id);
+      expect(map.mask, 'mask').toBeDefined();
+      const f = terrainField(map);
+      const pieces = allLinearPieces(map, f);
+      const blocks = buildingBlocks(map, f, pieces);
+      const buildingCells = new Map<number, number>();
+      for (let j = 0; j < f.height; j++) {
+        for (let i = 0; i < f.width; i++) {
+          if (f.cls[j * f.width + i] !== MASK.building) continue;
+          const p = cellCentre(f, i, j);
+          const h = hexAt(p.x, p.y);
+          if (h !== null) buildingCells.set(h, (buildingCells.get(h) ?? 0) + 1);
+        }
+      }
+      const cellsIn = (h: number) => buildingCells.get(h) ?? 0;
+      // every building hex shows a roof, or (for a hex with only a scrap of building) built-up ground
+      for (const h of ALL_HEXES.filter((x) => map.terrain[x] === 'Building')) {
+        expect(covered(blocks, h) || cellsIn(h) > 0, `building ${h}`).toBe(true);
+      }
+      const roofless = ALL_HEXES.filter((x) => map.terrain[x] === 'Building' && !covered(blocks, x));
+      expect(roofless.length, `hexes without a roof: ${roofless.join(',')}`).toBeLessThanOrEqual(1);
+      // no roof over the mask's road cells (half a cell of slack at a block's edge)
+      const near = (b: Block, p: { x: number; y: number }) => Math.abs(p.x - b.x) < b.len && Math.abs(p.y - b.y) < b.len;
+      for (let j = 0; j < f.height; j++) {
+        for (let i = 0; i < f.width; i++) {
+          if (f.cls[j * f.width + i] !== MASK.road) continue;
+          const p = cellCentre(f, i, j);
+          const over = blocks.filter((b) => near(b, p) && blockCovers(b, p, -0.5 / f.res));
+          expect(over.length, `road cell ${i},${j}`).toBe(0);
+        }
+      }
+    });
+  }
 });

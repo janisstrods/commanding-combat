@@ -56,13 +56,14 @@ export function paintTerrain(map: MapDef, ppu: number): PaintResult {
     return f.level[j * f.width + i];
   };
 
-  paintContours(ctx, f);
   paintGullies(ctx, pieces.filter((p) => p.kind === 'gully'));
   paintStreams(ctx, pieces.filter((p) => p.kind === 'stream'));
   paintShrubs(ctx, clsAt, clear, seed);
   paintMarshReeds(ctx, clsAt, seed);
   paintOrchards(ctx, f, clsAt, clear, seed);
   paintWoods(ctx, clsAt, clear, levelAt, seed);
+  // crest lines over the vegetation: a hill's edge stays readable under woods
+  paintContours(ctx, f);
   paintPaths(ctx, pieces);
   paintBridges(ctx, bridgeBlocks(map, f, pieces));
   paintBuildings(ctx, buildingBlocks(map, f, pieces));
@@ -248,7 +249,9 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
           const fp = fieldParams[comp] ?? fieldParams[0];
           const c = fp ? fp.color : P.fields[0];
           const s = fp ? Math.sin(((x * fp.cos + y * fp.sin) * Math.PI * 2) / fp.spacing) : 0;
-          const furrow = 1 - P.furrow * (0.5 + 0.5 * s);
+          // furrows, and a darker headland along the field's edge
+          const edge = margin < 0.14 ? 0.86 + margin : 1;
+          const furrow = (1 - P.furrow * (0.5 + 0.5 * s)) * edge;
           r = c[0] * furrow + m1 * 18;
           g = c[1] * furrow + m1 * 16;
           b = c[2] * furrow + m1 * 8;
@@ -316,6 +319,32 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
           b = c[2] + (h2[2] - c[2]) * t + (m1 * 12 + fine * 4) * mo;
         }
       }
+      // the mask's road and railway corridors as beaten ground (the drawn roads lie on top; a corridor the hex data has
+      // no road for still shows)
+      if (f.fromMask) {
+        const isRoad = (c: number) => c === MASK.road || c === MASK.bridge;
+        const rw = (isRoad(f.cls[ia]) ? wa : 0) + (isRoad(f.cls[ib]) ? wb : 0) + (isRoad(f.cls[ic]) ? wc : 0) + (isRoad(f.cls[id]) ? wd : 0);
+        const tw = (f.cls[ia] === MASK.railway ? wa : 0) + (f.cls[ib] === MASK.railway ? wb : 0) + (f.cls[ic] === MASK.railway ? wc : 0) + (f.cls[id] === MASK.railway ? wd : 0);
+        const cw = Math.max(rw, tw);
+        if (cw > 0.35) {
+          const e = clamp((cw - 0.35) * 5, 0, 1) * 0.8;
+          const rc = rw >= tw ? P.ground.track : P.ground.ballast;
+          r += (rc[0] + fine * 10 - r) * e;
+          g += (rc[1] + fine * 10 - g) * e;
+          b += (rc[2] + fine * 8 - b) * e;
+        }
+      }
+      // built-up ground on the mask's building cells (the roofs cover most of it)
+      if (f.fromMask) {
+        const bw = (f.cls[ia] === MASK.building ? wa : 0) + (f.cls[ib] === MASK.building ? wb : 0) + (f.cls[ic] === MASK.building ? wc : 0) + (f.cls[id] === MASK.building ? wd : 0);
+        if (bw > 0.3) {
+          const e = clamp((bw - 0.3) * 4, 0, 1) * 0.85;
+          const yd = P.ground.yard;
+          r += (yd[0] + fine * 10 - r) * e;
+          g += (yd[1] + fine * 10 - g) * e;
+          b += (yd[2] + fine * 8 - b) * e;
+        }
+      }
       // muddy bank on the land side of water
       if (k !== MASK.water && second === MASK.water && margin < 0.16) {
         const e = (1 - margin / 0.16) * 0.6;
@@ -328,7 +357,7 @@ function paintGround(ctx: CanvasRenderingContext2D, f: TerrainField, W: number, 
       const lvl = Math.max(0, Math.min(P.hills.length - 1, Math.floor(L + 0.5)));
       if (lvl > 0) {
         const { color: hc, amount } = P.hills[lvl];
-        const tAmt = amount * (k === MASK.water ? 0.2 : k === MASK.woods ? 0.6 : 1);
+        const tAmt = amount * (k === MASK.water ? 0.2 : k === MASK.woods ? 0.6 : k === MASK.field ? 0.5 : k === MASK.brush || k === MASK.orchard ? 0.65 : 1);
         r += (hc[0] - r) * tAmt;
         g += (hc[1] - g) * tAmt;
         b += (hc[2] - b) * tAmt;
@@ -464,7 +493,8 @@ function strokePieces(ctx: CanvasRenderingContext2D, pieces: LinearPiece[], styl
 // ---------------------------------------------------------------------------------------------------------------------
 // Contours, gullies, streams
 
-function paintContours(ctx: CanvasRenderingContext2D, f: TerrainField) {
+/** Crest lines at every level step; `alpha` < 1 redraws them faintly over the woods canopy. */
+function paintContours(ctx: CanvasRenderingContext2D, f: TerrainField, alpha = 1) {
   const top = maxLevel(f);
   if (top === 0) return;
   const lv = smoothLevels(f);
@@ -478,16 +508,21 @@ function paintContours(ctx: CanvasRenderingContext2D, f: TerrainField) {
       }
     };
     ctx.save();
-    ctx.translate(0.014, 0.02);
-    ctx.strokeStyle = P.line.contourShadow;
-    ctx.lineWidth = 0.055;
+    ctx.globalAlpha = alpha;
+    if (alpha >= 1) {
+      ctx.save();
+      ctx.translate(0.014, 0.02);
+      ctx.strokeStyle = P.line.contourShadow;
+      ctx.lineWidth = 0.055;
+      path();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.strokeStyle = P.line.contour;
+    ctx.lineWidth = alpha >= 1 ? 0.024 : 0.03;
     path();
     ctx.stroke();
     ctx.restore();
-    ctx.strokeStyle = P.line.contour;
-    ctx.lineWidth = 0.024;
-    path();
-    ctx.stroke();
   }
 }
 
