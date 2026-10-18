@@ -47,6 +47,11 @@ cnc-claude (`~/Gamemaking/cnc-ancients`): same stack and conventions.
 - **Reference material:** `reference/` (git-ignored) holds the VASSAL module and GMT's public rules PDFs. Never import
   from it, never commit or ship it.
 
+## Backlog
+
+`design/backlog.md` lists the work for releases after v1.0.0, most valuable first (AI strength, the re-roll prompt,
+counter-mix limits, a smaller first load). Take an item into its own session and move it to "Done" when it ships.
+
 ## Copyright rules
 
 No GMT artwork, card images, map scans or rules/card text in the repository or the build. Texts are our own

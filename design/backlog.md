@@ -1,52 +1,56 @@
-# Backlog: improvements for later
+# Backlog
 
-Logged after v1.0.0 "Rush to Contact". Nothing here is started yet. Each section is a candidate for its own release.
+Work for releases after v1.0.0 "Rush to Contact", most valuable first. Each item says why it matters and what done looks
+like. Take an item into its own session; move it to "Done" (with the release it shipped in) when it lands.
 
-## 1. AI
+## Open
 
-**More thinking time at the higher levels.** Slower decisions are fine for Line and Elite if they play better.
-- Raise `budgetMs` in `src/ai/levels.ts` (now Green 0.6 s, Line 2.5 s, Elite 4 s per own-Turn decision), and with it
-  `worlds`, `maxCands`, `minSims` and the act/variant counts, so the extra time goes into wider and deeper search, not
-  only more samples.
-- Show a "thinking…" indicator in the UI so a long wait reads as deliberate.
-- Measure each change with `scripts/ai-match.ts` (Elite vs Line, both ways) and record the tables in
-  `design/ai-balance.md`.
+### 1. Strengthen the AI opponent
 
-**A battle plan.** The AI plans one Turn at a time. Give it a longer-term plan that it keeps across Turns:
-- at set-up (and at the first own Turn), choose a plan from the scenario: which Objectives to take or hold, a main
-  effort and a supporting effort (which units go where), and a rough timing against the Time track / Sudden Death;
-- store it in the AI's own state (worker side, from `redact(state, side)` only; never from hidden information);
-- feed it into the evaluation (`evaluate.ts` / `weightsFor`) as extra terms: progress of the main-effort units towards
-  their target, keeping the support group in firing positions, not drifting off the plan for small gains;
-- **re-plan when things change sharply**: a big VP swing, the main-effort group broken or eliminated, an Objective
-  chit revealed or changed, Sudden Death getting near, reinforcements arriving, or the plan's target taken;
-- log the plan and each re-plan in the match logs, so `ai-match.ts` runs show why the AI did what it did.
+**Why:** in v1.0.0, Line beats Green 20–4 but Elite beats Line only 29–19 (60 %); Line-vs-Line attackers win 40 % over
+the attack/defend scenarios, and scenarios 3 (Bonfire of the NKVD) and 11 (Hold the Line) are very hard for the German
+attacker. All match runs so far used 0.2–0.3 of the real time budgets, so the true baselines are unknown.
 
-The previous session's own AI suggestions should be added here too; they were not found in the saved notes.
+**Done when:**
+- The level and attacker tables have been run at the real budgets (long runs in the background) and recorded in
+  `design/ai-balance.md` as the baseline.
+- Elite beats Line by ≥ 70 % over 40+ games, with Elite decisions still ≤ ~4 s.
+- The attacker wins a fair share in scenarios 3 and 11.
+- The AI's decision to re-roll its own Defense rolls takes the attack total into account (today it judges on the dice
+  alone), if the decision context allows.
+- Every change is backed by head-to-head runs against the previous AI; `npx vitest run` and `npx tsc --noEmit -p .` stay
+  green; hidden information unchanged (the AI only ever sees `redact(state, side)`).
 
-## 2. Visuals
+**Where:** `src/ai/*`, `scripts/ai-match.ts`, `tests/ai/*`, `design/ai-balance.md`.
 
-**Zoomable board.**
-- Zoom (mouse wheel / pinch, plus buttons) and pan (drag), with the zoom level kept per viewer.
-- **No stacking on top of each other:** units in one hex are laid out side by side inside the hex (or fanned out
-  next to it when zoomed out), so every unit, its state (broken, suppressed, veteran) and its markers are visible
-  without mouseover.
-- Keep LOS, move and fire highlighting correct at every zoom level.
+### 2. Initiative re-roll prompt asks too often
 
-**Unit graphics with more detail and character.** Original art only (see the copyright rules in `CLAUDE.md`):
-distinct silhouettes per unit type and nation (squads, teams, leaders, weapons), readable firepower / range / movement
-/ morale, and clear broken and veteran faces.
+**Why:** with the default setting "When it matters", the human holding the Initiative was asked whether to cancel an
+enemy Fire Attack roll of 5 — a low roll that already went the human's way (seen on the live site, scenario 2, turn 1).
 
-## 3. UX: rolls, pacing, drama
+**Done when:** "When it matters" asks only for rolls whose result is bad for the human (a high enemy attack or rout roll,
+a low own defense, rally or melee roll, a Sudden Death roll that ends a game the human is winning, …), with a test per
+roll purpose in `tests/ui/game/reroll.test.ts`.
 
-**Clearer rolls, above all in fire attacks.** Show, for each attack:
-- who fires at whom (attacking units and leader highlighted, a line or arrow to the target hex);
-- how the attack total is built: each unit's firepower, leader bonus, weapon, hindrance and terrain modifiers, the
-  Fate-card roll, and the sum;
-- for the defender: the defence total being built the same way (morale, cover, modifiers, roll), and **what number
-  the roll must reach to hold** — shown before the re-roll choice, so the player knows whether a re-roll is worth it.
+**Where:** the re-roll policy in `src/ui/game/`.
 
-**A slower pace with more drama.**
-- An adjustable game speed, with a slower default for the opponent's actions.
-- Events and Sniper triggers resolved visibly: a card or banner that names the event, a short animation on the
-  affected hex(es) and units, and a pause long enough to read what happened before play continues.
+### 3. Counter-mix limits
+
+**Why:** the box's exact counter mix is not public, so limits are approximated: named Leaders, the single Pillbox and
+the RSG purchase caps (`src/engine/rsg/mix.ts`) are enforced, but Teams for Deploy and Light Wounds, Fortification
+markers and units from Infiltration / Reinforcements are unlimited (`design/data-notes.md`). Matters only in random
+battles and a few Events.
+
+**Done when:** a single counter-mix table (counts per counter type, from a physical count or a published component
+list) drives every place that brings pieces into play, with tests.
+
+### 4. Smaller first load
+
+**Why:** the main bundle is ~1 MB (260 KB gzipped); all 13 maps and their terrain masks load up front.
+
+**Done when:** map and mask data load per map on demand (dynamic import), the main chunk is well under 500 KB, and the
+map gallery, scenario picker previews and battle screen still paint without a flash of unpainted terrain.
+
+## Done
+
+_(nothing yet)_
