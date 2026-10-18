@@ -53,8 +53,20 @@ const POSTURE: Record<Posture, Partial<Weights>> = {
   defend: { objective: 0.8, exposure: 0.45 },
 };
 
+/**
+ * The weights for `me` in position `s` (computed once at the root of a search and kept for its simulations): posture,
+ * and a side that is behind on VP pushes harder for the objectives, and minds exposure less, as time runs out.
+ */
 export function weightsFor(s: GameState, me: Side, patch?: Partial<Weights>): Weights {
-  return { ...BASE, ...POSTURE[s.players[me].posture], ...patch };
+  const w = { ...BASE, ...POSTURE[s.players[me].posture], ...patch };
+  const margin = projectedMargin(s, me);
+  if (margin < 0 && !patch) {
+    const late = Math.max(0, Math.min(1, (s.time + 1) / Math.max(1, s.suddenDeath)));
+    const behind = Math.min(1, -margin / 8);
+    w.objective *= 1 + 0.6 * late * behind;
+    w.exposure *= 1 - 0.3 * late * behind;
+  }
+  return w;
 }
 
 

@@ -32,7 +32,7 @@ export interface LevelCfg {
 export const LEVELS: Record<AiLevel, LevelCfg> = {
   green: {
     level: 'green', budgetMs: 600, worlds: 3, minSims: 1, maxCands: 6, fireActs: 2, moveActs: 3, moveVariants: 1,
-    noise: 1.2, sloppy: 0.35, reroll: false, lookahead: false,
+    noise: 2, sloppy: 0.4, reroll: false, lookahead: false,
   },
   line: {
     level: 'line', budgetMs: 2500, worlds: 32, minSims: 4, maxCands: 12, fireActs: 4, moveActs: 6, moveVariants: 2,

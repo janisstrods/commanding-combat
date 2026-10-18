@@ -6,7 +6,7 @@
 //
 // Options: --scenario <ids|all> (default 1), --games <n per scenario> (default 2), --axis / --allied
 // <green|line|elite|random> (default line), --seed <n> (default 1), --budget <ms per own-Turn decision> (default: the
-// level's), --swap (also play every game with the sides' players swapped), --max <decisions per game> (default 20000),
+// level's), --scale <x> (each level's own budget times x), --swap (also play every game with the sides' players swapped), --max <decisions per game> (default 20000),
 // --verbose (one line per Order). Players: green, line, elite, random, greedy (policies only, no simulations).
 import { chooseAnswer, newMemory, type AiLevel, type AiMemory } from '../src/ai/index';
 import { newPolicyCtx, policyAnswer } from '../src/ai/policies';
@@ -49,7 +49,9 @@ export interface MatchResult {
 }
 
 /** Play one game between `players` on scenario `id` with `seed`. */
-export function playMatch(id: string, seed: number, players: Record<Side, Player>, opts: { budget?: number; max?: number; verbose?: boolean } = {}): MatchResult {
+export function playMatch(
+  id: string, seed: number, players: Record<Side, Player>, opts: { budget?: number; scale?: number; max?: number; verbose?: boolean } = {},
+): MatchResult {
   const d = new GameDriver(newGame(scenario(id), seed));
   const mem: Record<Side, AiMemory> = { axis: newMemory(seed * 2 + 1), allied: newMemory(seed * 2 + 2) };
   const rnd = new Rng(seed * 7 + 3);
@@ -68,7 +70,8 @@ export function playMatch(id: string, seed: number, players: Record<Side, Player
       a = policyAnswer(redact(d.state, dec.side), dec, greedy[dec.side]!);
     } else {
       const t = performance.now();
-      a = chooseAnswer(redact(d.state, dec.side), dec, { side: dec.side, level: who, timeBudgetMs: opts.budget }, mem[dec.side]).answer;
+      const budget = opts.budget ?? (opts.scale ? LEVELS[who].budgetMs * opts.scale : undefined);
+      a = chooseAnswer(redact(d.state, dec.side), dec, { side: dec.side, level: who, timeBudgetMs: budget }, mem[dec.side]).answer;
       slowest = Math.max(slowest, performance.now() - t);
       if (opts.verbose && dec.kind === 'turn') {
         const m = mem[dec.side].last;
@@ -101,7 +104,7 @@ function main(): void {
       for (const players of variants) {
         let r: MatchResult;
         try {
-          r = playMatch(id, seed, players, { budget, max: a.max ? Number(a.max) : undefined, verbose: a.verbose === 'true' });
+          r = playMatch(id, seed, players, { budget, scale: a.scale ? Number(a.scale) : undefined, max: a.max ? Number(a.max) : undefined, verbose: a.verbose === 'true' });
         } catch (e) {
           console.log(`scenario ${id} seed ${seed} axis=${players.axis} allied=${players.allied}: ERROR ${e instanceof Error ? e.message : String(e)}`);
           continue;

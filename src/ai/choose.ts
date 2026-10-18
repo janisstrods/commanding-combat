@@ -180,6 +180,9 @@ export function itemScores(s: GameState, d: ChooseD, me: Side): number[] {
     }
     case 'exitSpace':
       return per((it) => ('space' in it ? -it.space : 0));
+    case 'scenarioOption':
+      // a pre-game trade (e.g. a weaker minefield for a card): keep things as they are
+      return per((_, i) => (i === 0 ? 1 : 0));
     case 'initiativeChoice':
       return per((it) => ('label' in it && it.label === 'keep' ? 1 : 0));
     case 'artilleryKind':

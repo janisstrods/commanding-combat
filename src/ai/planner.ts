@@ -7,19 +7,21 @@
 // share the same sampled worlds (common random numbers); the weaker half is dropped after each round (successive
 // halving) until the time budget or the world count runs out.
 import { activationCandidates, commandRadius } from '../engine/activation';
-import { neighbours } from '../engine/hex';
+import { distance, neighbours } from '../engine/hex';
+import { enterBlock } from '../engine/terrain';
 import { nextTurn, turnFlow } from '../engine/flow';
 import { cloneState, isLeader, radioOf } from '../engine/state';
-import { type Answer, type CardId, type Decision, type GameState, type OrderName, type PieceId, type Side, other } from '../engine/types';
+import { type Answer, type CardId, type Decision, type GameState, type OrderName, type Piece, type PieceId, type Side, other } from '../engine/types';
 import { avgDraw, cardCtx, keepValue, weakestFirst } from './cards';
 import { determinize } from './determinize';
-import { evaluate, weightsFor } from './evaluate';
+import { evaluate, weightsFor, type Weights } from './evaluate';
 import type { LevelCfg } from './levels';
 import { planMoves } from './moves';
 import { bestSpotter, cheapest, fireActivations, meleeOdds, newPolicyCtx, policyAnswer, quickTurn, type Plan, type PolicyCtx } from './policies';
 import { Rng } from './rand';
 import { drive } from './sim';
-import { unitsAt, unitsOnMap } from './tactics';
+import { fitsStack, sideShooters, unitsAt, unitsOnMap } from './tactics';
+import { safety } from './choose';
 
 type TurnD = Extract<Decision, { kind: 'turn' }>;
 
@@ -188,7 +190,60 @@ function advanceCandidates(s: GameState, me: Side, card: CardId, turn: number, g
     }
   }
   out.sort((a, b) => b.prior - a.prior);
-  return out.slice(0, 3);
+  const melee = out.slice(0, 3);
+  // a step into better ground (an Advance draws no Op Fire and ignores terrain costs): toward cover and Objectives
+  const steps: Candidate[] = [];
+  const enemyShooters = sideShooters(s, other(me));
+  for (const first of activationCandidates(s, me, 'Advance')) {
+    const p = s.pieces[first];
+    const pool = isLeader(p) ? [first, ...commandRadius(s, p)] : [first];
+    const advance: Record<PieceId, number> = {};
+    let gain = 0;
+    const placed = new Map<number, Piece[]>();
+    for (const id of pool) {
+      const u = s.pieces[id];
+      if (u.broken) continue;
+      const here = safety(s, me, u.hex, enemyShooters);
+      let best = -1;
+      let bv = 0.4;
+      for (const to of neighbours(u.hex)) {
+        if (unitsAt(s, to, other(me)).length || enterBlock(s.map, u.hex, to, s)) continue;
+        const group = [...(placed.get(to) ?? []), u];
+        if (!fitsStack(s, to, group, me)) continue;
+        const v = safety(s, me, to, enemyShooters) - here + 0.4 * objectiveGain(s, me, u.hex, to);
+        if (v > bv) {
+          bv = v;
+          best = to;
+        }
+      }
+      if (best >= 0) {
+        advance[id] = best;
+        placed.set(best, [...(placed.get(best) ?? []), u]);
+        gain += bv;
+      }
+    }
+    const movers = Object.keys(advance);
+    if (!movers.length || (!isLeader(p) && advance[first] === undefined)) continue;
+    const units = [first, ...movers.filter((x) => x !== first)];
+    steps.push({
+      label: `Advance ${movers.length} unit(s) to better ground`, first: { kind: 'order', card, order: 'Advance' }, prior: gain,
+      plan: { turn, given, card, order: 'Advance', units, advance, label: 'advance' },
+    });
+  }
+  steps.sort((a, b) => b.prior - a.prior);
+  return [...melee, ...steps.slice(0, 2)];
+}
+
+/** Hexes closer to Objectives `me` does not hold (weighted by nearness). */
+function objectiveGain(s: GameState, me: Side, from: number, to: number): number {
+  let v = 0;
+  s.map.objectives.forEach((o, i) => {
+    if (s.control[i] === me) return;
+    const a = distance(from, o);
+    const b = distance(to, o);
+    if (b < a) v += b === 0 ? 2 : 1 / (1 + b * 0.3);
+  });
+  return v;
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -201,7 +256,7 @@ interface Scored {
 }
 
 /** Play candidate `c` on world `w` (a determinised game) and score the result for `me`. */
-function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: number): number {
+function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: number, weights: Weights): number {
   const s = cloneState(w);
   const rng = new Rng(seed);
   const mine: PolicyCtx = newPolicyCtx(me, level, rng);
@@ -223,7 +278,7 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
   const r = drive(s, (ctx) => turnFlow(s, ctx), policy, rng, { stop, maxSteps: 600 });
   // the Turn is over: the opponent acts next (the evaluation weighs his fire first)
   if (r.done && s.phase === 'play') nextTurn(s);
-  return evaluate(s, me, weightsFor(s, me));
+  return evaluate(s, me, weights);
 }
 
 /**
@@ -236,6 +291,7 @@ export function planTurn(
   const t0 = now();
   const me = d.side;
   const cands = candidates(view, d, level, mustDiscard);
+  const weights = weightsFor(view, me);
   if (cands.length === 1) return { answer: cands[0].first, plan: cands[0].plan, label: cands[0].label, sims: 0, scores: [] };
   const worlds: GameState[] = [];
   const seeds: number[] = [];
@@ -257,7 +313,7 @@ export function planTurn(
     for (const x of live) {
       if (x.n >= Math.min(target, level.worlds)) continue;
       if (sims > 0 && over()) break outer;
-      x.sum += simulate(world(x.n), me, x.c, level, seeds[x.n]);
+      x.sum += simulate(world(x.n), me, x.c, level, seeds[x.n], weights);
       x.n++;
       sims++;
     }
