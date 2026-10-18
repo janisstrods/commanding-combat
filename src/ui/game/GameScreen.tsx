@@ -280,7 +280,6 @@ export function GameScreen({
           slides={view.slides}
           flashes={view.flashes}
           flipping={view.flipping}
-          attack={view.attack}
           fire={view.fire}
           rally={view.rally}
           losLine={losLine}

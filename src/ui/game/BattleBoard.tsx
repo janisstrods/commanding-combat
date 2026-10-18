@@ -1,13 +1,13 @@
 // The battle map: the painted Board (zoomable) with the game's stacks (units side by side, each with its Weapon beside
 // it; Fortification, Smoke, Blaze, Spotting Round and Objective control markers in a band along the top of the hex),
-// the prompt's lit hexes and labels, and the animations (units sliding, attack lines, flashes, counters flipping).
+// the prompt's lit hexes and labels, and the animations (units sliding, flashes, counters flipping).
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
 import { CounterG, MarkerG } from '../../art';
 import type { MarkerKind } from '../../art';
 import { counterType } from '../../engine/state';
 import type { GameState, HexId, Nation, PieceId, Side } from '../../engine/types';
 import { Board, StackView, hexCentre, type LosLine, type StackItem } from '../board';
-import type { AttackShow, Flash, Slide } from './controller';
+import type { Flash, Slide } from './controller';
 import { FireOverlay } from './FireOverlay';
 import { RallyOverlay } from './RallyOverlay';
 import type { RallyShow } from './rallyShow';
@@ -28,7 +28,6 @@ export interface BattleBoardProps {
   slides: readonly Slide[];
   flashes: readonly Flash[];
   flipping: readonly PieceId[];
-  attack: AttackShow | null;
   /** The Fire Attack being shown (arrow, rings, total). */
   fire?: FireShow | null;
   /** The Recover / Rout / Commissar being shown. */
@@ -189,7 +188,6 @@ export function BattleBoard(p: BattleBoardProps) {
       {/* Overlay layers, bottom to top, in board coordinates (they zoom and pan with the map): add new ones here. */}
       <ControlMarkers s={s} rotate180={rotate180} skip={stacked} />
       <Marks marks={p.marks} rotate180={rotate180} />
-      {p.attack ? <AttackLines key={p.attack.id} attack={p.attack} rotate180={rotate180} /> : null}
       {p.fire ? <FireOverlay key={p.fire.id} show={p.fire} human={p.human} rotate180={rotate180} /> : null}
       {p.rally ? <RallyOverlay key={p.rally.id} show={p.rally} human={p.human} rotate180={rotate180} /> : null}
       {p.slides.map((sl) => (
@@ -238,23 +236,6 @@ function Marks({ marks, rotate180 }: { marks: readonly HexMark[]; rotate180: boo
             <text y={0.075}>{m.label}</text>
           </g>
         );
-      })}
-    </g>
-  );
-}
-
-function AttackLines({ attack, rotate180 }: { attack: AttackShow; rotate180: boolean }) {
-  return (
-    <g pointerEvents="none" className="bb-attack">
-      {attack.targets.flatMap((t) => {
-        const b = hexCentre(t, rotate180);
-        return [
-          ...attack.from.map((f) => {
-            const a = hexCentre(f, rotate180);
-            return <line key={`${f}-${t}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="bb-attack__line" />;
-          }),
-          <circle key={`ring-${t}`} cx={b.x} cy={b.y} r={0.78} className="bb-attack__ring" />,
-        ];
       })}
     </g>
   );
