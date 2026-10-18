@@ -3,6 +3,7 @@
 import { activationError, commandRadius } from './activation';
 import { answerError } from './decisions';
 import { fireOptions } from './fire';
+import { randomAdvanceAnswer } from './orders/advance';
 import { smokeOptions } from './orders/fire';
 import { moveAnswers } from './orders/move';
 import { isLeader } from './state';
@@ -11,7 +12,9 @@ import type { Answer, Decision, GameState } from './types';
 export type Rand = () => number;
 
 /** Extra random-answer makers by decision kind (for kinds other tasks add). */
-export const RANDOM_ANSWERS: Partial<Record<Decision['kind'], (s: GameState, d: Decision, rnd: Rand) => Answer>> = {};
+export const RANDOM_ANSWERS: Partial<Record<Decision['kind'], (s: GameState, d: Decision, rnd: Rand) => Answer>> = {
+  advance: (s, d, rnd) => randomAdvanceAnswer(s, d, rnd),
+};
 
 const pick = <T>(arr: readonly T[], rnd: Rand): T => arr[Math.floor(rnd() * arr.length)];
 

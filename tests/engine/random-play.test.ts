@@ -60,6 +60,7 @@ describe('random play', () => {
     let finished = 0;
     let decisions = 0;
     const reasons: Record<string, number> = {};
+    const seen: Record<string, number> = {}; // Orders given and Task 7 results, for coverage
     for (let seed = 0; seed < 200; seed++) {
       const d = new GameDriver(game(seed));
       let n = 0;
@@ -67,6 +68,10 @@ describe('random play', () => {
         const a = randomAnswer(d.state, d.pending, rnd);
         if (!d.answer(a)) throw new Error(`game ${seed}: refused ${JSON.stringify(a)} to ${d.pending.kind}: ${d.lastError}`);
         n++;
+      }
+      for (const { e } of d.drainEvents()) {
+        const k = e.kind === 'cardPlayed' && e.as === 'order' ? e.name : e.kind;
+        if (['Advance', 'Recover', 'Rout', 'melee', 'retreat', 'rally'].includes(k)) seen[k] = (seen[k] ?? 0) + 1;
       }
       decisions += n;
       const bad = consistent(d.state);
@@ -79,5 +84,6 @@ describe('random play', () => {
     expect(finished).toBe(200);
     expect(decisions).toBeGreaterThan(200 * 20);
     expect(Object.keys(reasons).length).toBeGreaterThan(1);
+    for (const k of ['Advance', 'Recover', 'Rout', 'melee', 'retreat', 'rally']) expect(seen[k] ?? 0, k).toBeGreaterThan(0);
   });
 });

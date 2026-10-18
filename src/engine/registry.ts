@@ -9,6 +9,7 @@
 import * as actionIndex from './actions/index';
 import * as eventIndex from './events/index';
 import * as orderIndex from './orders/index';
+import { advanceAnswerError } from './orders/advance';
 import type { Gen } from './decisions';
 import type {
   ActionName, ActionOption, Answer, Decision, EventName, FateCard, FlowCtx, GameState, OrderName, PieceId, Side, WindowInfo, WindowKind,
@@ -109,4 +110,6 @@ export const ACTIONS: Record<ActionName, ActionHandler> = lazyTable(ACTION_NAMES
 export const EVENTS: Record<EventName, EventHandler> = lazyTable(EVENT_NAMES, () => eventIndex.EVENT_HANDLERS, stubEvent);
 
 /** Extra answer checks by decision kind, for kinds other tasks add. */
-export const DECISION_CHECKS: Partial<Record<Decision['kind'], DecisionCheck>> = {};
+export const DECISION_CHECKS: Partial<Record<Decision['kind'], DecisionCheck>> = {
+  advance: (s, d, a) => advanceAnswerError(s, d, a),
+};

@@ -633,6 +633,12 @@ export type ChoiceReason =
   | 'walkingWounded'
   | 'whitePhosphorus'
   | 'whitePhosphorusLoss'
+  /** Events: which of the two Deploy Teams keeps each marker; where an Infiltration item goes; who gets a Scrounged
+   * Weapon; where a Walking Wounded unit goes. */
+  | 'deployMarkers'
+  | 'infiltrationPlace'
+  | 'scroungeUnit'
+  | 'walkingWoundedPlace'
   | 'smokeRemoval'
   | 'blazeDisplace'
   | 'overstackDeploy'
@@ -651,6 +657,8 @@ export type ChoiceReason =
   | 'artilleryKind'
   | 'impactOrder'
   | 'meleeOrder'
+  /** Rout: which broken unit the Order's player rolls for next. */
+  | 'routOrder'
   | 'initiativeChoice'
   | 'placement';
 
@@ -709,8 +717,14 @@ export type Decision =
       /** Actions the mover may play now (window 'duringMove': Assault Fire, Smoke Grenades); answered with 'play'. */
       actions?: ActionOption[];
     }
-  /** Advance: where each activated unit goes (one answer per unit). */
-  | { kind: 'advance'; side: Side; units: PieceId[] }
+  /** Advance: where each activated unit goes (one answer per unit: 'advanceTo', or 'exit' off the enemy edge). */
+  | {
+      kind: 'advance';
+      side: Side;
+      units: PieceId[];
+      /** 'done' is refused: no unit has advanced yet and one can (§O14.4). */
+      mustAdvance?: boolean;
+    }
   /** A reaction window: play one of these Actions, or pass. Asked again after each play until the player passes. */
   | { kind: 'react'; side: Side; window: WindowKind; options: ActionOption[]; info: WindowInfo }
   /** The Initiative holder may cancel the most recent roll (§9.1). */
@@ -760,6 +774,8 @@ export type GameEvent =
   | { kind: 'break'; piece: PieceId }
   | { kind: 'rally'; piece: PieceId }
   | { kind: 'suppress'; piece: PieceId }
+  /** A Veteran marker placed on a unit (Battle Harden, §E44). */
+  | { kind: 'veteran'; piece: PieceId }
   | { kind: 'eliminate'; piece: PieceId; vp: number }
   | { kind: 'place'; piece?: PieceId; hex: HexId; marker?: FortKind | 'smoke' | 'blaze' | 'sr'; value?: number }
   | { kind: 'remove'; hex: HexId; marker: FortKind | 'smoke' | 'blaze' | 'sr' }
