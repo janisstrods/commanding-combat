@@ -13,6 +13,7 @@ import type { LogLine } from './controller';
 import { logRows, vpTotalText } from './log';
 import { chitText, pieceName, sideName } from './names';
 import { objectiveWorth, worthText } from './objectiveWorth';
+import { artilleryBox } from './artillery';
 
 function Box({ title, aside, children, className }: { title: string; aside?: ReactNode; children: ReactNode; className?: string }) {
   return (
@@ -177,6 +178,37 @@ export function ObjectivesPanel({ s, human }: { s: GameState; human: Side }) {
         {mine.length ? 'Your secret chits (gold) score when revealed; gold values include them. ' : ''}
         {theirs.length ? '+?: an enemy secret chit could add to it.' : ''}
       </p>
+    </Box>
+  );
+}
+
+// ------------------------------------------------------------------------------------------------- Artillery Boxes
+
+/** Each side's Artillery Box: its Radio (broken face when broken), calibre and FP, or "No Radio"; open information. */
+export function ArtilleryPanel({ s, human }: { s: GameState; human: Side }) {
+  return (
+    <Box title="Artillery">
+      <div className="gp-arty">
+        {([human, other(human)] as Side[]).map((side) => {
+          const b = artilleryBox(s, side);
+          return (
+            <div key={side} className={`gp-arty__side is-${b.status} ${side === human ? 'is-you' : 'is-them'}`} title={b.tip}>
+              <span className="gp-arty__who">{side === human ? 'You' : sideName(s, side)}</span>
+              <span className="gp-arty__counter">
+                {b.type ? <Counter type={b.type} broken={b.broken} size={44} /> : <span className="gp-arty__empty" aria-hidden="true" />}
+              </span>
+              <span className="gp-arty__text">
+                {b.type ? (
+                  <b>
+                    {b.calibre || 'Radio'} · FP {b.fp}
+                  </b>
+                ) : null}
+                <span className="gp-arty__status">{b.label}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </Box>
   );
 }
