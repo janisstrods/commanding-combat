@@ -15,9 +15,13 @@ import { ScenarioDialog } from '../screens/ScenarioDialog';
 import { isMuted, setMuted } from '../sound';
 import { terrainImage } from '../board';
 import { BattleBoard } from './BattleBoard';
+import { DramaLayer } from './DramaLayer';
+import { EventBanner } from './EventBanner';
 import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controller';
 import { NATION_PLURAL, sideName } from './names';
 import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
+import { FirePanel } from './FirePanel';
+import { RallyPanel } from './RallyPanel';
 import { PromptPanel } from './PromptPanel';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { NO_SEL, clickCard, clickHex, clickPiece, promptFor, type ClickResult, type PromptButton, type Sel } from './prompts';
@@ -99,7 +103,7 @@ export function GameScreen({
     setExpanded(null);
   }, [d]);
 
-  const model = useMemo(() => (d ? promptFor(s, d, sel, human) : null), [s, d, sel, human]);
+  const model = useMemo(() => (d ? promptFor(s, d, sel, human, controller.stakesOf(d)) : null), [s, d, sel, human, controller]);
 
   const apply = useCallback(
     (r: ClickResult) => {
@@ -228,7 +232,9 @@ export function GameScreen({
     </>
   );
 
-  const selected = useMemo(() => [...(model?.selected ?? []), ...(hoverPieces ?? [])], [model, hoverPieces]);
+  // the pieces of the Fire Attack being shown are outlined until its Defense rolls are done
+  const firing = view.fire && view.fire.stage !== 'done' ? view.fire.pieces : null;
+  const selected = useMemo(() => [...(model?.selected ?? []), ...(hoverPieces ?? []), ...(firing ?? [])], [model, hoverPieces, firing]);
 
   return (
     <div className={`gs-root kit-desk ${wide ? 'is-wide' : 'is-narrow'}`}>
@@ -276,13 +282,17 @@ export function GameScreen({
           flashes={view.flashes}
           flipping={view.flipping}
           attack={view.attack}
+          fire={view.fire}
+          rally={view.rally}
           losLine={losLine}
           expanded={expanded}
           onHexClick={onHexClick}
           onPieceClick={onPiece}
           onHexHover={(h, e) => setHover(h === null || !e ? null : { hex: h, x: e.clientX, y: e.clientY })}
           edgeLabels={edgeLabels}
+          overlay={<DramaLayer pick={view.hexPick} impacts={view.impacts} rotate180={rotate} />}
         />
+        {view.banner ? <EventBanner key={view.banner.id} banner={view.banner} s={s} human={human} choosing={!!d} /> : null}
         {view.show ? (
           <div className="gs-show" key={view.show.id}>
             <div className="gs-show__card">{safeCard(view.show.card) ? <FateCardView card={safeCard(view.show.card)!} size="md" highlight={view.show.highlight ?? null} /> : null}</div>
@@ -293,6 +303,8 @@ export function GameScreen({
             </div>
           </div>
         ) : null}
+        {view.fire ? <FirePanel key={view.fire.id} show={view.fire} s={s} human={human} speed={view.speed} rotate180={rotate} onClose={() => controller.closeFire()} /> : null}
+        {view.rally ? <RallyPanel key={view.rally.id} show={view.rally} s={s} human={human} speed={view.speed} rotate180={rotate} onClose={() => controller.closeRally()} /> : null}
         {view.toast ? (
           <div className={`gs-toast gs-toast--${view.toast.kind}`} key={view.toast.id}>
             {view.toast.text}
@@ -377,8 +389,9 @@ export function GameScreen({
               onChange={(v) => controller.setRerollPolicy(v)}
             />
             <small>
-              While you hold the Initiative you may cancel any roll. “When it matters” asks only after a Fire Attack, Defense, melee,
-              rally, rout or Sudden Death roll that went against you.
+              While you hold the Initiative you may cancel any roll. “When it matters” asks only after a roll that went against you
+              (Fire Attack, Targeting, Defense, melee, rally, rout, Mines, Artillery Impact or Sudden Death) when a re-roll would
+              probably do better.
             </small>
           </div>
           <SoundToggle />

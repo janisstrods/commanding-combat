@@ -9,6 +9,7 @@ import { deployWithSplit } from './events/deploy';
 import { refill } from './deck';
 import { ask, choose, type Gen } from './decisions';
 import { resolveMelee } from './melee';
+import { teamsLeft } from './mix';
 import { window } from './reactions';
 import { ORDERS } from './registry';
 import { checkFixedWeapons } from './scenarioRules';
@@ -93,6 +94,7 @@ export function* turnFlow(s: GameState, ctx: FlowCtx): Gen {
 /** Pass (§O15): discard the chosen cards; the opponent may answer a pass that threw away cards (Demolitions ...). */
 function* pass(s: GameState, ctx: FlowCtx, side: Side, cards: CardId[]): Gen {
   const p = s.players[side];
+  ctx.emit({ kind: 'pass', side });
   for (const c of cards) {
     p.hand.splice(p.hand.indexOf(c), 1);
     p.discards.push(c);
@@ -100,6 +102,7 @@ function* pass(s: GameState, ctx: FlowCtx, side: Side, cards: CardId[]): Gen {
   if (cards.length) ctx.emit({ kind: 'discard', side, cards: cards.slice() });
   s.turn.passDiscards = cards.length;
   yield* window(s, ctx, 'opponentPassed', { discards: cards.length });
+  ctx.emit({ kind: 'orderDone', side });
 }
 
 /** Give an Order (§O14.1): the card goes to the discard pile, the Order is carried out, then any melee it caused. */
@@ -117,6 +120,7 @@ export function* giveOrder(s: GameState, ctx: FlowCtx, side: Side, card: CardId,
   t.moving = [];
   t.opFire = [];
   yield* resolveMelees(s, ctx);
+  ctx.emit({ kind: 'orderDone', side });
 }
 
 /**
@@ -147,8 +151,9 @@ export function* endOfTurn(s: GameState, ctx: FlowCtx): Gen {
 
 /**
  * Overstacking (§8.2, R-48): in every hex where a player has more figures than the limit he may first Deploy one Squad
- * there for free, then eliminates units of his choice until the hex is legal. The inactive player first. These are real
- * eliminations (VP, Casualty Track, Surrender), judged together (both may surrender at once).
+ * there for free (if the counter mix has two Teams for it, R-56), then eliminates units of his choice until the hex is
+ * legal. The inactive player first. These are real eliminations (VP, Casualty Track, Surrender), judged together (both
+ * may surrender at once).
  */
 function* overstack(s: GameState, ctx: FlowCtx): Gen {
   yield* simultaneously(s, ctx, function* (c) {
@@ -161,7 +166,7 @@ function* overstack(s: GameState, ctx: FlowCtx): Gen {
       for (const hex of [...hexes].sort((a, b) => a - b)) {
         if (figures(s, hex, side) <= stackLimit(s, hex)) continue;
         const squads = here(s, hex, side).filter((p) => typeOf(p).kind === 'squad');
-        if (squads.length) {
+        if (squads.length && teamsLeft(s, side) >= 2) {
           const pick = yield* choose(s, c, side, 'overstackDeploy', squads.map((p) => ({ piece: p.id })), 0, 1, { hex });
           if (pick.length) yield* deployWithSplit(s, c, side, squads[pick[0]].id);
         }

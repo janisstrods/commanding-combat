@@ -7,7 +7,7 @@
 import { choose, type Gen } from './decisions';
 import { finalScore, updateControl } from './objectives';
 import { window } from './reactions';
-import { GameOver, newPiece, typeOf, unitsOf } from './state';
+import { GameOver, takeFromMix, typeOf, unitsOf } from './state';
 import { teamFor } from './data';
 import { breaksToElimination, exitEliminated } from './scenarioRules';
 import { type CasualtyCause, type FlowCtx, type GameState, type Piece, type PieceId, type Side, other } from './types';
@@ -195,7 +195,8 @@ export function* exitUnits(s: GameState, ctx: FlowCtx, ids: PieceId[]): Gen {
 /**
  * Replace unit `old` by new units of the given counter types in the same hex (Light Wounds: one Team; Deploy: two
  * Teams). The new units share its broken state and its activation status (§J.2); its Weapon, Suppressed and Veteran go
- * to the new unit `markersTo` names (default the first). `old` returns to the counter mix. Returns the new units.
+ * to the new unit `markersTo` names (default the first). `old` returns to the counter mix; the new units come from it
+ * (the callers check that it has them: mix.ts `teamsLeft`, R-56). Returns the new units.
  */
 export function replaceUnit(
   s: GameState, ctx: FlowCtx, oldId: PieceId, types: string[],
@@ -203,7 +204,8 @@ export function replaceUnit(
 ): Piece[] {
   const old = s.pieces[oldId];
   const made = types.map((t) => {
-    const p = newPiece(s, t, old.side, 'map');
+    const p = takeFromMix(s, t, old.side, 'map');
+    if (!p) throw new Error(`The counter mix has no ${t} left`);
     p.hex = old.hex;
     p.broken = old.broken;
     return p;

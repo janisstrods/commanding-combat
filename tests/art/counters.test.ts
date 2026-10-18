@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { COUNTERS } from '../../src/engine/data';
 import { Counter, CounterG, WEAPON_SCALE, counterPixelSize, leaderName, unitLabel } from '../../src/art/Counter';
 import { weaponArt } from '../../src/art/silhouettes';
+import { INK } from '../../src/art/palette';
 
 const ALL = Object.values(COUNTERS);
 const svg = (el: Parameters<typeof renderToStaticMarkup>[0]) => renderToStaticMarkup(el);
@@ -43,6 +44,22 @@ describe('Counter', () => {
     const t = COUNTERS['German/Rifle Squad'];
     expect(svg(h(Counter, { type: t, broken: true }))).toContain('#b3261e');
     expect(svg(h(Counter, { type: t }))).not.toContain('#b3261e');
+  });
+
+  it('Suppressed and Veteran show as their own badges, on either side of any unit', () => {
+    for (const id of ['German/Rifle Squad', 'Russian/Line Team', 'American/Lt Wray']) {
+      for (const broken of [false, true]) {
+        const t = COUNTERS[id];
+        const plain = svg(h(Counter, { type: t, broken }));
+        const sup = svg(h(Counter, { type: t, broken, suppressed: true }));
+        const vet = svg(h(Counter, { type: t, broken, veteran: true }));
+        expect(plain, id).not.toContain(INK.suppressed);
+        expect(plain, id).not.toContain(INK.veteran);
+        expect(sup, id).toContain(INK.suppressed);
+        expect(vet, id).toContain(INK.veteran);
+        expect(vet, id).toContain(INK.gold);
+      }
+    }
   });
 
   it('weapons print FP, Range (min-max for mortars) and the movement penalty; broken ones Fix and Elim', () => {

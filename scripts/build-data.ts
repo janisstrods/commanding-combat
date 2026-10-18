@@ -1,15 +1,16 @@
 // Converts the research data in design/data into the game data in src/data. Re-runnable; prints what changed.
 //
 //   npx vite-node scripts/build-data.ts            (everything)
-//   npx vite-node scripts/build-data.ts maps       (only some parts: cards counters scenarios maps rsg)
+//   npx vite-node scripts/build-data.ts maps       (only some parts: cards counters scenarios maps rsg mix)
 //
 // src/data keeps hex labels ("F6"); src/engine/data.ts converts them to HexIds when loading.
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildCards } from './data/cards';
 import { buildCounters } from './data/counters';
 import { readJson, writeJson } from './data/json';
 import { buildMaps, mapNotes } from './data/maps';
+import { buildMix } from './data/mix';
 import { buildRsg } from './data/rsg';
 import { updateNotesSection } from './data/notes';
 import { buildScenarios, scenarioConversionNotes } from './data/scenarios';
@@ -71,3 +72,16 @@ if (want('maps')) {
 }
 
 if (want('rsg')) write('rsg.json', buildRsg(readJson(join(DESIGN, 'rsg.json')), counters.counters));
+
+// The counter mix (R-56) is derived from the built game data, so it comes last and reads src/data.
+if (want('mix')) {
+  const scenarios = readdirSync(join(OUT, 'scenarios'))
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => readJson(join(OUT, 'scenarios', f)));
+  const { mix, notes: lines } = buildMix(
+    readJson(join(DESIGN, 'counter-mix.json')), readJson(join(OUT, 'counters.json')).counters, scenarios,
+    readJson(join(OUT, 'rsg.json')), readJson(join(OUT, 'cards.json')).cards,
+  );
+  write('mix.json', mix);
+  notes('mix', 'Counter mix (src/data/mix.json)', lines);
+}

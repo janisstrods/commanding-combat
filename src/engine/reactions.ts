@@ -2,6 +2,7 @@
 // (one at a time, asked again after each), then the active player; one round only (R-12). A player is asked only when
 // he has at least one playable option, so a window nobody can use costs no decision.
 import { ask, type Gen } from './decisions';
+import { actionMixError } from './mix';
 import { ACTIONS } from './registry';
 import { actionBlocked } from './scenarioRules';
 import type { ActionName, ActionOption, Answer, FlowCtx, GameState, Side, WindowInfo, WindowKind } from './types';
@@ -9,12 +10,13 @@ import { other } from './types';
 
 const NAMES = () => Object.keys(ACTIONS) as ActionName[];
 
-/** Every Action play open to `side` in window `w` now. */
+/** Every Action play open to `side` in window `w` now (none whose counter the mix lacks, mix.ts `actionMixError`). */
 export function optionsFor(s: GameState, side: Side, w: WindowKind, info: WindowInfo): ActionOption[] {
   const out: ActionOption[] = [];
   for (const name of NAMES()) {
     const h = ACTIONS[name];
-    if (h.windows.includes(w) && !actionBlocked(s, name)) for (const o of h.options(s, side, w, info)) out.push(o);
+    if (!h.windows.includes(w) || actionBlocked(s, name) || actionMixError(s, side, name)) continue;
+    for (const o of h.options(s, side, w, info)) out.push(o);
   }
   return out;
 }

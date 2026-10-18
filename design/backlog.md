@@ -59,6 +59,22 @@ distinct silhouettes per unit type and nation (squads, teams, leaders, weapons),
 - Events and Sniper triggers resolved visibly: a card or banner that names the event, a short animation on the
   affected hex(es) and units, and a pause long enough to read what happened before play continues.
 
+**Rallying and routing with more detail and drama.** Recover and Rout orders (and Hero / Medic rallies) now pass by as a
+few log lines. Make each one a small scene:
+- say plainly **who rolls** — which side, for which unit — and what the roll must reach, shown before the Fate card is
+  turned; highlight the unit being rolled for;
+- show the result on the counter (rallied, still broken, routs, eliminated) with a short pause;
+- for a rout, say **who moves** the unit and animate the retreat hex by hex, so the path is visible.
+
+**Orders as subheadings in the battle log.** Each Order acted on starts a small heading in the log (side and Order,
+e.g. "Axis — Fire"), with the lines it produced underneath; Actions and Events played in reaction sit under the Order
+they interrupted. The Turn headings stay above them (`src/ui/game/log.ts`, `LogKind`).
+
+**Objective values that include your secret chits.** The per-Objective VP in the Objectives panel counts open chits
+only (`objectiveValue`). Add the human's own secret chits to those numbers (marked as secret, e.g. in the chits' gold,
+with the breakdown in the tooltip). While the enemy holds unrevealed secret chits, show "+?" after each number that
+they could still raise. Computed from what the human knows only; no hidden information.
+
 **Re-roll prompt asks too often.** With "When it matters" (the default), the human holding the Initiative was asked
 about an enemy Fire Attack roll of 5, a low roll that already went the human's way (live site, scenario 2, turn 1). Ask
 only for rolls whose result is bad for the human; one test per roll purpose in `tests/ui/game/reroll.test.ts`.

@@ -3,6 +3,7 @@
 // check of an answer lives here or in a function it calls.
 import { activationError } from './activation';
 import { fireAnswerError } from './fire';
+import { actionMixError } from './mix';
 import { moveAnswerError } from './orders/move';
 import { ACTIONS, DECISION_CHECKS } from './registry';
 import { figures, stackLimit, unitFigures } from './stats';
@@ -74,6 +75,8 @@ export function answerError(s: GameState, d: Decision, a: Answer | null | undefi
       if (a.kind === 'done') return null;
       if (a.kind !== 'play' || !isIndex(a.option, d.options.length)) return 'Play one of the Actions offered, or pass.';
       const opt = d.options[a.option];
+      const mix = actionMixError(s, d.side, opt.action);
+      if (mix) return mix;
       const h = ACTIONS[opt.action];
       if (h?.check) return h.check(s, d.side, opt, a, d.info);
       return targetsError(opt.targets, a.targets);

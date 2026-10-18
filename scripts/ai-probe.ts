@@ -10,6 +10,7 @@
 // 1,2,3,4,5,6,8,9,10,11,12), --turns (default 3,7,12), --seed (default 1), --scale / --budget / --effort as in
 // ai-match.ts; --calibrate [--sims n] (default 240, Elite-like players 120) and --reps (default 2); --plans: the battle
 // plan the side to move would make in each position (--turns 1,2: the first plans).
+import './all-maps';
 import { scenario } from '../src/engine/data';
 import { GameDriver } from '../src/engine/driver';
 import { newGame, redact, cloneState } from '../src/engine/state';

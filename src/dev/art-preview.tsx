@@ -12,7 +12,10 @@ import { Counter } from '../art/Counter';
 import { Marker, type MarkerKind } from '../art/Marker';
 import { FateCardView, CardBack } from '../art/FateCardView';
 import ArtGallery from './ArtGallery';
-import { Soldier, type Pose } from '../art/silhouettes';
+import { Figure } from '../art/figures/Figure';
+import { POSE_NAMES } from '../art/figures/rig';
+import { rosterOf, type Dress } from '../art/figures/dress';
+import type { Arm } from '../art/figures/parts';
 import { NATION, FONT } from '../art/palette';
 import { textWidth } from '../art/text';
 import { ACTION_TEXT, EVENT_TEXT, ORDER_TEXT } from '../data/card-texts';
@@ -155,17 +158,41 @@ function Weapons() {
   );
 }
 
-const POSES: Pose[] = ['advance', 'stride', 'aim', 'kneel', 'flee', 'leader', 'hero', 'carry'];
-
 function Figures() {
+  const looks: { n: 'German' | 'American' | 'Russian'; arm: Arm; dress: Dress }[] = [
+    { n: 'German', arm: 'k98', dress: rosterOf(COUNTERS['German/Rifle Squad'], false)[0].dress },
+    { n: 'German', arm: 'stg44', dress: rosterOf(COUNTERS['German/SS Squad'], false)[0].dress },
+    { n: 'German', arm: 'mp40', dress: rosterOf(COUNTERS['German/Fallschirmjager Squad'], false)[2].dress },
+    { n: 'American', arm: 'garand', dress: rosterOf(COUNTERS['American/Line Squad'], false)[0].dress },
+    { n: 'American', arm: 'thompson', dress: rosterOf(COUNTERS['American/Paratroop Squad'], false)[2].dress },
+    { n: 'Russian', arm: 'mosin', dress: rosterOf(COUNTERS['Russian/Rifle Squad'], false)[1].dress },
+    { n: 'Russian', arm: 'ppsh', dress: rosterOf(COUNTERS['Russian/SMG Squad'], false)[0].dress },
+    { n: 'Russian', arm: 'ppsh', dress: rosterOf(COUNTERS['Russian/Assault Squad'], false)[0].dress },
+  ];
   return (
     <div>
-      {(['German', 'American', 'Russian'] as const).map((n) => (
-        <svg key={n} width={1360} height={250} viewBox="0 -48 400 74" style={{ display: 'block', background: NATION[n].base, marginBottom: 6 }}>
-          {POSES.map((pose, i) => (
-            <Soldier key={pose} x={25 + i * 50} y={18} s={1.5} pose={pose} gun={pose === 'leader' ? 'pistol' : i % 2 ? 'smg' : 'rifle'} nation={n} ink={NATION[n].ink} halo={NATION[n].base} flip={pose === 'flee'} />
+      {looks.map((l, row) => (
+        <svg key={row} width={1500} height={190} viewBox="-30 -50 800 70" style={{ display: 'block', background: NATION[l.n].base, marginBottom: 4 }}>
+          {POSE_NAMES.map((pose, i) => (
+            <Figure key={pose} spec={{ pose, kit: l.dress.kit, arm: pose === 'binos' ? 'none' : l.arm }} colors={l.dress.colors} x={i * 48} y={14} s={1} ink={NATION[l.n].ink} halo={NATION[l.n].base} />
           ))}
         </svg>
+      ))}
+    </div>
+  );
+}
+
+function Units() {
+  const size = Number(new URLSearchParams(location.search).get('size') ?? 160);
+  const kinds = location.hash === '#leaders2' ? ['leader'] : ['squad', 'team'];
+  const list = Object.values(COUNTERS).filter((c) => kinds.includes(c.kind));
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+      {list.map((t) => (
+        <div key={t.id} style={{ display: 'flex', gap: 4 }}>
+          <Counter type={t} size={size} />
+          <Counter type={t} size={size} broken />
+        </div>
       ))}
     </div>
   );
@@ -210,7 +237,7 @@ function Measure() {
 function Page() {
   const h = location.hash.replace('#', '') || 'zoom';
   const body =
-    h === 'zoom' ? <Zoom /> : h === 'measure' ? <Measure /> : h === 'figs' ? <Figures /> : h === 'weapons' || h === 'leaders' ? <Weapons /> : h === 'markers' ? <Markers /> : h === 'cards' ? <Cards /> : h === 'counters' ? <ArtGallery view="counters" /> : h === 'gallery-cards' ? <ArtGallery view="cards" /> : <Zoom />;
+    h === 'zoom' ? <Zoom /> : h === 'measure' ? <Measure /> : h === 'figs' ? <Figures /> : h === 'weapons' || h === 'leaders' ? <Weapons /> : h === 'units' || h === 'leaders2' ? <Units /> : h === 'markers' ? <Markers /> : h === 'cards' ? <Cards /> : h === 'counters' ? <ArtGallery view="counters" /> : h === 'gallery-cards' ? <ArtGallery view="cards" /> : <Zoom />;
   return <div style={{ background: '#3b4a33', minHeight: '100vh', padding: 16, boxSizing: 'border-box' }}>{body}</div>;
 }
 

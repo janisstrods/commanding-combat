@@ -368,8 +368,9 @@ revealed at start. Values add up across chits (C+G+K → Objective 3 worth 6).
 ### §8.2 Units (rulebook 8.2)
 - Limit: friendly units totalling at most 7 figures per hex (Squad 4, Team 2, Leader 1). 8+ = overstacked.
 - Overstacking is legal during a Turn; it is checked at the end of every Turn (both players' hexes). For each
-  overstacked hex, the owner may first perform one free Deploy (§E52) there, then must eliminate units of his choice
-  until legal. These are real eliminations (VP to the opponent, Casualty Track, possible Surrender).
+  overstacked hex, the owner may first perform one free Deploy (§E52) there (two Teams left in the counter mix, R-56),
+  then must eliminate units of his choice until legal. These are real eliminations (VP to the opponent, Casualty
+  Track, possible Surrender).
 - Scenario special rules may change the limit (scenario 11 Bunker hex: 4).
 - Placement rules that say "stacking limits must be observed" (reinforcements, Infiltration, Reinforcements Event,
   Walking Wounded, setup) forbid placing into a hex that would then exceed 7 figures.
@@ -803,7 +804,8 @@ adjacent suffices). +2 FP.
 ## §A36 Light Wounds (rulebook A36)
 The instant a friendly Squad (broken or not) would break — not when eliminated outright (KIA, lost melee, overstack).
 Lose 1 VP. Instead of breaking (or dying if already broken), the Squad returns to the counter mix and is replaced in the
-same hex by a Team of the player's OB Troop Quality (FAQ: quality comes from the OB Stats, not the Squad's name).
+same hex by a Team of the player's OB Troop Quality (FAQ: quality comes from the OB Stats, not the Squad's name),
+taken from the counter mix (with none left, Light Wounds cannot be played: R-56).
 The Team is broken if the Squad was; it keeps the Squad's Weapon, Suppressed and Veteran markers and its activation
 status.
 
@@ -871,7 +873,7 @@ Event mix per deck (S4 manifests):
 - Strict reading (S1 p.3): "a unit" means any side's unless the text says friendly/enemy.
 - Anything an Event brings into play must be taken from pieces not yet used; pieces sitting on the Track Display count as
   being in play
-  (FAQ "Counter Mix Limits"). If none is available, that part does nothing.
+  (FAQ "Counter Mix Limits"). If none is available, that part does nothing. How many of each counter exist: R-56.
 
 ## §E43 Air Support (rulebook E43)
 Determine a Random Hex. If it has units, the receiver may break all units there (all sides). If empty, use the nearest
@@ -909,7 +911,8 @@ Receiver must Suppress each of his Squads (not Teams/Leaders), broken or not, th
 outside the Command Radius of every friendly Leader (using the Leader's current Command).
 
 ## §E52 Deploy (errata: "receiving") (rulebook E52)
-Receiver may pick one of his Squads on the map: replace it with two Teams of his OB Troop Quality. Teams are broken if
+Receiver may pick one of his Squads on the map: replace it with two Teams of his OB Troop Quality, from the counter mix
+(fewer than two left: no Deploy, R-56). Teams are broken if
 the Squad was; only one Team keeps each of its Weapon/Suppressed/Veteran markers (S7 precedent: may split between
 Teams); both Teams count as the same unit — same activation status, and any pending result against the Squad
 (suppress, break, eliminate) applies to both.
@@ -1064,7 +1067,7 @@ Open Ground road hex = 2 (Morale 7 → 9). Applies also to the alternate Wall/He
 ## Part G — Fortifications (rulebook F100–F106)
 
 ## §F100 General (rulebook F100)
-- Six kinds: Foxholes, Trenches, Mines, Wire, Bunkers, Pillbox (one Pillbox in the mix).
+- Six kinds: Foxholes, Trenches, Mines, Wire, Bunkers, Pillbox (one Pillbox in the mix; the other counts: R-56).
 - Enter play at setup, or by Actions/Events (Dig In, Hidden *, Entrench, Shellholes, Booby Trap, Rubble).
 - Removed only by Events (Blaze, Breeze spread, Sappers), Demolitions, or Artillery Impact (Fortification
   Vulnerability).
@@ -1345,3 +1348,30 @@ KIA, Prisoners of War, lost melee, overstack, or Retreat-off-map eliminations (o
 scenario lists it until a unit *enters* an Objective hex free of enemy units; setting up is not entering. (RSG games
 pass Objectives to sole occupants after set-up by RS.11.2 / RS.13: `SpecialRules.controlAfterSetup`.) *S1 7.3.1 strict
 reading; project ruling. Found by the fuzzer on scenario 3.*
+
+**R-56 — The counter mix.** The rules limit play by the counters in the box (§E42 and the FAQ "Counter Mix Limits":
+whatever enters play comes from the unused mix; pieces on the map and on the Track Display are in play; RS.7 and RS.9
+buy "countermix permitting"), but the box's mix is not public and the VASSAL module has none. One table,
+`src/data/mix.json` (built from `design/data/counter-mix.json`; the counts are listed in design/data-notes.md), gives
+how many there are:
+- named Leaders, Heroes and Privates: 1 each; the Pillbox: 1 (§F100);
+- every other counter type of a nation: the most any one base scenario uses (both sides, set-up and Time Track), the
+  most any one RSG OB of the nation holds (year pieces included), or 1 if a Support Table offers it, whichever is
+  largest;
+- Elite / Line / Green Teams: that, plus one per Light Wounds Action and two per Deploy Event in the nation's deck;
+- Fortification markers (no nation): the most any base scenario sets up (pre-placed included) or any one Fortification
+  OB holds, plus the most that the Actions and Events of both decks of a base-game pairing place in one pass (a Scenario
+  Defender Action in one deck only).
+
+So in no base scenario does a Light Wounds, Deploy or Fortification card of the first pass through the decks find the
+mix empty; later passes and big RSG purchases may. In play = anywhere but the mix: map, carried, staging, Time Track, Casualty Track, Weapons box, Artillery Box. Back to the mix
+only by a rule: a Squad replaced by Teams (§A36, §E52), an eliminated Radio (§12) or Hero (§3.4), an exited Hero, a
+Fortification taken off the map. When the mix lacks a counter: an Action that would bring it in cannot be played (Light
+Wounds without a Team, Dig In and the Hidden Fortification Actions without a marker); Deploy (also the free one against
+overstacking) needs two Teams, else no Squad can Deploy; an Event whose only effect is placing a marker does nothing and
+draws no Random Hex (as under Deep Freeze, scenario 5, and Infiltration with no item); a Support Table item
+(Infiltration, Reinforcements, Hidden Unit, RS.7) is offered only if the mix has all its counters, Weapon included; the
+RSG's Fortification OBs bought together may not hold more markers of a kind than the mix. Smoke (the 50 chits) and the
+Objective chits were already drawn from cups; Blaze, Suppressed and Veteran markers have no limit (no source gives one;
+Breeze spreads Blazes without end). *S2 "Counter Mix Limits", S1 E42, A36, E52, S4 RS.7 / RS.9; project ruling (the
+counts).*

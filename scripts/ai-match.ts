@@ -16,6 +16,7 @@
 // Players: green, line, elite (the current AI), v1-green, v1-line, v1-elite (the frozen v1.0.0 AI, scripts/ai-v1),
 // random, greedy (policies only, no simulations). A current level may carry config changes for experiments:
 // line@lookahead=1@maxCands=20 (levels.ts LevelCfg fields).
+import './all-maps';
 import { writeFileSync, appendFileSync } from 'node:fs';
 import { SCENARIOS, scenario } from '../src/engine/data';
 import { GameDriver } from '../src/engine/driver';

@@ -4,15 +4,15 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CardBack, Counter, FateCardView, Marker } from '../../art';
 import { OBJECTIVE_CHITS } from '../../engine/data';
-import { objectiveValue } from '../../engine/objectives';
 import { cardOf, counterType } from '../../engine/state';
 import type { CardId, GameState, Side } from '../../engine/types';
 import { UNKNOWN_CARD, UNKNOWN_CHIT, other } from '../../engine/types';
 import { TIME_TRACK_LAST } from '../../engine/casualties';
 import { Modal, Tooltip } from '../kit';
 import type { LogLine } from './controller';
-import { vpTotalText } from './log';
+import { logRows, vpTotalText } from './log';
 import { chitText, pieceName, sideName } from './names';
+import { objectiveWorth, worthText } from './objectiveWorth';
 
 function Box({ title, aside, children, className }: { title: string; aside?: ReactNode; children: ReactNode; className?: string }) {
   return (
@@ -141,11 +141,15 @@ export function ObjectivesPanel({ s, human }: { s: GameState; human: Side }) {
       <div className="gp-objs">
         {s.map.objectives.map((_, i) => {
           const c = s.control[i];
-          const v = objectiveValue(s, i + 1);
+          const w = objectiveWorth(s, human, i + 1);
+          const title = `${worthText(s, human, i + 1)}. ${c ? `${sideName(s, c)} control` : 'Uncontrolled'}.`;
           return (
-            <div key={i} className={`gp-obj ${c ? (c === human ? 'is-you' : 'is-them') : ''}`} title={c ? `${sideName(s, c)} control` : 'Uncontrolled'}>
+            <div key={i} className={`gp-obj ${c ? (c === human ? 'is-you' : 'is-them') : ''}`} title={title}>
               <span className="gp-obj__n">{i + 1}</span>
-              <span className="gp-obj__v">{v} VP</span>
+              <span className="gp-obj__v">
+                <span className={w.secret.length ? 'gp-obj__secret' : undefined}>{w.total}</span> VP
+                {w.more ? <span className="gp-obj__more">+?</span> : null}
+              </span>
               <span className="gp-obj__c">{c ? (c === human ? 'yours' : 'enemy') : '—'}</span>
             </div>
           );
@@ -170,7 +174,8 @@ export function ObjectivesPanel({ s, human }: { s: GameState; human: Side }) {
       </div>
       <p className="gp-note">
         {s.openChits.length ? 'Open chits score for whoever controls their Objective. ' : ''}
-        {mine.length ? 'Your secret chits (gold) score when revealed.' : ''}
+        {mine.length ? 'Your secret chits (gold) score when revealed; gold values include them. ' : ''}
+        {theirs.length ? '+?: an enemy secret chit could add to it.' : ''}
       </p>
     </Box>
   );
@@ -332,8 +337,12 @@ export function LogPanel({ log, s, human }: { log: readonly LogLine[]; s: GameSt
           stick.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
         }}
       >
-        {log.map((l) => (
-          <div key={l.id} className={`gp-log__line gp-log__line--${l.kind} ${l.side ? (l.side === human ? 'is-you' : 'is-them') : ''}`}>
+        {logRows(log).map((l) => (
+          <div
+            key={l.id}
+            className={`gp-log__line gp-log__line--${l.kind} gp-log__line--d${l.depth} ${l.side ? (l.side === human ? 'is-you' : 'is-them') : ''} ${l.reaction ? 'is-reaction' : ''}`}
+          >
+            {l.reaction ? <span className="gp-log__tag">reaction</span> : null}
             {l.text}
           </div>
         ))}

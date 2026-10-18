@@ -5,12 +5,13 @@
 import { SCENARIOS, scenario } from '../src/engine/data';
 import { answerError } from '../src/engine/decisions';
 import { GameDriver } from '../src/engine/driver';
+import { fortMixCount, mixCount } from '../src/engine/mix';
 import { objectiveHexes } from '../src/engine/objectives';
 import { randomAnswer } from '../src/engine/random';
 import { newRsgDraft, rsgAutoRun, rsgFinish } from '../src/engine/rsg';
 import { figures, stackLimit } from '../src/engine/stats';
 import { isUnit, newGame, typeOf } from '../src/engine/state';
-import { type CardId, type Decision, type GameState, type ScenarioDef, SIDES } from '../src/engine/types';
+import { type CardId, type Decision, type FortKind, type GameState, type ScenarioDef, SIDES } from '../src/engine/types';
 
 /** mulberry32 (as tests/support/rng.ts): floats in [0, 1). */
 export function mulberry32(seed: number): () => number {
@@ -124,6 +125,13 @@ export function invariantError(s: GameState, base: Baseline, turnStart: boolean,
     if (s.blaze[h] && (s.smoke[h] || s.fort[h])) return `hex ${h} holds a Blaze with a marker`;
     if (s.smoke[h] && s.map.terrain[h] === 'Water') return `Smoke in Water hex ${h}`;
   }
+  // the counter mix (R-56): never more counters of a type in play, nor Fortifications of a kind on the map, than it holds
+  const used: Record<string, number> = {};
+  for (const id in s.pieces) if (s.pieces[id].where !== 'mix') used[s.pieces[id].type] = (used[s.pieces[id].type] ?? 0) + 1;
+  for (const [t, n] of Object.entries(used)) if (n > mixCount(t)) return `${n} × ${t} in play; the counter mix holds ${mixCount(t)}`;
+  const forts: Record<string, number> = {};
+  for (const k of s.fort) if (k) forts[k] = (forts[k] ?? 0) + 1;
+  for (const [k, n] of Object.entries(forts)) if (n > fortMixCount(k as FortKind)) return `${n} ${k} on the map; the counter mix holds ${fortMixCount(k as FortKind)}`;
   if (s.phase === 'play') {
     const objectives = Math.min(5, s.map.objectives.length);
     base.startSole ??= Array.from({ length: objectives }, (_, i) => soleOccupant(s, i + 1));

@@ -4,12 +4,13 @@
 import { rally } from '../casualties';
 import { choose } from '../decisions';
 import type { EventHandler } from '../registry';
-import { isImpassableHex } from '../state';
-import { friendlyHexes, fromMix, inPlay, mapUnits, note, putUnit, specialLeader } from './helpers';
+import { mixLeft } from '../mix';
+import { isImpassableHex, takeFromMix } from '../state';
+import { friendlyHexes, mapUnits, note, putUnit, specialLeader } from './helpers';
 
 export const heroEvent: EventHandler = function* (s, ctx, receiver) {
   const type = specialLeader(s, receiver, 'hero');
-  if (!type || inPlay(s, type)) {
+  if (!type || mixLeft(s, type) < 1) {
     note(ctx, receiver, type ? 'Hero: his Hero is already in play.' : 'Hero: he has no Hero.');
     return;
   }
@@ -20,7 +21,7 @@ export const heroEvent: EventHandler = function* (s, ctx, receiver) {
   }
   const [i] = yield* choose(s, ctx, receiver, 'heroPlace', hexes.map((hex) => ({ hex })), 1, 1, { type });
   const hex = hexes[i];
-  putUnit(s, ctx, fromMix(s, type, receiver)!, hex);
+  putUnit(s, ctx, takeFromMix(s, type, receiver)!, hex);
   const broken = mapUnits(s, undefined, (p) => p.hex === hex && p.broken);
   const pick = yield* choose(s, ctx, receiver, 'heroRally', broken.map((p) => ({ piece: p.id })), 0, 1, { hex });
   if (pick.length) rally(s, ctx, broken[pick[0]].id);

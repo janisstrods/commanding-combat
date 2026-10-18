@@ -47,3 +47,51 @@ export function pct(p: number): string {
   const v = Math.round(p * 100);
   return v === 0 ? '<1%' : v === 100 ? '>99%' : `${v}%`;
 }
+
+/** P(white × red = k) for k = 0..36. */
+export const PRODUCT_P: readonly number[] = (() => {
+  const p = Array<number>(37).fill(0);
+  for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) p[a * b] += 1 / 36;
+  return p;
+})();
+
+/** The average of `f` over a roll distributed as `dist` (SUM_P or PRODUCT_P). */
+export function expected(dist: readonly number[], f: (v: number) => number): number {
+  let t = 0;
+  for (let v = 0; v < dist.length; v++) if (dist[v]) t += dist[v] * f(v);
+  return t;
+}
+
+/**
+ * A Defense result (§O20.3.4) for the defender: Defense total above the attack total holds (1), equal is Suppressed
+ * (½; a unit activated to Move breaks), lower breaks (0).
+ */
+export function held(total: number, attack: number, moving = false): number {
+  return total > attack ? 1 : total === attack && !moving ? 0.5 : 0;
+}
+
+/** The defender's average result (see `held`) with Morale + Cover `base` against `attack`, over its Defense roll. */
+export function holdChance(base: number, attack: number, moving = false): number {
+  return expected(SUM_P, (x) => held(base + x, attack, moving));
+}
+
+/** The Defense roll a unit with Morale + Cover `base` must reach to hold against `attack` (a roll one lower ties). */
+export function holdNeed(base: number, attack: number): number {
+  return attack - base + 1;
+}
+
+/** "Needs 8+ to hold (7: Suppressed)", "Holds on any roll", "Breaks on any roll" (for the start of a line). */
+export function needPhrase(base: number, attack: number, moving = false): string {
+  const t = needText(base, attack, moving);
+  return /^\d/.test(t) ? `Needs ${t}` : t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/** "8+ to hold (7: Suppressed)", "holds on any roll", "breaks on any roll". */
+export function needText(base: number, attack: number, moving = false): string {
+  const need = holdNeed(base, attack);
+  const tie = moving ? 'breaks' : 'Suppressed';
+  if (need <= 2) return 'holds on any roll';
+  if (need <= 12) return `${need}+ to hold (${need - 1}: ${tie})`;
+  if (need === 13 && !moving) return 'cannot hold (12: Suppressed)';
+  return 'breaks on any roll';
+}

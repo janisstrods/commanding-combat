@@ -20,6 +20,7 @@ import { choiceWords, countText, itemHex, labelText } from './choiceText';
 import { PURPOSE_TEXT, WINDOW_TEXT, chitText, counterName, hexName, pieceName, sideName } from './names';
 import { firePreview, fpText, piecesIn, reachable } from './preview';
 import { pct } from './odds';
+import type { RollStakes } from './reroll';
 import { chooseAnswer, fortPlacement } from '../../ai/choose';
 import { deployForMe } from '../../ai/deploy';
 
@@ -156,7 +157,8 @@ function cardOrder(c: CardId): string {
 // ---------------------------------------------------------------------------------------------------------------------
 // The model
 
-export function promptFor(s: GameState, d: Decision, sel: Sel, human: Side): PromptModel {
+/** `stakes`: for a re-roll question, what the roll decides for the human (reroll.ts `rollStakes`). */
+export function promptFor(s: GameState, d: Decision, sel: Sel, human: Side, stakes?: RollStakes | null): PromptModel {
   try {
     switch (d.kind) {
       case 'turn':
@@ -172,7 +174,7 @@ export function promptFor(s: GameState, d: Decision, sel: Sel, human: Side): Pro
       case 'react':
         return reactPrompt(s, d, sel, human);
       case 'reroll':
-        return rerollPrompt(s, d, human);
+        return rerollPrompt(s, d, human, stakes ?? null);
       case 'choose':
         return choosePrompt(s, d, sel);
       case 'deploy':
@@ -735,7 +737,7 @@ function reactClick(s: GameState, d: D<'react'>, sel: Sel, pick: { hex?: HexId; 
 
 // --------------------------------------------------------------------------------------------------------- reroll
 
-function rerollPrompt(s: GameState, d: D<'reroll'>, human: Side): PromptModel {
+function rerollPrompt(s: GameState, d: D<'reroll'>, human: Side, stakes: RollStakes | null): PromptModel {
   const r = d.roll;
   let v = '?';
   let dice = '';
@@ -752,6 +754,8 @@ function rerollPrompt(s: GameState, d: D<'reroll'>, human: Side): PromptModel {
   m.showCards = [r.card];
   m.buttons.push({ key: 'keep', label: 'Keep the roll', answer: { kind: 'reroll', yes: false }, primary: true });
   m.buttons.push({ key: 'reroll', label: 'Re-roll', answer: { kind: 'reroll', yes: true }, tone: 'danger' });
+  // what the roll had to reach, and whether a re-roll would on average do better
+  if (stakes) m.detail.push(...stakes.lines);
   m.detail.push('The Initiative also wins a tied battle: give it away only when the roll matters.');
   return m;
 }

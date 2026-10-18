@@ -1,0 +1,16 @@
+/* A board's stand-in while its map loads (src/ui/maps.tsx). Sizes in hex-radius units, as on the board. */
+.map-loading__text {
+  font-family: var(--kit-font-title);
+  font-weight: 500;
+  font-size: 0.5px;
+  letter-spacing: 0.08px;
+  text-transform: uppercase;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  fill: rgba(35, 36, 28, 0.55);
+}
+.map-loading:not(.is-error) .map-loading__text { animation: map-loading-pulse 1.4s ease-in-out infinite; }
+@keyframes map-loading-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) {
+  .map-loading:not(.is-error) .map-loading__text { animation: none; }
+}

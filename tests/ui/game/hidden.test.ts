@@ -162,8 +162,8 @@ describe('the log speaks plainly', () => {
     expect(engineText('No other Order possible: the Turn ends.', 'allied', s, 'allied')).toBe('No other Order possible: your Turn ends.');
     expect(engineText('All 3 Orders given: the Turn ends.', 'axis', s, 'allied')).toBe('All 3 Orders given: the Germans’ Turn ends.');
     expect(engineText('No room to set up German/Rifle Squad.', 'axis', s, 'allied')).toBe('No room to set up Rifle Squad.');
-    expect(logEntry({ kind: 'cardPlayed', side: 'allied', card: 'R-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('You play Fire as an Order.');
-    expect(logEntry({ kind: 'cardPlayed', side: 'axis', card: 'G-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('Germans play Fire as an Order.');
+    expect(logEntry({ kind: 'cardPlayed', side: 'allied', card: 'R-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('Russians — Fire');
+    expect(logEntry({ kind: 'cardPlayed', side: 'axis', card: 'G-01', as: 'order', name: 'Fire' }, s, 'allied')?.text).toBe('Germans — Fire');
     expect(logEntry({ kind: 'vp', delta: -2, total: -2, why: 'elimination' }, s, 'allied')?.text).toBe('+2 VP to you (elimination). VP: 2 to the Allies.');
   });
 });

@@ -3,6 +3,7 @@
 // side and the decision (client.ts makes sure of the redaction before posting).
 // In:  { id, type: 'decide', gameId, view, decision, opts }  ->  Out: { id, answer, say } or { id, error }
 // In:  { type: 'reset', gameId }                              (drops that game's memory)
+import { adoptMap } from '../engine/data';
 import type { Answer, Decision, GameState } from '../engine/types';
 import { chooseAnswer, newMemory, type AiMemory, type AiOptions } from './index';
 
@@ -42,6 +43,8 @@ export function handle(m: WorkerRequest, post: (r: WorkerResponse) => void): voi
     memories.set(key, mem);
   }
   try {
+    // the view carries the game's map: kept, so engine code here never needs to fetch it (src/engine/data.ts)
+    if (m.view?.map) adoptMap(m.view.map);
     const r = chooseAnswer(m.view, m.decision, m.opts, mem);
     post({ id: m.id, answer: r.answer, ...(r.say ? { say: r.say } : {}) });
   } catch (e) {

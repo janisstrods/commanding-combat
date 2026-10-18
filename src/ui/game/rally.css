@@ -1,0 +1,31 @@
+/* Recover / Rout / Commissar scenes: the panel (RallyPanel.tsx, on top of the Fire Attack panel's styles) and the
+   board overlay (RallyOverlay.tsx, hex-radius units). */
+.rp-who { font-weight: 600; font-size: 12.5px; }
+.rp-hex { font-weight: 400; color: rgba(241, 232, 203, .6); }
+.rp-unit.is-good .fp-def__result { background: #40613a; }
+.rp-unit.is-half .fp-def__result { background: #8a6a1c; }
+.rp-unit.is-bad .fp-def__result { background: #a3291c; }
+.rp-retreat { color: #ffd9a8; }
+
+.ro { --ro-side: #d6331f; }
+.ro.is-you { --ro-side: #e0c77f; }
+.ro-ring { fill: none; stroke: var(--ro-side); stroke-width: .06px; stroke-dasharray: .16 .08; opacity: .7; }
+.ro-unit.is-active .ro-ring { stroke: #ffe08a; stroke-width: .09px; opacity: 1; animation: fo-pulse .8s ease-in-out infinite alternate; }
+.ro-unit.is-good .ro-ring { stroke: #8fc06a; stroke-dasharray: none; }
+.ro-unit.is-half .ro-ring { stroke: #e0b04a; }
+.ro-unit.is-bad .ro-ring { stroke: #e0563f; }
+.ro-path { stroke: #e0563f; stroke-width: .09px; stroke-linecap: round; stroke-dasharray: .2 .1; animation: fo-dash .5s linear infinite; filter: drop-shadow(0 0 .05px rgba(0, 0, 0, .8)); }
+.ro-head { fill: #e0563f; }
+.ro-step { fill: #e0563f; stroke: rgba(255, 240, 200, .9); stroke-width: .025px; }
+.ro-label rect { fill: rgba(24, 25, 17, .92); stroke: rgba(255, 240, 200, .85); stroke-width: .02px; }
+.ro-unit.is-good .ro-label rect { fill: rgba(52, 84, 40, .95); }
+.ro-unit.is-half .ro-label rect { fill: rgba(122, 90, 22, .95); }
+.ro-unit.is-bad .ro-label rect { fill: rgba(150, 26, 14, .94); }
+.ro-label text { fill: #fff6d2; font-family: var(--kit-font-title); font-weight: 600; font-size: .2px; text-anchor: middle; }
+.ro-label { animation: fp-pop .35s ease-out both; transform-box: fill-box; transform-origin: center; }
+.ro--done { opacity: .45; transition: opacity .6s; }
+.ro--done .ro-path, .ro--done .ro-ring { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ro-ring, .ro-path, .ro-label, .ro-unit.is-active .ro-ring { animation: none; }
+}

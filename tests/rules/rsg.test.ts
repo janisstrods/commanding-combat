@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { COUNTERS, OBJECTIVE_CHITS, RSG, areaHexes, loadMap } from '../../src/engine/data';
 import { gameFlow } from '../../src/engine/flow';
 import { NUM_HEXES } from '../../src/engine/hex';
-import designCounters from '../../design/data/counters.json';
+import { mixCount } from '../../src/engine/mix';
 import {
   RSG_MAPS, newRsgDraft, rsgAdvance, rsgAuto, rsgAutoRun, rsgCheck, rsgChoose, rsgCounterCap, rsgFinish, rsgLeaderIndex,
   rsgObOptions, rsgStep, type RsgChoice, type RsgChoiceStep, type RsgDraft, type RsgFixed, type RsgSupportOption,
@@ -674,32 +674,9 @@ function owned(d: RsgDraft, side: Side): Record<string, number> {
 const leftOf = (o: RsgSupportOption, have: Record<string, number>) =>
   Math.min(...Object.entries(o.pieces).map(([t, n]) => Math.floor((rsgCounterCap(t) - (have[t] ?? 0)) / n)));
 
-describe('counter-mix limits (project ruling)', () => {
-  it("caps each type at the larger of the base scenarios' need (design/data/counters.json) and the largest OB; 1 for a Support-only piece", () => {
-    const largestOb = (id: string) => {
-      let m = 0;
-      for (const ob of Object.values(RSG.obs[COUNTERS[id].nation])) {
-        for (const s of Object.values(ob.sizes)) {
-          const extra = Math.max(0, ...(s.unitsByYear ?? []).map((u) => u.units[id] ?? 0));
-          m = Math.max(m, (s.units[id] ?? 0) + extra);
-        }
-      }
-      return m;
-    };
-    const onSupport = (id: string) =>
-      Object.values(RSG.support[COUNTERS[id].nation].items).some((it) => id in it.pieces || (it.oneOf ?? []).includes(id));
-    let checked = 0;
-    for (const [nation, groups] of Object.entries(designCounters.nations)) {
-      for (const group of ['squads', 'teams', 'weapons'] as const) {
-        for (const c of (groups as Record<string, { name: string; max_needed_in_base_scenarios?: number | null }[]>)[group]) {
-          const id = `${nation}/${c.name}`;
-          if (!COUNTERS[id]) continue; // Molotov Cocktail, Panzerfaust: not in src/data
-          expect(rsgCounterCap(id), id).toBe(Math.max(c.max_needed_in_base_scenarios ?? 0, largestOb(id), onSupport(id) ? 1 : 0));
-          checked++;
-        }
-      }
-    }
-    expect(checked).toBeGreaterThan(60);
+describe('counter-mix limits (R-56)', () => {
+  it('caps each type at what the counter mix holds (src/data/mix.json, derived in tests/rules/mix.test.ts)', () => {
+    for (const id of Object.keys(COUNTERS)) expect(rsgCounterCap(id), id).toBe(mixCount(id));
     expect(rsgCounterCap('Russian/SMG Squad')).toBe(15);
     expect(rsgCounterCap('German/Volksgrenadier Squad')).toBe(9); // a scenario needs more than any OB has
     expect(rsgCounterCap('German/Weapon Team')).toBe(3);

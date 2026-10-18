@@ -187,7 +187,6 @@
 .rsg-tint--mine polygon { fill: rgba(64, 120, 196, .26); stroke: rgba(28, 64, 120, .65); }
 .rsg-tint--theirs polygon { fill: rgba(170, 45, 34, .24); stroke: rgba(99, 25, 15, .55); }
 .rsg-tint--pick polygon { fill: rgba(224, 199, 127, .35); stroke: #b38f3f; }
-.rsg-map-missing { padding: 30px; text-align: center; color: var(--kit-ink-faint); }
 
 /* RS.1 map pick */
 .rsg-maps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; align-items: start; }

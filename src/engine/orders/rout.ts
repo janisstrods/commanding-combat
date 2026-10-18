@@ -20,7 +20,7 @@ import { currentStats } from '../stats';
 import { hasUnitOf, typeOf, unitsOf } from '../state';
 import { enterBlock } from '../terrain';
 import { type Answer, type Edge, type FlowCtx, type GameState, type HexId, type PieceId, type Side, other } from '../types';
-import { activatePlayer, eachInOrder, playerActivated, rollMorale } from './recover';
+import { activatePlayer, eachInOrder, emitRallying, playerActivated, rollMorale } from './recover';
 
 /** Hexes between `hex` and the edge `edge` (0 along it). */
 export function edgeDistance(hex: HexId, edge: Edge): number {
@@ -92,6 +92,7 @@ export function* retreat(s: GameState, ctx: FlowCtx, id: PieceId, hexes: number)
 export function* routRoll(s: GameState, ctx: FlowCtx, roller: Side, id: PieceId): Gen {
   const p = s.pieces[id];
   const morale = rollMorale(s, id);
+  emitRallying(s, ctx, roller, id, 'rout');
   const w = watchReplacements(ctx);
   const r = yield* roll(s, w.ctx, roller, 'rout');
   const targets = pendingTargets(s, id, w.by);

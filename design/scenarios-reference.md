@@ -751,7 +751,7 @@ Modifiers: Elite OB +1, Green OB −1; year:
 - Skipped entirely when the VP marker sits on 0.
 - Otherwise the player with the cheaper OB (VP marker on his side) rolls 2 dice and **must** buy one or more units (no
   Radios) from that column of his Support Table, each available in the scenario year and still in the counter mix
-  (several, even several of the same item, allowed). He moves the VP marker toward the opponent by the total cost.
+  (R-56; several, even several of the same item, allowed). He moves the VP marker toward the opponent by the total cost.
 - If that purchase pushes the marker past 0 onto the other side, the other player now rolls and must buy in the same
   way (one round only).
 - A Weapon listed with a unit must stay with that unit at set-up; a lone unit bought here gets no OB Weapon.
@@ -862,7 +862,7 @@ The player with the VP marker on his side (spent less) is the Defender, the othe
 Recon. Set the OB Stats markers' postures.
 
 ### RS.9 Fortifications
-The Defender may spend up to his current VP total on Fortification OBs (counter mix permitting), moving the VP marker
+The Defender may spend up to his current VP total on Fortification OBs (counter mix permitting: R-56), moving the VP marker
 toward the Attacker by the cost. All Minefield purchases must share one strength.
 
 | Fortification OB | Contents | VP cost | Restriction |
@@ -876,7 +876,8 @@ toward the Attacker by the cost. All Minefield purchases must share one strength
 | Prepared Minefield | 10 Mines, 7 FP | 9 | not with 6- or 8-FP minefields |
 | Extensive Minefield | 10 Mines, 8 FP | 12 | not with 6- or 7-FP minefields |
 
-("3×" for the Bunker Complex is read as three of each item — project reading; counter-mix limits may cap it.)
+("3×" for the Bunker Complex is read as three of each item — project reading; the counter mix, R-56, caps the markers
+of all the OBs bought together.)
 
 ### RS.10 Defender sets up
 Within 8 rows (wide map) or 12 rows (narrow) of his edge; stacking applies. Fortifications wait until RS.12. Put his

@@ -2,7 +2,7 @@
 import { COUNTERS, RSG } from '../data';
 import type { ObSize } from '../rsgTypes';
 import type { CounterType, Nation, Posture, Side } from '../types';
-import { PLAYER, holdings, nationOf, rsgLeaderIndex, supportError } from './tables';
+import { PLAYER, fortError, holdings, nationOf, rsgLeaderIndex, supportError } from './tables';
 import { rsgStep } from './steps';
 import type { RsgChoice, RsgChoiceStep, RsgDraft, RsgSupportOption } from './types';
 
@@ -161,7 +161,7 @@ function autoForts(st: Extract<RsgChoiceStep, { what: 'fortifications' }>, rnd: 
   let spent = 0;
   for (const id of prefs) {
     const f = st.options.find((o) => o.id === id);
-    if (f && spent + f.vp <= target) {
+    if (f && spent + f.vp <= target && !fortError(st.budget, [...buy, id])) {
       buy.push(id);
       spent += f.vp;
     }

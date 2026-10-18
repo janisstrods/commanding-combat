@@ -2,10 +2,10 @@
 // Radio options, the purchase rules, the legal nation / year pairings (R0). Internal to src/engine/rsg*: rsg.ts
 // re-exports only what the UI and the AI need.
 import { COUNTERS, MAP_IDS, RSG } from '../data';
+import { FORT_NAMES, fortMixCount, mixCount } from '../mix';
 import { random } from '../rng';
-import { rsgCounterCap } from './mix';
 import type { ObSize, RsgFortificationOb, RsgOb, RsgObSize } from '../rsgTypes';
-import { type Edge, type Nation, type Quality, type Side, SIDES } from '../types';
+import { type Edge, type FortKind, type Nation, type Quality, type Side, SIDES } from '../types';
 import type { RsgDraft, RsgFixed, RsgLogEntry, RsgObOption, RsgRadioChance, RsgSupportOption } from './types';
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -110,11 +110,11 @@ export function holdings(d: RsgDraft, side: Side): Record<string, number> {
   return have;
 }
 
-/** How many more counters of each piece type of `pieces` the counter mix has for `side` (mix.ts ruling). */
+/** How many more counters of each piece type of `pieces` the counter mix has for `side` (mix.ts, R-56). */
 export function supportRoom(d: RsgDraft, side: Side, types: Iterable<string>): Record<string, number> {
   const have = holdings(d, side);
   const room: Record<string, number> = {};
-  for (const t of types) room[t] = Math.max(0, rsgCounterCap(t) - (have[t] ?? 0));
+  for (const t of types) room[t] = Math.max(0, mixCount(t) - (have[t] ?? 0));
   return room;
 }
 
@@ -156,7 +156,7 @@ export function supportOptions(d: RsgDraft, side: Side, roll: number): RsgSuppor
 
 /**
  * RS.7 purchase rules: at least one item if the column offers any; a Leader once; one Leader of an "A or B" row; no
- * more of a piece type than the counter mix has left (`room`, mix.ts ruling; types shared by items add up).
+ * more of a piece type than the counter mix has left (`room`, mix.ts / R-56; types shared by items add up).
  * Ruling: the 2025 text allows several purchases but sets no limit; here every purchase but the last must leave the VP
  * marker on the buyer's side (the last may carry it past 0, which hands the roll to the opponent).
  */
@@ -179,7 +179,7 @@ export function supportError(options: RsgSupportOption[], lead: number, buy: str
     for (const [t, n] of Object.entries(o.pieces)) {
       used[t] = (used[t] ?? 0) + n;
       const k = room[t] ?? 0;
-      if (used[t] > k) return `The counter mix has only ${k} more ${name(t)} counter${k === 1 ? '' : 's'} (project ruling).`;
+      if (used[t] > k) return `The counter mix has only ${k} more ${name(t)} counter${k === 1 ? '' : 's'} (R-56).`;
     }
     ids.add(o.id);
     costs.push(o.vp);
@@ -193,19 +193,25 @@ export function supportError(options: RsgSupportOption[], lead: number, buy: str
 
 export const fortOb = (id: string): RsgFortificationOb | undefined => RSG.fortifications.find((f) => f.id === id);
 
-/** RS.9: within the budget, Minefields of one strength. Ruling: Fortifications have no counter-mix data and stay unlimited. */
+/** RS.9: within the budget, Minefields of one strength, counter mix permitting (mix.ts, R-56: the OBs' markers add up). */
 export function fortError(budget: number, buy: string[]): string | null {
   if (!Array.isArray(buy)) return 'The purchase must be a list of Fortification OBs.';
   let total = 0;
   const strengths = new Set<number>();
+  const markers: Partial<Record<FortKind, number>> = {};
   for (const id of buy) {
     const f = fortOb(id);
     if (!f) return `"${id}" is not a Fortification OB.`;
     total += f.vp;
     if (f.minefield) strengths.add(f.minefield);
+    addAll(markers, f.contents);
   }
   if (total > budget) return `That costs ${total} VP; the Defender has ${budget} VP to spend (RS.9).`;
   if (strengths.size > 1) return 'All Minefields bought must have the same strength (RS.9).';
+  for (const [k, n] of Object.entries(markers) as [FortKind, number][]) {
+    const k2 = fortMixCount(k);
+    if (n > k2) return `The counter mix has only ${k2} ${FORT_NAMES[k]} markers (RS.9, R-56).`;
+  }
   return null;
 }
 

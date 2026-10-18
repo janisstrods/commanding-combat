@@ -2,9 +2,10 @@
 // `rsg` takes the random scenario the RSG screens left in sessionStorage), `#/continue` resumes the autosave. A new
 // battle replaces its hash with `#/continue`, so a reload resumes it from the autosave instead of starting over.
 // Dev flags after the hash: `?auto=N` answers your first N decisions at random, `?speed=instant|fast|...`,
-// `?ai=random` plays the random stand-in instead of the AI.
+// `?ai=random` plays the random stand-in instead of the AI. The battle starts once its map is loaded and painted.
 import { useEffect, useRef, useState } from 'react';
 import { SCENARIOS } from '../../engine/data';
+import { BATTLE_PPU, usePreparedMap } from '../maps';
 import { navigate, type Route } from '../routes';
 import { NotFound } from '../screens/Placeholders';
 import { GameController, SPEEDS, type Speed } from './controller';
@@ -12,7 +13,8 @@ import { GameScreen } from './GameScreen';
 import { makeOpponent } from './makeOpponent';
 import { RandomOpponent } from './opponent';
 import {
-  clearSave, configOfSave, historyOf, loadSave, newSessionConfig, pendingRsgScenario, rematchConfig, restoreDriver, type SessionConfig,
+  clearSave, configOfSave, historyOf, loadSave, newSessionConfig, pendingRsgScenario, rematchConfig, restoreDriver, scenarioOf,
+  type SessionConfig,
 } from './session';
 
 /** The live session (kept across the hash change to `#/continue` and React's double mount in development). */
@@ -77,7 +79,28 @@ function obtain(route: Route): Got {
   }
 }
 
+/** The map the battle of `route` is on (as `obtain` would find the battle), or null when there is no such battle. */
+function mapOf(route: Route): string | null {
+  if (live && (live.key === window.location.hash || route.kind === 'continue')) return scenarioOf(live.controller.config).map;
+  if (route.kind === 'play') {
+    if (route.scenario === 'rsg') return pendingRsgScenario()?.map ?? null;
+    return SCENARIOS.find((x) => x.id === route.scenario)?.map ?? null;
+  }
+  const save = route.kind === 'continue' ? loadSave() : null;
+  return save ? scenarioOf(configOfSave(save)).map : null;
+}
+
 export function BattleRoute({ route }: { route: Route }) {
+  const mapId = mapOf(route);
+  const { map, error } = usePreparedMap(mapId, BATTLE_PPU);
+  if (mapId !== null && !map) {
+    if (error) return <NotFound title="Battle" what={`Map ${mapId} could not be loaded. Check the connection and try again.`} />;
+    return <div className="kit-desk app-loading">Loading map…</div>;
+  }
+  return <Battle route={route} />;
+}
+
+function Battle({ route }: { route: Route }) {
   const [got, setGot] = useState<Got>(() => obtain(route));
   const mounted = useRef(true);
 
