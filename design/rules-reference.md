@@ -1339,3 +1339,8 @@ mid-defense), the result applies to both Teams. *S1 E52.2.*
 
 **R-54 — Light Wounds on a Squad broken by Ambush/Sniper/Air Support.** Allowed (it is breaking). Not allowed against
 KIA, Prisoners of War, lost melee, overstack, or Retreat-off-map eliminations (outright eliminations). *S1 A36.*
+
+**R-55 — A unit set up inside an Objective the other side controls (historical scenarios).** Control stays as the
+scenario lists it until a unit *enters* an Objective hex free of enemy units; setting up is not entering. (RSG games
+pass Objectives to sole occupants after set-up by RS.11.2 / RS.13: `SpecialRules.controlAfterSetup`.) *S1 7.3.1 strict
+reading; project ruling. Found by the fuzzer on scenario 3.*
