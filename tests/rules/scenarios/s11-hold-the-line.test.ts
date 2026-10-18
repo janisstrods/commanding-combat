@@ -32,7 +32,7 @@ describe('scenario 11 Hold the Line: set-up', () => {
     }
   });
 
-  it('SSR 2: the Bunker, Sgt Buehler with the .50 cal and the Weapon Team with the Pack Howitzer set up in one Open, non-Hill hex', () => {
+  it('SSR 2: one Open, non-Hill hex takes the Bunker together with its crew (Buehler, the .50 cal, the howitzer team)', () => {
     for (const seed of [1, 2, 3, 4]) {
       const { s, r } = setUp('11', seed);
       const bunkers = s.fort.map((f, h) => (f === 'bunker' ? h : -1)).filter((h) => h >= 0);

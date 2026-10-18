@@ -14,7 +14,7 @@ describe('Leader Command (§3.3.1)', () => {
     ],
   });
 
-  it('adds to the FP, Range, Movement and Morale of Squads and Teams in its hex (cumulative)', () => {
+  it('raises every stat (FP, Range, Movement, Morale) of the Squads and Teams sharing its hex; several Leaders add up', () => {
     // Rifle Squad 5-5-4, Morale 7; LMG has no Movement modifier; Lt 2 + Cpl 1
     expect(currentStats(s, 'p1')).toEqual({ fp: 8, range: 8, move: 7, morale: 10, command: 0 });
     // Line Team 3-3-4, Morale 7, carrying a Light Mortar (Movement −2)
