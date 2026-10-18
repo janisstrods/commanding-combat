@@ -53,6 +53,9 @@ function sampleStacks(): Record<number, CounterType[]> {
     [parseHex('F6')]: pick('German', 'squad'),
     [parseHex('J6')]: [...pick('American', 'squad', 2), ...pick('American', 'leader')],
     [parseHex('K8')]: [...pick('Russian', 'squad'), ...pick('Russian', 'weapon')],
+    // a full hex (Squad, Team and Leader, each with a Weapon) and an overstacked melee hex
+    [parseHex('C3')]: [...pick('German', 'squad'), ...pick('German', 'weapon'), ...pick('German', 'team'), ...pick('German', 'weapon'), ...pick('German', 'leader'), ...pick('German', 'weapon')],
+    [parseHex('M3')]: [...pick('Russian', 'squad', 3), ...pick('Russian', 'weapon'), ...pick('Russian', 'leader', 2), ...pick('German', 'squad', 2), ...pick('German', 'weapon')],
   };
 }
 
@@ -88,7 +91,7 @@ export function MapGallery({ mapId }: { mapId: string }) {
         <StackView
           size={size}
           expanded={open === h}
-          items={types.map((t, i) => ({ key: `${t.id}-${i}`, node: <CounterG type={t} x={0} y={0} size={size} /> }))}
+          items={types.map((t, i) => ({ key: `${t.id}-${i}`, role: t.kind === 'weapon' || t.kind === 'radio' ? 'weapon' : 'unit', node: <CounterG type={t} x={0} y={0} size={size} /> }))}
         />
       );
     },
@@ -224,6 +227,8 @@ export function MapGallery({ mapId }: { mapId: string }) {
               renderStack={stacks ? renderStack : undefined}
               topStack={open}
               edgeLabels={{ top: 'Top edge', bottom: 'Bottom edge', left: 'Left edge', right: 'Right edge' }}
+              zoomKey="gallery"
+              zoomKeys
             />
           ) : (
             <MapLoading id={mapId} error={error} />

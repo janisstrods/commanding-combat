@@ -1,11 +1,11 @@
-// The battle map: the painted Board with the game's stacks (Fortifications at the bottom, units each followed by its
-// Weapon, Smoke / Blaze / Spotting Round on top), Objective control markers, the prompt's lit hexes and labels, and the
-// animations (units sliding, attack lines, flashes, counters flipping).
+// The battle map: the painted Board (zoomable) with the game's stacks (units side by side, each with its Weapon beside
+// it; Fortification, Smoke, Blaze, Spotting Round and Objective control markers in a band along the top of the hex),
+// the prompt's lit hexes and labels, and the animations (units sliding, attack lines, flashes, counters flipping).
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
 import { CounterG, MarkerG } from '../../art';
 import type { MarkerKind } from '../../art';
 import { counterType } from '../../engine/state';
-import type { GameState, HexId, PieceId, Side } from '../../engine/types';
+import type { GameState, HexId, Nation, PieceId, Side } from '../../engine/types';
 import { Board, StackView, hexCentre, type LosLine, type StackItem } from '../board';
 import type { AttackShow, Flash, Slide } from './controller';
 import { FireOverlay } from './FireOverlay';
@@ -40,20 +40,31 @@ export interface BattleBoardProps {
   overlay?: ReactNode;
 }
 
+/** The side the counters are drawn at (hex units); StackView scales them to their place in the hex. */
 const SIZE = 1.18;
 
-/** The pieces of each hex, bottom to top (units, each followed by its Weapon). */
-function stacksOf(s: GameState, skip: ReadonlySet<PieceId>): Map<HexId, PieceId[]> {
-  const out = new Map<HexId, PieceId[]>();
+/** The pieces of each hex in order (units, each followed by its Weapon). */
+function stacksOf(s: GameState, skip: ReadonlySet<PieceId>): Map<HexId, { id: PieceId; role: 'unit' | 'weapon' }[]> {
+  const out = new Map<HexId, { id: PieceId; role: 'unit' | 'weapon' }[]>();
   const ids = Object.keys(s.pieces).sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)) || a.localeCompare(b));
   for (const id of ids) {
     const p = s.pieces[id];
     if (p.where !== 'map' || skip.has(id)) continue;
     const list = out.get(p.hex) ?? [];
-    list.push(id);
-    if (p.weapon && s.pieces[p.weapon]) list.push(p.weapon);
+    list.push({ id, role: 'unit' });
+    if (p.weapon && s.pieces[p.weapon]) list.push({ id: p.weapon, role: 'weapon' });
     out.set(p.hex, list);
   }
+  return out;
+}
+
+/** Hexes with anything in their stack (their Objective control marker goes into the stack). */
+function stackedHexes(s: GameState, stacks: Map<HexId, unknown>): Set<HexId> {
+  const out = new Set<HexId>(stacks.keys());
+  s.fort.forEach((v, h) => v && out.add(h));
+  s.smoke.forEach((v, h) => v && out.add(h));
+  s.blaze.forEach((v, h) => v && out.add(h));
+  if (s.spottingRound >= 0) out.add(s.spottingRound);
   return out;
 }
 
@@ -86,8 +97,8 @@ function safeType(s: GameState, id: PieceId) {
   }
 }
 
-function MarkerNode({ kind, value, side }: { kind: MarkerKind; value?: number; side?: Side }) {
-  return <MarkerG kind={kind} value={value} side={side} x={0} y={0} size={SIZE * 0.92} />;
+function MarkerNode({ kind, value, side, nation }: { kind: MarkerKind; value?: number; side?: Side; nation?: Nation }) {
+  return <MarkerG kind={kind} value={value} side={side} nation={nation} x={0} y={0} size={SIZE} />;
 }
 
 /** Units sliding from one hex to the next (mounted at the start, moved to the end on the next frame). */
@@ -117,6 +128,7 @@ export function BattleBoard(p: BattleBoardProps) {
   const { s, rotate180 } = p;
   const flying = useMemo(() => new Set(p.slides.flatMap((x) => x.units.flatMap((id) => [id, s.pieces[id]?.weapon ?? '']))), [p.slides, s]);
   const stacks = useMemo(() => stacksOf(s, flying), [s, flying]);
+  const stacked = useMemo(() => stackedHexes(s, stacks), [s, stacks]);
   const selected = useMemo(() => new Set(p.selected), [p.selected]);
   const clickable = useMemo(() => new Set(p.clickable), [p.clickable]);
   const flipping = useMemo(() => new Set(p.flipping), [p.flipping]);
@@ -125,11 +137,12 @@ export function BattleBoard(p: BattleBoardProps) {
     const ids = stacks.get(h) ?? [];
     const items: StackItem[] = [];
     const fort = s.fort[h];
-    if (fort) items.push({ key: `fort-${h}`, node: <MarkerNode kind={fort} value={fort === 'mines' ? s.players[p.human].minefield : undefined} /> });
+    if (fort) items.push({ key: `fort-${h}`, role: 'marker', node: <MarkerNode kind={fort} value={fort === 'mines' ? s.players[p.human].minefield : undefined} /> });
     const expanded = p.expanded === h;
-    for (const id of ids) {
+    for (const { id, role } of ids) {
       items.push({
         key: id,
+        role,
         node: (
           <UnitNode
             s={s}
@@ -142,11 +155,14 @@ export function BattleBoard(p: BattleBoardProps) {
         ),
       });
     }
-    if (s.smoke[h]) items.push({ key: `smoke-${h}`, node: <MarkerNode kind="smoke" value={s.smoke[h]} /> });
-    if (s.blaze[h]) items.push({ key: `blaze-${h}`, node: <MarkerNode kind="blaze" /> });
-    if (s.spottingRound === h) items.push({ key: `sr-${h}`, node: <MarkerNode kind="spottingRound" /> });
+    if (s.smoke[h]) items.push({ key: `smoke-${h}`, role: 'marker', node: <MarkerNode kind="smoke" value={s.smoke[h]} /> });
+    if (s.blaze[h]) items.push({ key: `blaze-${h}`, role: 'marker', node: <MarkerNode kind="blaze" /> });
+    if (s.spottingRound === h) items.push({ key: `sr-${h}`, role: 'marker', node: <MarkerNode kind="spottingRound" /> });
     if (!items.length) return null;
-    return <StackView items={items} size={SIZE} step={0.1} expanded={expanded && items.length > 1} />;
+    const obj = s.map.objectives.indexOf(h);
+    const ctl = obj >= 0 ? s.control[obj] : null;
+    if (ctl) items.push({ key: `ctl-${h}`, role: 'marker', node: <MarkerNode kind="objective" side={ctl} nation={s.players[ctl].nation} /> });
+    return <StackView items={items} size={SIZE} expanded={expanded && items.length > 1} />;
   };
 
   return (
@@ -163,8 +179,11 @@ export function BattleBoard(p: BattleBoardProps) {
       topStack={p.expanded}
       edgeLabels={p.edgeLabels}
       title={`Map ${s.map.id}`}
+      zoomKey="battle"
+      zoomKeys
     >
-      <ControlMarkers s={s} rotate180={rotate180} />
+      {/* Overlay layers, bottom to top, in board coordinates (they zoom and pan with the map): add new ones here. */}
+      <ControlMarkers s={s} rotate180={rotate180} skip={stacked} />
       <Marks marks={p.marks} rotate180={rotate180} />
       {p.attack ? <AttackLines key={p.attack.id} attack={p.attack} rotate180={rotate180} /> : null}
       {p.fire ? <FireOverlay key={p.fire.id} show={p.fire} human={p.human} rotate180={rotate180} /> : null}
@@ -172,11 +191,10 @@ export function BattleBoard(p: BattleBoardProps) {
         <Flyer key={sl.id} slide={sl} rotate180={rotate180}>
           <StackView
             size={SIZE}
-            step={0.09}
             items={sl.units.flatMap((id) => {
               const u = s.pieces[id];
               const out: StackItem[] = [{ key: id, node: <UnitNode s={s} id={id} selected={false} clickable={false} flipping={false} /> }];
-              if (u?.weapon) out.push({ key: u.weapon, node: <UnitNode s={s} id={u.weapon} selected={false} clickable={false} flipping={false} /> });
+              if (u?.weapon) out.push({ key: u.weapon, role: 'weapon', node: <UnitNode s={s} id={u.weapon} selected={false} clickable={false} flipping={false} /> });
               return out;
             })}
           />
@@ -188,12 +206,13 @@ export function BattleBoard(p: BattleBoardProps) {
   );
 }
 
-function ControlMarkers({ s, rotate180 }: { s: GameState; rotate180: boolean }) {
+/** Objective control markers of hexes with nothing else in them (a stack shows its own). */
+function ControlMarkers({ s, rotate180, skip }: { s: GameState; rotate180: boolean; skip: ReadonlySet<HexId> }) {
   return (
     <g pointerEvents="none" className="bb-control">
       {s.map.objectives.map((h, i) => {
         const side = s.control[i];
-        if (!side || h < 0) return null;
+        if (!side || h < 0 || skip.has(h)) return null;
         const c = hexCentre(h, rotate180);
         return <MarkerG key={i} kind="objective" side={side} nation={s.players[side].nation} x={c.x - 0.5} y={c.y + 0.5} size={0.5} />;
       })}

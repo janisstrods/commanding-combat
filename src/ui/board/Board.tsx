@@ -1,13 +1,17 @@
 // The map board: painted terrain, hex grid, hexside features, labels, objective circles, highlight layers and a slot for
 // counter stacks. It holds no game state: the battle screen (Task 11) passes highlights and renders stacks.
-// Everything is in hex-radius units (viewBox), so the board scales to whatever box it is given.
-import { memo, useCallback, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+// Everything is in hex-radius units (viewBox), so the board scales to whatever box it is given. With `zoomKey` the board
+// zooms and pans (useBoardZoom.ts): the view only changes the viewBox, so every layer, the stacks and the overlays
+// (children) stay in board coordinates and zoom with the map.
+import { memo, useCallback, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode, type Ref } from 'react';
 import { ALL_HEXES, type HexId, type HexSide } from '../../engine/hex';
 import type { Edge, MapDef } from '../../engine/types';
 import { BOUNDS, boardViewBox, fmt, hexCentre, hexPoints, screenEdge, type Point } from './geometry';
 import { GridLayer, HexsideLayer, LabelLayer, ObjectiveLayer } from './HexLayer';
 import { MaskOverlay, type MaskOverlayMode } from './MaskOverlay';
+import { BoardScale, StackOrigin } from './StackView';
 import { DEFAULT_PPU, TerrainLayer } from './TerrainLayer';
+import { useBoardZoom, type BoardZoom } from './useBoardZoom';
 import './board.css';
 
 export interface LosLine {
@@ -40,14 +44,21 @@ export interface BoardProps {
   onHexHover?: (hex: HexId | null, e?: MouseEvent<SVGElement>) => void;
   /** Counters (or anything) to draw in a hex, centred on (0, 0) = the hex centre, upright, in hex units. */
   renderStack?: (hex: HexId) => ReactNode;
-  /** A hex whose stack is drawn above all others (e.g. an expanded stack). */
+  /** A hex whose stack is drawn above all others (e.g. an expanded stack); the hovered hex's comes next. */
   topStack?: HexId | null;
   /** Text written in the margin along each map edge (map edges; they follow the turn). */
   edgeLabels?: Partial<Record<Edge, string>>;
   /** Size of the margin text and compass (1 = normal; larger for small previews). */
   marginScale?: number;
-  /** Extra SVG above everything, in screen hex units (e.g. animations). */
+  /** Overlay layers above everything (animations, attack lines, flashes), in screen hex units: they zoom with the map. */
   children?: ReactNode;
+  /**
+   * Zoom (wheel, pinch, + / - buttons) and pan (drag) the board, keeping the view in localStorage under this key. The
+   * board then fills its box (with the zoom buttons in its corner) instead of keeping the map's aspect.
+   */
+  zoomKey?: string;
+  /** With `zoomKey`: + / - / 0 on the keyboard zoom too. */
+  zoomKeys?: boolean;
   /** Terrain painting resolution, pixels per hex radius. */
   ppu?: number;
   className?: string;
@@ -59,6 +70,49 @@ export interface BoardProps {
 const NO_HEXES: readonly HexId[] = [];
 
 export function Board(p: BoardProps) {
+  return p.zoomKey !== undefined ? <ZoomableBoard {...p} zoomKey={p.zoomKey} /> : <BoardSvg {...p} />;
+}
+
+function ZoomableBoard(p: BoardProps & { zoomKey: string }) {
+  // a pan or pinch carries the map away from the pointer: drop the hover (and the caller's tooltip) meanwhile
+  const z = useBoardZoom(boardViewBox(), { storageKey: p.zoomKey, keys: p.zoomKeys, onGestureStart: () => p.onHexHover?.(null) });
+  return (
+    <div ref={z.containerRef} className={`board-zoom ${p.className ?? ''}`} style={p.style}>
+      <BoardScale.Provider value={z.settled.px}>
+        <BoardSvg {...p} className={undefined} style={undefined} svgRef={z.svgRef} viewBox={z.viewBoxAttr()} />
+      </BoardScale.Provider>
+      <ZoomControls z={z} />
+    </div>
+  );
+}
+
+/** The + / - / fit buttons in the board's corner. */
+function ZoomControls({ z }: { z: BoardZoom }) {
+  const { k, max } = z.settled;
+  const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
+  return (
+    <div className="board-zoom__controls" onClick={stop} onDoubleClick={stop}>
+      <button type="button" onClick={() => z.zoomBy(1.5)} disabled={k >= max - 1e-3} aria-label="Zoom in" title="Zoom in (+, wheel or pinch)">
+        +
+      </button>
+      {/* zoomed out all the way, only + is offered (the map stays clear) */}
+      {k > 1 + 1e-3 ? (
+        <>
+          <button type="button" onClick={() => z.zoomBy(1 / 1.5)} aria-label="Zoom out" title="Zoom out (-)">
+            −
+          </button>
+          <button type="button" onClick={z.fit} aria-label="Show the whole map" title="Show the whole map (0)">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+            </svg>
+          </button>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function BoardSvg(p: BoardProps & { svgRef?: Ref<SVGSVGElement>; viewBox?: string }) {
   const {
     map,
     rotate180 = false,
@@ -94,7 +148,11 @@ export function Board(p: BoardProps) {
 
   const stacks = useMemo(() => {
     if (!renderStack) return null;
-    const order = topStack === null ? ALL_HEXES : [...ALL_HEXES.filter((h) => h !== topStack), topStack];
+    // the hovered stack above its neighbours (a fanned-out stack spills over them), the top stack above all
+    const raised: HexId[] = [];
+    if (hovered !== null && hovered >= 0 && hovered < 150 && hovered !== topStack) raised.push(hovered);
+    if (topStack !== null) raised.push(topStack);
+    const order = raised.length ? [...ALL_HEXES.filter((h) => !raised.includes(h)), ...raised] : ALL_HEXES;
     const out: ReactNode[] = [];
     for (const h of order) {
       const node = renderStack(h);
@@ -107,18 +165,19 @@ export function Board(p: BoardProps) {
           onClick={onHexClick ? (e) => onHexClick(h, e) : undefined}
           onMouseEnter={(e) => enter(h, e)}
         >
-          {node}
+          <StackOrigin.Provider value={c}>{node}</StackOrigin.Provider>
         </g>,
       );
     }
     return out;
-  }, [renderStack, topStack, rotate180, onHexClick, enter]);
+  }, [renderStack, topStack, hovered, rotate180, onHexClick, enter]);
 
   return (
     <svg
+      ref={p.svgRef}
       className={`board-svg ${p.className ?? ''}`}
       style={p.style}
-      viewBox={vb.attr}
+      viewBox={p.viewBox ?? vb.attr}
       preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label={p.title ?? `Map ${map.id}`}
@@ -141,7 +200,7 @@ export function Board(p: BoardProps) {
       ) : null}
       {stacks ? <g className="board-stacks">{stacks}</g> : null}
       {losLine ? <LosLayer line={losLine} rotate180={rotate180} /> : null}
-      {p.children}
+      {p.children ? <g className="board-overlays">{p.children}</g> : null}
     </svg>
   );
 }
