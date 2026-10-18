@@ -368,31 +368,35 @@ describe('Fire For Effect: Smoke barrage (§O18.2.3, R-26, R-42)', () => {
 });
 
 describe('random play on the scenarios with Radios (2, 4, 9) and with Weapons that fire Smoke (11, 12)', () => {
+  /** Play one whole random game; count Artillery Orders, Spotting Rounds, impacts and Smoke rounds in `seen`. */
+  function play(id: string, seed: number, rnd: () => number, seen: Record<string, number>): void {
+    const d = new GameDriver(newGame(scenario(id), seed));
+    let n = 0;
+    while (d.pending && n < 40000) {
+      const a: Answer = randomAnswer(d.state, d.pending, rnd);
+      if (!d.answer(a)) throw new Error(`scenario ${id} seed ${seed}: refused ${JSON.stringify(a)}: ${d.lastError}`);
+      n++;
+      for (const { e } of d.drainEvents()) {
+        if (e.kind === 'cardPlayed' && e.as === 'order' && e.name.startsWith('Artillery')) seen[e.name] = (seen[e.name] ?? 0) + 1;
+        if (e.kind === 'place' && e.marker === 'sr') seen.sr = (seen.sr ?? 0) + 1;
+        if (e.kind === 'fireAttack' && d.state.pieces[e.pieces[0]]?.where === 'artillery') seen.impact = (seen.impact ?? 0) + 1;
+        if (e.kind === 'log' && e.text.includes('a Smoke round')) seen.smokeRound = (seen.smokeRound ?? 0) + 1;
+      }
+    }
+    expect(d.state.phase, `scenario ${id} seed ${seed}`).toBe('over');
+    expect(d.state.spottingRound).toBe(-1);
+  }
+
   it('plays whole games with every random answer accepted; Artillery Orders are given, Smoke rounds fired', () => {
     const rnd = mulberry32(88);
     const seen: Record<string, number> = {};
-    for (const id of ['2', '4', '9', '11', '12']) {
-      for (let seed = 0; seed < 4; seed++) {
-        const d = new GameDriver(newGame(scenario(id), seed * 101 + 3));
-        let n = 0;
-        while (d.pending && n < 40000) {
-          const a: Answer = randomAnswer(d.state, d.pending, rnd);
-          if (!d.answer(a)) throw new Error(`scenario ${id} game ${seed}: refused ${JSON.stringify(a)}: ${d.lastError}`);
-          n++;
-          for (const { e } of d.drainEvents()) {
-            if (e.kind === 'cardPlayed' && e.as === 'order' && e.name.startsWith('Artillery')) seen[e.name] = (seen[e.name] ?? 0) + 1;
-            if (e.kind === 'place' && e.marker === 'sr') seen.sr = (seen.sr ?? 0) + 1;
-            if (e.kind === 'fireAttack' && d.state.pieces[e.pieces[0]]?.where === 'artillery') seen.impact = (seen.impact ?? 0) + 1;
-            if (e.kind === 'log' && e.text.includes('a Smoke round')) seen.smokeRound = (seen.smokeRound ?? 0) + 1;
-          }
-        }
-        expect(d.state.phase, `scenario ${id} game ${seed}`).toBe('over');
-        expect(d.state.spottingRound).toBe(-1);
-      }
-    }
+    for (const id of ['2', '4', '9', '11', '12']) for (let i = 0; i < 4; i++) play(id, i * 101 + 3, rnd, seen);
+    // Smoke rounds are rarer (a random player seldom picks them, and scenario 12's Fog thins its targets): play further
+    // games of the Smoke scenarios until one is fired, so this checks they are reachable without hanging on one seed.
+    for (let i = 4; !seen.smokeRound && i < 20; i++) play(i % 2 ? '11' : '12', i * 101 + 3, rnd, seen);
     expect(seen['Artillery Request']).toBeGreaterThan(0);
     expect(seen.sr).toBeGreaterThan(0);
     expect(seen.impact).toBeGreaterThan(0);
     expect(seen.smokeRound).toBeGreaterThan(0);
-  }, 120_000);
+  }, 180_000);
 });
