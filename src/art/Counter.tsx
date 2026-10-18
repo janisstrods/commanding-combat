@@ -2,13 +2,17 @@
 // 100 x 100 unit frame; `Counter` wraps it in an <svg> of `size` px (shadow and selection glow fit inside), `CounterG`
 // places it inside another SVG (the board) centred on (x, y). Weapons and Radios are smaller squares (WEAPON_SCALE).
 //
-// Unit layout (classic squad counter): name / troop quality top left, Morale top right, silhouettes in the middle,
-// Firepower - Range - Movement along the bottom (boxed values boxed). Leaders: Command in a hexagon top left, rank
-// insignia below it, name at the top. Broken side: red bar across the top, white Morale, broken values, men running.
+// Unit layout (classic squad counter): name / troop quality top left, Morale top right, the men in the middle (three in
+// a Squad, two in a Team, one Leader; drawn by the rig in ./figures in their nation's and squad kind's kit), Firepower -
+// Range - Movement along the bottom (boxed values boxed). Leaders: Command in a hexagon top left, rank insignia below
+// it, name at the top. Broken side: red bar across the top, thin red frame, white Morale, broken values, men fleeing
+// and cowering. Suppressed (orange tab) and Veteran (gold-edged shield) badges sit on the right edge.
 import type { ReactNode } from 'react';
 import type { CounterType, SideStats } from '../engine/types';
 import { FONT, INK, NATION, QUALITY, darken, lighten, mix, type NationPalette } from './palette';
-import { RankInsignia, Soldier, WeaponSilhouette, figureSlots, starPath, weaponArt } from './silhouettes';
+import { RankInsignia, WeaponSilhouette, starPath, weaponArt } from './silhouettes';
+import { Figure } from './figures/Figure';
+import { rosterOf } from './figures/dress';
 import { fit, textWidth } from './text';
 
 /** Weapons and Radios are drawn this much smaller than unit counters. */
@@ -123,28 +127,38 @@ function Stat({ x, v, boxed, fill, y = 94.5, size = 25 }: { x: number; v: string
   );
 }
 
-/** Suppressed (orange, pinned-down chevrons) and Veteran (green, gold star) badges along the right edge. */
+/** Suppressed: an orange tab with pinned-down chevrons (−1 to everything). */
+export function SuppressedBadge({ x, y }: { x: number; y: number }) {
+  const c = INK.suppressed;
+  return (
+    <g>
+      <rect x={x - 9} y={y - 9.5} width={18} height={19} rx={3.6} fill={c} stroke={darken(c, 0.55)} strokeWidth={1.3} />
+      <rect x={x - 7.4} y={y - 7.9} width={14.8} height={3} rx={1.5} fill={lighten(c, 0.35)} opacity={0.7} />
+      <path d={`M${x - 5.6} ${y - 4.4} L${x} ${y + 0.2} L${x + 5.6} ${y - 4.4} M${x - 5.6} ${y + 1.2} L${x} ${y + 5.8} L${x + 5.6} ${y + 1.2}`} fill="none" stroke="#fff" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/** Veteran: a green shield edged in gold with a gold star (+1 to everything). */
+export function VeteranBadge({ x, y }: { x: number; y: number }) {
+  const d = `M${x - 8.6} ${y - 9.6} L${x + 8.6} ${y - 9.6} L${x + 8.6} ${y + 1.2} C${x + 8.6} ${y + 6.4} ${x + 4} ${y + 9.2} ${x} ${y + 11} C${x - 4} ${y + 9.2} ${x - 8.6} ${y + 6.4} ${x - 8.6} ${y + 1.2} Z`;
+  return (
+    <g>
+      <path d={d} fill={INK.veteran} stroke={darken(INK.goldDark, 0.25)} strokeWidth={1.3} strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={INK.gold} strokeWidth={1.4} transform={`translate(${x} ${y}) scale(0.8) translate(${-x} ${-y})`} />
+      <path d={starPath(x, y + 0.2, 6.4)} fill={INK.gold} stroke={darken(INK.goldDark, 0.2)} strokeWidth={0.6} />
+    </g>
+  );
+}
+
+/** Suppressed and Veteran badges along the right edge. */
 function StateBadges({ suppressed, veteran }: { suppressed?: boolean; veteran?: boolean }) {
-  const out: ReactNode[] = [];
-  let y = 40;
-  if (suppressed) {
-    out.push(
-      <g key="s">
-        <circle cx={89} cy={y} r={9.5} fill={INK.suppressed} stroke={darken(INK.suppressed, 0.5)} strokeWidth={1.2} />
-        <path d={`M83.6 ${y - 4.6} L89 ${y - 0.6} L94.4 ${y - 4.6} M83.6 ${y + 0.4} L89 ${y + 4.4} L94.4 ${y + 0.4}`} fill="none" stroke="#fff" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
-      </g>,
-    );
-    y += 20;
-  }
-  if (veteran) {
-    out.push(
-      <g key="v">
-        <circle cx={89} cy={y} r={9.5} fill={INK.veteran} stroke={darken(INK.veteran, 0.5)} strokeWidth={1.2} />
-        <path d={starPath(89, y + 0.6, 7.4)} fill={INK.gold} />
-      </g>,
-    );
-  }
-  return <>{out}</>;
+  return (
+    <>
+      {suppressed ? <SuppressedBadge x={88.6} y={39.5} /> : null}
+      {veteran ? <VeteranBadge x={88.6} y={suppressed ? 60.5 : 40} /> : null}
+    </>
+  );
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -196,6 +210,11 @@ export function radioCalibre(type: CounterType): string {
 // ---------------------------------------------------------------------------------------------------------------------
 // Bodies
 
+/** The thin red frame inside the edge of a broken side. */
+function BrokenFrame() {
+  return <rect x={2.6} y={2.6} width={94.8} height={94.8} rx={5} fill="none" stroke={INK.broken} strokeWidth={2.2} />;
+}
+
 export function CounterBody({ type, broken = false, suppressed, veteran, selected, dim }: Omit<CounterProps, 'size'>) {
   const pal = NATION[type.nation];
   const body = isSupport(type) ? (
@@ -209,6 +228,7 @@ export function CounterBody({ type, broken = false, suppressed, veteran, selecte
     <g opacity={dim ? 0.42 : undefined}>
       <Plate fill={isSupport(type) ? pal.weapon : pal.base} light={pal.light} dark={pal.dark} selected={selected}>
         {body}
+        {broken && !isSupport(type) ? <BrokenFrame /> : null}
       </Plate>
       <StateBadges suppressed={suppressed} veteran={veteran} />
     </g>
@@ -218,8 +238,8 @@ export function CounterBody({ type, broken = false, suppressed, veteran, selecte
 function Figures({ type, broken, pal, cx, base }: { type: CounterType; broken: boolean; pal: NationPalette; cx: number; base: number }) {
   return (
     <g>
-      {figureSlots(type, broken).map((f, i) => (
-        <Soldier key={i} x={cx + f.x} y={base + f.y} s={f.s} pose={f.pose} gun={f.gun} nation={type.nation} ink={pal.ink} halo={pal.base} flip={f.pose === 'flee'} />
+      {rosterOf(type, broken).map((f, i) => (
+        <Figure key={i} spec={f.fig} colors={f.dress.colors} x={cx + f.x} y={base + f.y} s={f.s} flip={f.flip} ink={pal.ink} halo={pal.base} />
       ))}
     </g>
   );
@@ -363,7 +383,7 @@ function SupportFace({ type, broken, pal }: { type: CounterType; broken: boolean
       </text>
       {type.smoke ? <SmokeMark x={87} y={10} ink={pal.text} /> : null}
       <g opacity={broken ? 0.45 : 1}>
-        <WeaponSilhouette art={art} nation={type.nation} x={radio ? 47 : 50} y={radio ? 49 : 48} s={radio ? 1.05 : 1.18} ink={pal.ink} bg={pal.weapon} />
+        <WeaponSilhouette art={art} nation={type.nation} x={radio ? 46 : 50} y={radio ? 50 : 49} s={radio ? 1.22 : 1.27} ink={pal.ink} bg={pal.weapon} />
       </g>
       {broken ? (
         <BrokenRanges radio={radio} type={type} ink={pal.text} />
