@@ -32,6 +32,8 @@ export interface BattleBoardProps {
   onPieceClick: (id: PieceId) => void;
   onHexHover: (hex: HexId | null, e?: MouseEvent<SVGElement>) => void;
   edgeLabels?: Partial<Record<'top' | 'bottom' | 'left' | 'right', string>>;
+  /** More map overlays in board coordinates, under the flashes (the Random Hex randomiser). */
+  overlay?: ReactNode;
 }
 
 const SIZE = 1.18;
@@ -175,6 +177,7 @@ export function BattleBoard(p: BattleBoardProps) {
           />
         </Flyer>
       ))}
+      {p.overlay}
       <Flashes flashes={p.flashes} rotate180={rotate180} />
     </Board>
   );

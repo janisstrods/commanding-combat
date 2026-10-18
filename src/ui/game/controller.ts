@@ -16,6 +16,8 @@ import { WINDOW_PAUSE_MS, type Opponent } from './opponent';
 import { loadRerollPolicy, offerReroll, saveRerollPolicy, type RerollPolicy, type RollContext } from './reroll';
 import { clearSave, makeSave, newDriver, writeSave, type SessionConfig } from './session';
 import { setupChoice } from './prompts';
+import { Drama } from './drama';
+import type { Banner, HexPick, Impact } from './randomiser';
 import { deployForMe } from '../../ai/deploy';
 
 export type Speed = 'slow' | 'normal' | 'fast' | 'instant';
@@ -91,6 +93,10 @@ export interface ViewState {
   canUndo: boolean;
   speed: Speed;
   reroll: RerollPolicy;
+  /** Event / Sniper! / Random Hex moments (drama.ts): the randomiser on the map, the banner, the hexes hit. */
+  hexPick: HexPick | null;
+  banner: Banner | null;
+  impacts: Impact[];
   /** VP gained per side by source (signed toward that side). */
   vp: Record<Side, VpBreakdown>;
   fatal: boolean;
@@ -137,6 +143,17 @@ export class GameController {
   private reactMax = 0;
   /** For each human answer by its place among the answers: the first log id after it (undo drops the lines). */
   private logMarks = new Map<number, number>();
+  /** Event / Sniper! / Random Hex moments. */
+  private drama = new Drama({
+    view: () => this.view,
+    set: (p) => this.set(p),
+    wait: (ms) => this.wait(ms),
+    dur: (ms) => this.dur(ms),
+    skipping: () => this.skip,
+    showCard: (c, ms) => this.showCard(c, ms),
+    human: () => this.human,
+    nextId: () => seq++,
+  });
 
   /**
    * `driver`: a game restored from the autosave; `history`: the events of its replay (for the log and the VP tally;
@@ -157,6 +174,9 @@ export class GameController {
       slides: [],
       flipping: [],
       attack: null,
+      hexPick: null,
+      banner: null,
+      impacts: [],
       toast: null,
       thinking: false,
       waiting: null,
@@ -225,6 +245,7 @@ export class GameController {
 
   dispose(): void {
     this.disposed = true;
+    this.drama.dispose();
     this.opponent.dispose();
     this.listeners.clear();
   }
@@ -247,8 +268,9 @@ export class GameController {
     this.set({ reroll: p });
   }
 
-  /** Skip the rest of the animations now playing. */
+  /** End a reading pause (an Event's banner, a landed Random Hex), or else skip the rest of the animations now playing. */
   hurry(): void {
+    if (this.drama.hurry()) return;
     if (this.view.animating) this.skip = true;
   }
 
@@ -398,7 +420,11 @@ export class GameController {
       error: null,
       slides: [],
       attack: null,
+      hexPick: null,
+      banner: null,
+      impacts: [],
     });
+    this.drama.reset();
     this.save();
     if (!this.humanPending()) this.run();
   }
@@ -577,6 +603,8 @@ export class GameController {
     // set-up placements are not logged one by one
     const entry = e.kind === 'place' && e.piece && full.phase === 'setup' ? null : logEntry(e, after, human);
     if (entry) this.addLog(entry);
+    // an Event, a Sniper! or a Random Hex stages its own part first (drama.ts)
+    await this.drama.play(e, entry?.text ?? null, after, before);
     const mine = (side: Side | undefined) => side === human;
     switch (e.kind) {
       case 'turnStart': {
@@ -609,6 +637,11 @@ export class GameController {
         break;
       }
       case 'reveal': {
+        if (e.purpose === 'randomHex' || e.purpose === 'event') {
+          // the randomiser and the Event's banner show these cards (drama.ts)
+          this.set({ display: after });
+          break;
+        }
         const roll = isRollPurpose(e.purpose);
         sfx.card();
         const caption = `${sideName(after, e.side)}${mine(e.side) ? ' (you)' : ''} — ${roll ? 'roll for ' : ''}${PURPOSE_TEXT[e.purpose] ?? e.purpose}`;
@@ -617,16 +650,16 @@ export class GameController {
         await this.wait(roll ? 750 : 550);
         break;
       }
-      case 'event': {
-        this.showCard({ card: e.card, side: e.side, caption: `Event: ${e.event}`, highlight: 'event' }, 2000);
+      case 'event':
+        // its banner names it (drama.ts)
         this.set({ display: after });
-        await this.wait(1200);
         break;
-      }
       case 'trigger': {
         if (e.trigger === 'Time') sfx.whistle();
-        this.toast(`${e.trigger}!`, 'big', 900);
         this.set({ display: after });
+        // a Sniper! has its banner instead (drama.ts)
+        if (e.trigger === 'Sniper') break;
+        this.toast(`${e.trigger}!`, 'big', 900);
         await this.wait(550);
         break;
       }

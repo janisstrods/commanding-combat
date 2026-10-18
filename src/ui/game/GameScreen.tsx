@@ -15,6 +15,8 @@ import { ScenarioDialog } from '../screens/ScenarioDialog';
 import { isMuted, setMuted } from '../sound';
 import { terrainImage } from '../board';
 import { BattleBoard } from './BattleBoard';
+import { DramaLayer } from './DramaLayer';
+import { EventBanner } from './EventBanner';
 import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controller';
 import { NATION_PLURAL, sideName } from './names';
 import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
@@ -281,7 +283,9 @@ export function GameScreen({
           onPieceClick={onPiece}
           onHexHover={(h, e) => setHover(h === null || !e ? null : { hex: h, x: e.clientX, y: e.clientY })}
           edgeLabels={edgeLabels}
+          overlay={<DramaLayer pick={view.hexPick} impacts={view.impacts} rotate180={rotate} />}
         />
+        {view.banner ? <EventBanner key={view.banner.id} banner={view.banner} s={s} human={human} choosing={!!d} /> : null}
         {view.show ? (
           <div className="gs-show" key={view.show.id}>
             <div className="gs-show__card">{safeCard(view.show.card) ? <FateCardView card={safeCard(view.show.card)!} size="md" highlight={view.show.highlight ?? null} /> : null}</div>

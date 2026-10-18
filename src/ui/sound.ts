@@ -119,6 +119,12 @@ export const sfx = {
     const t = a.currentTime;
     tone(a, t, 180, 0.22, 'triangle', 0.18, 70);
   },
+  /** A light tick: the Random Hex randomiser hopping on (higher as it slows). */
+  tick(pitch = 1) {
+    const a = ac();
+    if (!a) return;
+    burst(a, a.currentTime, 0.03, 2400 * pitch, 3, 0.07);
+  },
   /** Boots on the move. */
   step() {
     const a = ac();
