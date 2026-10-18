@@ -4,7 +4,8 @@
 //
 // The game ends by a GameOver thrown anywhere below; `gameFlow` catches it, records the winner and finishes. Flows that
 // run part of a game on their own (the AI's simulations) wrap themselves in `guard` for the same effect.
-import { deploySquad, eliminate, simultaneously } from './casualties';
+import { eliminate, simultaneously } from './casualties';
+import { deployWithSplit } from './events/deploy';
 import { refill } from './deck';
 import { ask, choose, type Gen } from './decisions';
 import { resolveMelee } from './melee';
@@ -162,7 +163,7 @@ function* overstack(s: GameState, ctx: FlowCtx): Gen {
         const squads = here(s, hex, side).filter((p) => typeOf(p).kind === 'squad');
         if (squads.length) {
           const pick = yield* choose(s, c, side, 'overstackDeploy', squads.map((p) => ({ piece: p.id })), 0, 1, { hex });
-          if (pick.length) deploySquad(s, c, squads[pick[0]].id);
+          if (pick.length) yield* deployWithSplit(s, c, side, squads[pick[0]].id);
         }
         while (figures(s, hex, side) > stackLimit(s, hex)) {
           const units = here(s, hex, side);

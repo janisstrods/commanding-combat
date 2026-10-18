@@ -1,8 +1,11 @@
 // Objective control and chits (§7.3, R-31).
 import { describe, expect, it } from 'vitest';
 import { eliminate } from '../../src/engine/casualties';
-import { drawChit, finalScore, objectiveHexes, objectiveValue, relocate, revealChit, updateControl } from '../../src/engine/objectives';
-import { turnFlow } from '../../src/engine/flow';
+import { drawChit, finalScore, noteSquatters, objectiveHexes, objectiveValue, relocate, revealChit, updateControl } from '../../src/engine/objectives';
+import { scenario } from '../../src/engine/data';
+import { setupHexes } from '../../src/engine/setup';
+import { newGame, typeOf } from '../../src/engine/state';
+import { gameFlow, turnFlow } from '../../src/engine/flow';
 import { H, build, card, makeCtx, passive, run, start } from '../support/build';
 
 const map = { objectives: ['C3', 'E5', 'G7', 'J3', 'L5'], building: { G7: 1, G8: 1, H7: 1 } };
@@ -97,6 +100,66 @@ describe('leaving a building Objective (§7.3.1.1, found by the fuzzer)', () => 
     const c = s.players.axis.hand[0];
     f.answer({ kind: 'order', card: c, order: 'Move' }).answer({ kind: 'activate', units: ['p0'] });
     f.answer({ kind: 'moveStep', units: ['p0'], to: H('G9') });
+    expect(s.control[2]).toBe('allied');
+  });
+});
+
+describe('R-55: units set up in an Objective the other side controls (audit)', () => {
+  // Objective 1 is E5, Axis control; an Allied Squad and Team set up in it (squatters)
+  const squat = () => {
+    const s = build({
+      map: { objectives: ['E5', 'B1', 'C1', 'D1', 'E1'] },
+      control: ['axis', null, null, null, null],
+      openChits: ['A'],
+      pieces: [{ type: 'American/Line Squad', hex: 'E5' }, { type: 'American/Line Team', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'J9' }, { type: 'American/Line Squad', hex: 'E7' }],
+    });
+    noteSquatters(s);
+    return s;
+  };
+
+  it('one of them walking out does not hand the Objective to the others', () => {
+    const s = squat();
+    expect(s.squatters).toEqual(['allied', null, null, null, null]);
+    relocate(s, makeCtx([]), 'p1', H('E6'));
+    expect(s.control[0]).toBe('axis');
+  });
+
+  it('nor one of them being eliminated', () => {
+    const s = squat();
+    run(s, (ctx) => eliminate(s, ctx, 'p1', 'sniper'), passive);
+    expect(s.control[0]).toBe('axis');
+  });
+
+  it('a unit of theirs entering takes it, and the record is cleared', () => {
+    const s = squat();
+    relocate(s, makeCtx([]), 'p3', H('E5'));
+    expect(s.control[0]).toBe('allied');
+    expect(s.vp).toBe(-2); // chit A: Objective 1 = 1 VP swings from the Axis to the Allies
+    expect(s.squatters![0]).toBeNull();
+  });
+
+  it('set-up records them (scenario 3: German units in the building of Objective 3)', () => {
+    const scn = scenario('3');
+    const s = newGame(scn, 4);
+    const obj3 = objectiveHexes(s, 3);
+    const axisArea = new Set(setupHexes(s, 'axis'));
+    const inside = obj3.find((h) => axisArea.has(h))!;
+    expect(inside).toBeDefined();
+    const staged = Object.values(s.pieces).filter((p) => p.side === 'axis' && p.where === 'staging');
+    const ids = [staged.find((p) => typeOf(p).kind === 'squad')!.id, staged.find((p) => typeOf(p).kind === 'leader')!.id];
+    const placed: string[] = [];
+    run(s, (ctx) => gameFlow(s, ctx), (d, st) => {
+      if (d.kind === 'deploy' && d.side === 'axis' && placed.length < 2) {
+        const id = ids[placed.length];
+        placed.push(id);
+        return { kind: 'deploy', piece: id, hex: inside };
+      }
+      if (d.kind === 'turn') return undefined;
+      return passive(d, st);
+    });
+    expect(s.control[2]).toBe('allied');
+    expect(s.squatters![2]).toBe('axis');
+    run(s, (ctx) => eliminate(s, ctx, ids[0], 'sniper'), passive);
     expect(s.control[2]).toBe('allied');
   });
 });

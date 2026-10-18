@@ -5,7 +5,7 @@
 import { areaHexes } from './data';
 import { drawCards } from './deck';
 import { ask, choose, type Gen } from './decisions';
-import { drawChit, openChit, updateControl } from './objectives';
+import { drawChit, noteSquatters, openChit, updateControl } from './objectives';
 import { randInt } from './rng';
 import { fortHexAllowed, fortsPlaced, lateInOwnArea, lateSetupTypes, openingCards, scenarioDeploy, setupPlaces, setupStart } from './scenario/setup';
 import { figures, stackLimit, unitFigures } from './stats';
@@ -51,6 +51,7 @@ export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
   if (fortsLast) for (const side of [first, other(first)]) yield* placeFortifications(s, ctx, side);
   // RS.11.2 / RS.13: Objectives held by one side alone after set-up pass to it
   if (s.scenario.special.controlAfterSetup) updateControl(s, ctx);
+  else noteSquatters(s); // R-55: set-up is not entering
   yield* openingCards(s, ctx);
   for (const side of SIDES) yield* drawCards(s, ctx, side, s.players[side].handSize - s.players[side].hand.length);
   if (s.scenario.special.initiativeChoice) {

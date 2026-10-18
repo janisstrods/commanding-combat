@@ -54,20 +54,37 @@ function soleOccupant(s: GameState, n: number): Side | null {
 
 /**
  * Update control of the Objectives around `hex` (all of them if omitted): a side that solely occupies one takes it,
- * swinging the open chits' VP from the old controller to the new one.
+ * swinging the open chits' VP from the old controller to the new one. `entered`: the side whose unit has just entered
+ * `hex` — the only way a side that set up there takes the Objective (R-55, `squatters`).
  */
-export function updateControl(s: GameState, ctx: FlowCtx, hex?: HexId): void {
+export function updateControl(s: GameState, ctx: FlowCtx, hex?: HexId, entered?: Side): void {
   const list = hex === undefined ? [1, 2, 3, 4, 5].slice(0, s.map.objectives.length) : objectivesAt(s, hex);
   for (const n of list) {
     const occ = soleOccupant(s, n);
     const old = s.control[n - 1];
     if (!occ || occ === old) continue;
+    if (s.squatters?.[n - 1] === occ && entered !== occ) continue;
+    if (s.squatters) s.squatters[n - 1] = null;
     const v = objectiveValue(s, n);
     if (old) addVp(s, ctx, old, -v, `objective ${n}`);
     addVp(s, ctx, occ, v, `objective ${n}`);
     s.control[n - 1] = occ;
     ctx.emit({ kind: 'control', objective: n, side: occ });
   }
+}
+
+/**
+ * R-55 at the end of set-up (unless the scenario passes Objectives to sole occupants, `controlAfterSetup`): note the
+ * side standing alone in each Objective it does not control.
+ */
+export function noteSquatters(s: GameState): void {
+  const n = Math.min(5, s.map.objectives.length);
+  const out: (Side | null)[] = [];
+  for (let i = 1; i <= n; i++) {
+    const occ = soleOccupant(s, i);
+    out.push(occ && s.control[i - 1] !== occ ? occ : null);
+  }
+  if (out.some((x) => x)) s.squatters = out;
 }
 
 /** Score chit `c` for the current controllers (when it is revealed or placed open). */
@@ -139,7 +156,7 @@ export function relocate(s: GameState, ctx: FlowCtx, id: PieceId, hex: HexId): v
   p.where = 'map';
   p.hex = hex;
   p.space = -1;
-  updateControl(s, ctx, hex);
+  updateControl(s, ctx, hex, p.side);
   if (from >= 0 && from !== hex) updateControl(s, ctx, from);
 }
 

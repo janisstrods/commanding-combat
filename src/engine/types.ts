@@ -532,6 +532,12 @@ export interface GameState {
   spottingRound: HexId;
   /** Objectives 1..5: current control. */
   control: (Side | null)[];
+  /**
+   * Objectives 1..5: the side whose units stood alone in it at the end of set-up although it did not control it (R-55).
+   * It takes the Objective only when one of its units enters it (not when a fellow leaves or dies); cleared when the
+   * control changes. Absent or null: no such side.
+   */
+  squatters?: (Side | null)[];
   /** Open (face-up) Objective chits. */
   openChits: ChitId[];
   /** Chits still in the cup. */

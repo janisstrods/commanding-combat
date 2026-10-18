@@ -2,10 +2,10 @@
 // Teams are broken if the Squad was and share its activation status (casualties.ts `deploySquad`). Each of the Squad's
 // markers (Weapon, Suppressed, Veteran) goes to one Team; with two or more he chooses how they split (S7 precedent).
 import { deploySquad } from '../casualties';
-import { choose } from '../decisions';
+import { choose, type Gen } from '../decisions';
 import type { EventHandler } from '../registry';
 import { typeOf } from '../state';
-import type { GameState, Piece } from '../types';
+import type { FlowCtx, GameState, Piece, PieceId, Side } from '../types';
 import { mapUnits, note } from './helpers';
 
 type Marker = 'weapon' | 'suppressed' | 'veteran';
@@ -19,7 +19,15 @@ export const deployEvent: EventHandler = function* (s, ctx, receiver) {
   }
   const pick = yield* choose(s, ctx, receiver, 'deploy', squads.map((p) => ({ piece: p.id })), 0, 1);
   if (!pick.length) return;
-  const sq = squads[pick[0]];
+  yield* deployWithSplit(s, ctx, receiver, squads[pick[0]].id);
+};
+
+/**
+ * Deploy Squad `id` of `side` into two Teams, asking how its markers split when it has two or more (also the free
+ * Deploy against overstacking, §8.2). Returns the Teams.
+ */
+export function* deployWithSplit(s: GameState, ctx: FlowCtx, side: Side, id: PieceId): Gen<Piece[]> {
+  const sq = s.pieces[id];
   const markers: Marker[] = [];
   if (sq.weapon) markers.push('weapon');
   if (sq.suppressed) markers.push('suppressed');
@@ -28,11 +36,11 @@ export const deployEvent: EventHandler = function* (s, ctx, receiver) {
   if (markers.length > 1) {
     const splits = splitsOf(markers);
     const items = splits.map((sp) => ({ label: describe(s, sq, markers, sp) }));
-    const [i] = yield* choose(s, ctx, receiver, 'deployMarkers', items, 1, 1, { piece: sq.id, splits });
+    const [i] = yield* choose(s, ctx, side, 'deployMarkers', items, 1, 1, { piece: sq.id, splits });
     split = splits[i];
   }
-  deploySquad(s, ctx, sq.id, split);
-};
+  return deploySquad(s, ctx, sq.id, split);
+}
 
 /** The ways to share the markers between two identical Teams: the first goes to Team 1, each other to Team 1 or 2. */
 function splitsOf(markers: Marker[]): Split[] {

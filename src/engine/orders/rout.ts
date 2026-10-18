@@ -79,7 +79,7 @@ export function* retreat(s: GameState, ctx: FlowCtx, id: PieceId, hexes: number)
     }
     p.hex = to;
     ctx.emit({ kind: 'retreat', unit: id, from, to });
-    updateControl(s, ctx, to);
+    updateControl(s, ctx, to, p.side);
     updateControl(s, ctx, from); // leaving a building Objective can leave the enemy alone in it
     yield* onEnterHex(s, ctx, [id], from, to, 'retreat');
   }

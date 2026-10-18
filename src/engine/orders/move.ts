@@ -189,7 +189,7 @@ function* moveStep(s: GameState, ctx: FlowCtx, side: Side, units: PieceId[], to:
   m.groupHex = to;
   m.entered = true;
   ctx.emit({ kind: 'move', units: movers, from, to, mp: cost });
-  updateControl(s, ctx, to);
+  updateControl(s, ctx, to, side);
   updateControl(s, ctx, from); // leaving a building Objective can leave the enemy alone in it
   const enter = yield* onEnterHex(s, ctx, movers, from, to, 'move');
   const here = movers.filter((id) => onMap(s, id) && s.pieces[id].hex === to);

@@ -381,6 +381,7 @@ export function cloneState(s: GameState): GameState {
     smoke: s.smoke.slice(),
     blaze: s.blaze.slice(),
     control: s.control.slice(),
+    ...(s.squatters ? { squatters: s.squatters.slice() } : {}),
     openChits: s.openChits.slice(),
     chitCup: s.chitCup.slice(),
     smokeCup: s.smokeCup.slice(),

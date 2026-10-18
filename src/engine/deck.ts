@@ -9,13 +9,14 @@ import { addVp, breakPiece, eliminate } from './casualties';
 import { ask, choose, type Gen } from './decisions';
 import { resolveMelees } from './flow';
 import { neighbours, rowOf } from './hex';
+import { withHolders } from './melee';
 import { chitVWinner, finalScore, updateControl } from './objectives';
 import { window } from './reactions';
 import { EVENTS } from './registry';
 import { shuffle } from './rng';
 import { afterEvent, checkFixedWeapons, entryHexes, eventBlocked, onTimeAdvance, sniperExtraTargets } from './scenarioRules';
 import { figures, stackLimit, unitFigures } from './stats';
-import { GameOver, cardOf, isImpassableHex, isUnit, radioOf, removeSmoke, typeOf } from './state';
+import { GameOver, cardOf, hasUnitOf, isImpassableHex, isUnit, radioOf, removeSmoke, typeOf } from './state';
 import { type FateCard, type FlowCtx, type GameState, type HexId, type Piece, type RevealPurpose, type Side, SIDES, type Edge, other } from './types';
 
 export type { Gen } from './decisions';
@@ -168,9 +169,10 @@ export function* advanceTime(s: GameState, ctx: FlowCtx, side: Side): Gen {
     const [i] = yield* choose(s, tctx, side, 'smokeRemoval', smoky.map((hex) => ({ hex })), 1, 1);
     removeSmoke(s, ctx, smoky[i]);
   }
-  yield* reinforcements(s, tctx);
+  const holders = yield* reinforcements(s, tctx);
   yield* window(s, tctx, 'timeAdvanceEnd', {});
-  yield* resolveMelees(s, tctx);
+  // a melee the reinforcements caused (R-33), told who held each hex they entered (Bunker / Pillbox ties, §F101)
+  yield* resolveMelees(s, withHolders(tctx, holders));
 }
 
 /** The hexes along a map edge (the first row or column). */
@@ -194,7 +196,8 @@ export function edgePlacements(s: GameState, side: Side, unit: Piece): HexId[] {
  * Reinforcements on the Time space just reached (§6.1.2 step 5): each owner (inactive player first) places his units,
  * with their Weapons, along his own edge; a Radio goes to an empty Artillery Box (else it is not placed, R-49).
  */
-function* reinforcements(s: GameState, ctx: FlowCtx): Gen {
+function* reinforcements(s: GameState, ctx: FlowCtx): Gen<Record<number, Side>> {
+  const holders: Record<number, Side> = {};
   for (const side of [other(s.active), s.active]) {
     const here = Object.values(s.pieces).filter((p) => p.side === side && p.where === 'time' && p.space === s.time);
     if (!here.length) continue;
@@ -225,17 +228,19 @@ function* reinforcements(s: GameState, ctx: FlowCtx): Gen {
         unit = s.pieces[a.piece];
         hex = a.hex;
       }
+      if (holders[hex] === undefined && hasUnitOf(s, hex, other(side)) && !hasUnitOf(s, hex, side)) holders[hex] = other(side);
       unit.where = 'map';
       unit.hex = hex;
       unit.space = -1;
       placed.push(unit.id);
       units = units.filter((u) => u !== unit);
       ctx.emit({ kind: 'place', piece: unit.id, hex });
-      updateControl(s, ctx, hex);
+      updateControl(s, ctx, hex, side);
     }
     if (placed.length) ctx.emit({ kind: 'reinforce', pieces: placed });
     for (const u of units) ctx.emit({ kind: 'log', text: `No room on the edge for the reinforcing ${typeOf(u).name}.`, side });
   }
+  return holders;
 }
 
 /**

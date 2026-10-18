@@ -218,6 +218,29 @@ describe('the game ending mid-resolution (plan Review Focus 2)', () => {
   });
 });
 
+describe('the free Deploy against overstacking (§8.2, §E52, audit)', () => {
+  it('offers the split of the Squad\'s markers between the Teams, as the Deploy Event does', () => {
+    const s = build({
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E5', weapon: 'German/LMG', veteran: true }, // p0, p1
+        { type: 'German/Rifle Squad', hex: 'E5' }, // p2
+        { type: 'German/Rifle Squad', hex: 'E8' },
+        { type: 'American/Line Squad', hex: 'G5' },
+      ],
+      axis: { discard: 0 },
+    });
+    const r = run(s, (ctx) => gameFlow(s, ctx), (d, st) => {
+      if (d.kind === 'choose' && d.reason === 'overstackDeploy') return { kind: 'choose', items: [d.items.findIndex((i) => 'piece' in i && i.piece === 'p0')] };
+      if (d.kind === 'choose' && d.reason === 'deployMarkers') return { kind: 'choose', items: [1] };
+      if (d.kind === 'choose' && d.reason === 'overstackEliminate') return { kind: 'choose', items: [d.items.findIndex((i) => 'piece' in i && i.piece === 'p2')] };
+      return d.kind === 'turn' ? undefined : passive(d, st);
+    });
+    expect(r.decisions.some((d) => d.kind === 'choose' && d.reason === 'deployMarkers')).toBe(true);
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    expect(teams.map((t) => [!!t.weapon, t.veteran])).toEqual([[true, false], [false, true]]);
+  });
+});
+
 describe('exit off the enemy edge (§7.2.1, R-30)', () => {
   it('scores the units\' VP for their owner and puts them on a Time Track space ahead of the marker', () => {
     const s = build({

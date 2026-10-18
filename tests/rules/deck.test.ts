@@ -6,9 +6,9 @@ import { advanceTime, refill, roll } from '../../src/engine/deck';
 import type { Gen } from '../../src/engine/decisions';
 import { guard } from '../../src/engine/flow';
 import { EVENTS } from '../../src/engine/registry';
-import { GameOver } from '../../src/engine/state';
+import { GameOver, mixedHexes } from '../../src/engine/state';
 import type { EventName, GameEvent } from '../../src/engine/types';
-import { build, card, rolls, run, passive, script } from '../support/build';
+import { H, build, card, rolls, run, passive, script } from '../support/build';
 
 const G = 'German';
 const kinds = (es: GameEvent[]) => es.map((e) => e.kind);
@@ -250,5 +250,47 @@ describe('Time advance (§6.1.2) and Sudden Death (§6.2)', () => {
     const p = s.players.axis;
     expect(new Set([...p.hand, ...p.deck, ...p.discards]).size).toBe(72);
     expect([...p.hand, ...p.deck, ...p.discards].every((c) => CARDS[c].nation === 'German')).toBe(true);
+  });
+});
+
+describe('reinforcements into an enemy-held hex (R-33, §F101, audit)', () => {
+  const game = (seed: number, fort?: 'bunker') =>
+    build({
+      seed,
+      allied: { edge: 'top' },
+      fort: fort ? { E1: fort } : {},
+      pieces: [
+        { type: 'German/Rifle Squad', hex: 'E1' }, // p0: FP 5
+        { type: 'German/Rifle Squad', hex: 'J9' },
+        { type: 'American/Line Squad', where: 'time', space: 1 }, // p2: FP 6 + 1 boxed
+        { type: 'American/Line Squad', hex: 'A9' },
+      ],
+      suddenDeath: 9,
+      axis: { top: rolls(G, [[3, 6]]) }, // the Axis (not reshuffled) rolls 9: 14 against 7 + the Allied roll
+    });
+  const place = () => script([{ kind: 'deploy', piece: 'p2', hex: H('E1') }]);
+
+  it('may enter it; the melee is fought at the end of the Time advance, its rolls never trigger', () => {
+    const s = game(1);
+    const r = run(s, (ctx) => advanceTime(s, ctx, 'allied'), place());
+    expect(r.events.filter((e) => e.kind === 'melee')).toHaveLength(1);
+    expect(r.events.filter((e) => e.kind === 'trigger')).toEqual([]);
+    expect(mixedHexes(s)).toEqual([]);
+  });
+
+  it('a tie in a Bunker the enemy held: only the reinforcements die', () => {
+    let tied = 0;
+    for (let seed = 1; seed < 400 && tied < 2; seed++) {
+      const s = game(seed, 'bunker');
+      const r = run(s, (ctx) => advanceTime(s, ctx, 'allied'), place());
+      const m = r.events.find((e) => e.kind === 'melee') as Extract<GameEvent, { kind: 'melee' }>;
+      expect(m).toBeTruthy();
+      if (m.totals.axis !== m.totals.allied) continue;
+      tied++;
+      expect(m.losers).toEqual(['allied']);
+      expect(s.pieces.p0.where).toBe('map');
+      expect(s.pieces.p2.where).toBe('casualty');
+    }
+    expect(tied).toBe(2);
   });
 });

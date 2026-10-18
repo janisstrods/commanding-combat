@@ -102,7 +102,7 @@ function* advanceUnit(s: GameState, ctx: FlowCtx, side: Side, id: PieceId, to: H
   if (holders[to] === undefined && hasUnitOf(s, to, other(side)) && !hasUnitOf(s, to, side)) holders[to] = other(side);
   p.hex = to;
   ctx.emit({ kind: 'move', units: [id], from, to, mp: 0 });
-  updateControl(s, ctx, to);
+  updateControl(s, ctx, to, side);
   updateControl(s, ctx, from); // leaving a building Objective can leave the enemy alone in it
   yield* onEnterHex(s, ctx, [id], from, to, 'advance');
   if (onMap(s, id) && p.hex === to) yield* window(s, ctx, 'afterAdvanceEntry', { hex: to, units: [id], mover: side });
