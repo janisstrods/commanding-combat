@@ -82,6 +82,8 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     case 'activate':
       return { kind: 'info', side: e.side, text: `${e.order === 'Op Fire' ? 'Op Fire' : e.order}: ${names(s, e.units)} activated.` };
     case 'move':
+      // an Advance moves without spending MP
+      if (!e.mp) return { kind: 'move', text: `${names(s, e.units)} advance${e.units.length === 1 ? 's' : ''} to ${hexName(e.to)}.` };
       return { kind: 'move', text: `${names(s, e.units)} move${e.units.length === 1 ? 's' : ''} to ${hexName(e.to)} (${e.mp} MP).` };
     case 'exit':
       return { kind: 'move', text: `${names(s, e.units)} exit${e.units.length === 1 ? 's' : ''} the map from ${hexName(e.from)}.` };
