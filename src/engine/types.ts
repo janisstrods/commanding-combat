@@ -429,6 +429,8 @@ export interface MoveProgress {
   group: PieceId[] | null;
   /** Some activated unit has entered a hex (a Move Order must move someone, §O14.4). */
   entered: boolean;
+  /** The hex the moving group is in (members put elsewhere, e.g. by a Blaze, leave the group and end their move). */
+  groupHex?: HexId;
 }
 
 /** One reveal from a Fate deck. Rolls (dice) can be re-rolled with the Initiative; reveals for hexes/events cannot. */

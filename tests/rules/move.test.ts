@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { answerError } from '../../src/engine/decisions';
 import { turnFlow } from '../../src/engine/flow';
+import { ACTIONS } from '../../src/engine/registry';
 import type { Answer, Decision } from '../../src/engine/types';
 import { H, build, card, rolls, start, type BuildSpec, type Responder, type Stepper } from '../support/build';
 
@@ -166,5 +167,68 @@ describe('Op Fire (§A33)', () => {
     const f = moving(spec([]), ['p0']);
     f.answer(step(['p0'], 'E6')).answer(step(['p0'], 'E5'));
     expect(f.decisions.some((d) => d.kind === 'react')).toBe(false);
+  });
+});
+
+describe('a moving group split by an Event (Blaze) during its move', () => {
+  const manual: Responder = (d) => (d.kind === 'reroll' ? { kind: 'reroll', yes: false } : undefined);
+
+  it('members displaced out of the group\'s hex leave the group and end their move; the Order goes on', () => {
+    // The group enters E5 and is Op Fired; the first German Defense roll is a 3-4 with Event!: Blaze in E5 (the
+    // Random Hex). Both Squads must leave E5 and go to different hexes.
+    const ev = card(G, { white: 3, red: 4, trigger: 'Event' });
+    const blaze = card(G, { event: 'Blaze' }, [ev]);
+    const e5 = card(G, { hex: 'E5' }, [ev, blaze]);
+    const f = moving({
+      pieces: [
+        { type: 'German/Lt Von Karsties', hex: 'E7' }, // p0
+        { type: 'German/Rifle Squad', hex: 'E6' }, // p1
+        { type: 'German/Rifle Squad', hex: 'E6' }, // p2
+        { type: 'American/Line Squad', hex: 'E1' }, // p3
+      ],
+      allied: { hand: [FIRE_A], top: rolls(A, [[1, 2]]) },
+      axis: { top: [ev, blaze, e5] },
+    }, ['p0', 'p1', 'p2'], manual);
+    f.answer(step(['p1', 'p2'], 'E5'));
+    f.answer({ kind: 'play', option: 0 }).answer({ kind: 'activate', units: ['p3'] }).answer({ kind: 'play', option: 0 });
+    f.answer({ kind: 'fire', spec: { pieces: ['p3'], target: H('E5') } });
+    expect(f.pending).toMatchObject({ kind: 'choose', reason: 'blazeDisplace', side: 'axis' });
+    f.answer({ kind: 'choose', items: [0] });
+    f.answer({ kind: 'choose', items: [1] });
+    const [h1, h2] = [f.s.pieces.p1.hex, f.s.pieces.p2.hex];
+    expect(h1).not.toBe(h2);
+    expect(f.s.blaze[H('E5')]).toBe(true);
+    // the group is over: only the Leader may still move
+    expect(md(f)).toMatchObject({ kind: 'move', units: ['p0'], current: null });
+    expect(f.s.turn.move!.done).toEqual(expect.arrayContaining(['p1', 'p2']));
+  });
+
+  it('when only some members are moved out, the others go on as the group', () => {
+    // stand-in for an effect that moves one member away mid-move: an Allied reaction to the entry puts the Team in D6
+    const saved = ACTIONS['Hidden Wire'];
+    ACTIONS['Hidden Wire'] = {
+      windows: ['afterHexEntry'],
+      options: (st, side, _w, info) => (side === 'allied' && info.units?.includes('p2') && st.pieces.p2.hex === H('E6') ? [{ card: '', action: 'Hidden Wire' }] : []),
+      *run(st) {
+        st.pieces.p2.hex = H('D6');
+      },
+    };
+    try {
+      const f = moving({
+        pieces: [
+          { type: 'German/Lt Von Karsties', hex: 'E7' }, // p0
+          { type: 'German/Rifle Squad', hex: 'E7' }, // p1
+          { type: 'German/Line Team', hex: 'E7' }, // p2
+        ],
+      }, ['p0', 'p1', 'p2'], (d) => (d.kind === 'react' ? { kind: 'play', option: 0 } : d.kind === 'reroll' ? { kind: 'reroll', yes: false } : undefined));
+      f.answer(step(['p0', 'p1', 'p2'], 'E6'));
+      expect(md(f)).toMatchObject({ current: ['p0', 'p1'] });
+      f.answer(step(['p0', 'p1'], 'E5'));
+      expect(f.s.pieces.p2.hex).toBe(H('D6'));
+      expect(f.s.turn.move!.done).toContain('p2');
+      expect(md(f)).toMatchObject({ current: ['p0', 'p1'] });
+    } finally {
+      ACTIONS['Hidden Wire'] = saved;
+    }
   });
 });

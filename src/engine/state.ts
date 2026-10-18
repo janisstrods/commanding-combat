@@ -387,7 +387,7 @@ export function cloneState(s: GameState): GameState {
     turn: {
       ...t, activated: t.activated.slice(), playerActivations: t.playerActivations.slice(), moving: t.moving.slice(),
       opFire: t.opFire.slice(), fired: t.fired.slice(),
-      move: m ? { spent: { ...m.spent }, road: m.road.slice(), done: m.done.slice(), group: m.group ? m.group.slice() : null, entered: m.entered } : null,
+      move: m ? { ...m, spent: { ...m.spent }, road: m.road.slice(), done: m.done.slice(), group: m.group ? m.group.slice() : null } : null,
     },
     lastRoll: s.lastRoll ? { ...s.lastRoll } : null,
   };

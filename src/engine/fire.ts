@@ -363,7 +363,9 @@ export function* defendHex(s: GameState, ctx: FlowCtx, attack: AttackInfo, hex: 
 /**
  * One Defense roll (§O20.3.4): the defender's window just before it (Concealment, Hidden Entrenchments / Pillbox),
  * then the roll; after its trigger, current Morale + Cover + roll against the attack total less any Concealment:
- * lower → the unit breaks; equal → Suppressed, or breaks if it is activated to Move; higher → no effect.
+ * lower → the unit breaks; equal → Suppressed, or breaks if it is activated to Move; higher → no effect. A Squad that
+ * Deploys during its roll's trigger keeps its pending result, which then applies to both Teams (R-53, §E52); its
+ * Morale and Cover are taken as they stood before the trigger.
  */
 export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackInfo, firers: HexId[] = []): Gen {
   const p = s.pieces[id];
@@ -371,14 +373,38 @@ export function* defend(s: GameState, ctx: FlowCtx, id: PieceId, attack: AttackI
   const hex = p.hex;
   yield* window(s, ctx, 'beforeDefenseRoll', { hex, units: [id], attack });
   if (!still(s, id, hex)) return;
-  const r = yield* roll(s, ctx, p.side, 'defense');
-  if (!still(s, id, hex)) return;
-  const morale = currentStats(s, id).morale + cover(s, id, { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover });
-  const total = morale + r.sum;
+  const vs = { firers, mortarOrArtillery: attack.mortarOrArtillery, ignoresCover: attack.ignoresCover };
+  const before = currentStats(s, id).morale + cover(s, id, vs);
+  const replaced: { by: PieceId[] | null } = { by: null };
+  const watch: FlowCtx = {
+    ...ctx,
+    emit: (e) => {
+      if (e.kind === 'replace' && e.piece === id) replaced.by = e.by;
+      ctx.emit(e);
+    },
+  };
+  const r = yield* roll(s, watch, p.side, 'defense');
   const against = (attack.total ?? 0) - attack.reduction;
+  if (!still(s, id, hex)) {
+    // Deployed meanwhile (one Squad → two Teams): the result stands for both (Light Wounds, one Team, is not a Deploy)
+    const teams = replaced.by && replaced.by.length === 2 ? replaced.by.filter((t) => still(s, t, hex)) : [];
+    if (!teams.length) return;
+    const total = before + r.sum;
+    const kind = total < against ? 'break' : total === against ? 'tie' : 'none';
+    ctx.emit({ kind: 'defense', unit: id, morale: before, total, attack: against, result: kind === 'tie' ? 'suppress' : kind });
+    for (const t of teams) yield* apply(s, ctx, t, kind === 'tie' ? (s.turn.moving.includes(t) ? 'break' : 'suppress') : kind, attack);
+    return;
+  }
+  const morale = currentStats(s, id).morale + cover(s, id, vs);
+  const total = morale + r.sum;
   const result = total < against ? 'break' : total === against ? (s.turn.moving.includes(id) ? 'break' : 'suppress') : 'none';
   ctx.emit({ kind: 'defense', unit: id, morale, total, attack: against, result });
-  if (result === 'break') yield* breakPiece(s, ctx, id, attack.mode === 'opFire' ? 'opFire' : attack.mode === 'artillery' ? 'artillery' : attack.mode === 'mine' ? 'mine' : 'fire');
+  yield* apply(s, ctx, id, result, attack);
+}
+
+function* apply(s: GameState, ctx: FlowCtx, id: PieceId, result: 'break' | 'suppress' | 'none', attack: AttackInfo): Gen {
+  const cause = attack.mode === 'opFire' ? 'opFire' : attack.mode === 'artillery' ? 'artillery' : attack.mode === 'mine' ? 'mine' : 'fire';
+  if (result === 'break') yield* breakPiece(s, ctx, id, cause);
   else if (result === 'suppress') suppress(s, ctx, id);
 }
 

@@ -100,7 +100,11 @@ export function* continueMove(s: GameState, ctx: FlowCtx, side: Side): Gen {
   for (;;) {
     const m = s.turn.move!;
     if (m.group) {
-      m.group = m.group.filter((id) => onMap(s, id));
+      // members gone from the map, or put out of the group's hex (a Blaze ...), leave the group and end their move
+      const hex = m.groupHex ?? s.pieces[m.group[0]].hex;
+      const out = m.group.filter((id) => !onMap(s, id) || s.pieces[id].hex !== hex);
+      for (const id of out) if (!m.done.includes(id)) m.done.push(id);
+      m.group = m.group.filter((id) => !out.includes(id));
       if (!m.group.length || !groupCanGo(s, m.group)) {
         finishGroup(m);
         continue;
@@ -128,6 +132,7 @@ export function* continueMove(s: GameState, ctx: FlowCtx, side: Side): Gen {
         for (const id of a.units) m.spent[id] = (m.spent[id] ?? 0) + 1;
         m.done.push(...a.units);
         m.group = null;
+        delete m.groupHex;
         yield* exitUnits(s, ctx, a.units);
         break;
       default:
@@ -139,6 +144,7 @@ export function* continueMove(s: GameState, ctx: FlowCtx, side: Side): Gen {
 function finishGroup(m: MoveProgress): void {
   if (m.group) for (const id of m.group) if (!m.done.includes(id)) m.done.push(id);
   m.group = null;
+  delete m.groupHex;
 }
 
 /** Hand a Weapon to a friendly unit in the same hex (§O21.1.1): 1 MP of the giver. */
@@ -157,8 +163,11 @@ function transfer(s: GameState, ctx: FlowCtx, from: PieceId, to: PieceId): void 
 /** One hex entry by the group `units` (§O21.1, §O21.3). */
 function* moveStep(s: GameState, ctx: FlowCtx, side: Side, units: PieceId[], to: HexId): Gen {
   const m = s.turn.move!;
-  if (!m.group) m.group = units.slice();
   const from = s.pieces[units[0]].hex;
+  if (!m.group) {
+    m.group = units.slice();
+    m.groupHex = from;
+  }
   const cost = stepCost(s, from, to)!;
   const leave = yield* onLeaveHex(s, ctx, units, from, to, 'move');
   const movers = units.filter((id) => onMap(s, id) && s.pieces[id].hex === from);
@@ -168,6 +177,7 @@ function* moveStep(s: GameState, ctx: FlowCtx, side: Side, units: PieceId[], to:
     if (hasRoad(s.map, to) && !m.road.includes(id)) m.road.push(id);
   }
   if (!movers.length) return;
+  m.groupHex = to;
   m.entered = true;
   ctx.emit({ kind: 'move', units: movers, from, to, mp: cost });
   updateControl(s, ctx, to);

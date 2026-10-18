@@ -239,3 +239,42 @@ describe('Ordnance (§O20.2, §11.5)', () => {
     expect(answerError(s, d, { kind: 'fire', spec: { pieces: ['p1'], target: H('E2') } })).not.toBeNull();
   });
 });
+
+describe('a Squad Deployed by an Event during its own Defense roll (R-53, §E52)', () => {
+  // the Allied Line Squad (FP 6) fires at the German Rifle Squad (Morale 7, open); the German Defense roll is a 3-4 with
+  // Event!, the Event is Deploy: the Squad becomes two Line Teams while its result (7 + 7 = 14) is pending
+  const setup = (attackRoll: [number, number], moving = false) => {
+    const ev = card(G, { white: 3, red: 4, trigger: 'Event' });
+    const dep = card(G, { event: 'Deploy' }, [ev]);
+    const s = build({
+      pieces: [{ type: 'American/Line Squad', hex: 'E5' }, { type: 'German/Rifle Squad', hex: 'E2' }],
+      allied: { top: rolls(A, [attackRoll]) },
+      axis: { top: [ev, dep] },
+      active: 'allied',
+    });
+    if (moving) s.turn.moving = ['p1'];
+    const r = run(s, (ctx) => fireAttack(s, ctx, 'allied', { pieces: ['p0'], target: H('E2') }, 'order'), script([{ kind: 'choose', items: [0] }]));
+    const teams = Object.values(s.pieces).filter((p) => p.type === 'German/Line Team');
+    return { s, r, teams };
+  };
+
+  it('a pending break applies to both Teams', () => {
+    const { s, r, teams } = setup([3, 6]); // 6 + 9 = 15
+    expect(s.pieces.p1.where).toBe('mix');
+    expect(teams).toHaveLength(2);
+    expect(teams.every((t) => t.broken && t.where === 'map' && t.hex === H('E2'))).toBe(true);
+    expect(r.events.find((e) => e.kind === 'defense')).toMatchObject({ unit: 'p1', total: 14, attack: 15, result: 'break' });
+  });
+
+  it('a pending tie suppresses both Teams, or breaks them when the Squad was activated to Move', () => {
+    const tie = setup([2, 6]); // 6 + 8 = 14
+    expect(tie.teams.map((t) => [t.broken, t.suppressed])).toEqual([[false, true], [false, true]]);
+    const moving = setup([2, 6], true);
+    expect(moving.teams.every((t) => t.broken)).toBe(true);
+  });
+
+  it('no effect stays no effect', () => {
+    const { teams } = setup([1, 2]); // 6 + 3 = 9
+    expect(teams.map((t) => [t.broken, t.suppressed])).toEqual([[false, false], [false, false]]);
+  });
+});
