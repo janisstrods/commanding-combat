@@ -80,6 +80,12 @@ export function holdNeed(base: number, attack: number): number {
   return attack - base + 1;
 }
 
+/** "Needs 8+ to hold (7: Suppressed)", "Holds on any roll", "Breaks on any roll" (for the start of a line). */
+export function needPhrase(base: number, attack: number, moving = false): string {
+  const t = needText(base, attack, moving);
+  return /^\d/.test(t) ? `Needs ${t}` : t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 /** "8+ to hold (7: Suppressed)", "holds on any roll", "breaks on any roll". */
 export function needText(base: number, attack: number, moving = false): string {
   const need = holdNeed(base, attack);

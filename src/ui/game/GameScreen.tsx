@@ -18,6 +18,7 @@ import { BattleBoard } from './BattleBoard';
 import { SPEEDS, SPEED_LABEL, type GameController, type Speed } from './controller';
 import { NATION_PLURAL, sideName } from './names';
 import { DecksPanel, HandStrip, InitiativeBadge, LogPanel, ObjectivesPanel, TimePanel, VictoryPanel } from './panels';
+import { FirePanel } from './FirePanel';
 import { PromptPanel } from './PromptPanel';
 import { NO_SEL, clickCard, clickHex, clickPiece, promptFor, type ClickResult, type PromptButton, type Sel } from './prompts';
 import { REROLL_LABEL, REROLL_POLICIES, type RerollPolicy } from './reroll';
@@ -98,7 +99,7 @@ export function GameScreen({
     setExpanded(null);
   }, [d]);
 
-  const model = useMemo(() => (d ? promptFor(s, d, sel, human) : null), [s, d, sel, human]);
+  const model = useMemo(() => (d ? promptFor(s, d, sel, human, controller.stakesOf(d)) : null), [s, d, sel, human, controller]);
 
   const apply = useCallback(
     (r: ClickResult) => {
@@ -227,7 +228,9 @@ export function GameScreen({
     </>
   );
 
-  const selected = useMemo(() => [...(model?.selected ?? []), ...(hoverPieces ?? [])], [model, hoverPieces]);
+  // the pieces of the Fire Attack being shown are outlined until its Defense rolls are done
+  const firing = view.fire && view.fire.stage !== 'done' ? view.fire.pieces : null;
+  const selected = useMemo(() => [...(model?.selected ?? []), ...(hoverPieces ?? []), ...(firing ?? [])], [model, hoverPieces, firing]);
 
   return (
     <div className={`gs-root kit-desk ${wide ? 'is-wide' : 'is-narrow'}`}>
@@ -275,6 +278,7 @@ export function GameScreen({
           flashes={view.flashes}
           flipping={view.flipping}
           attack={view.attack}
+          fire={view.fire}
           losLine={losLine}
           expanded={expanded}
           onHexClick={onHexClick}
@@ -292,6 +296,7 @@ export function GameScreen({
             </div>
           </div>
         ) : null}
+        {view.fire ? <FirePanel key={view.fire.id} show={view.fire} s={s} human={human} speed={view.speed} rotate180={rotate} onClose={() => controller.closeFire()} /> : null}
         {view.toast ? (
           <div className={`gs-toast gs-toast--${view.toast.kind}`} key={view.toast.id}>
             {view.toast.text}
