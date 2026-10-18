@@ -34,6 +34,8 @@ export interface LogLine {
   text: string;
   side?: Side;
   kind: LogKind;
+  /** See LogEntry.react. */
+  react?: boolean;
 }
 
 /** A card shown big on the board: a roll, a reveal, a card played by the opponent, an Event. */

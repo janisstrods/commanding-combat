@@ -94,6 +94,7 @@ export function* turnFlow(s: GameState, ctx: FlowCtx): Gen {
 /** Pass (§O15): discard the chosen cards; the opponent may answer a pass that threw away cards (Demolitions ...). */
 function* pass(s: GameState, ctx: FlowCtx, side: Side, cards: CardId[]): Gen {
   const p = s.players[side];
+  ctx.emit({ kind: 'pass', side });
   for (const c of cards) {
     p.hand.splice(p.hand.indexOf(c), 1);
     p.discards.push(c);
@@ -101,6 +102,7 @@ function* pass(s: GameState, ctx: FlowCtx, side: Side, cards: CardId[]): Gen {
   if (cards.length) ctx.emit({ kind: 'discard', side, cards: cards.slice() });
   s.turn.passDiscards = cards.length;
   yield* window(s, ctx, 'opponentPassed', { discards: cards.length });
+  ctx.emit({ kind: 'orderDone', side });
 }
 
 /** Give an Order (§O14.1): the card goes to the discard pile, the Order is carried out, then any melee it caused. */
@@ -118,6 +120,7 @@ export function* giveOrder(s: GameState, ctx: FlowCtx, side: Side, card: CardId,
   t.moving = [];
   t.opFire = [];
   yield* resolveMelees(s, ctx);
+  ctx.emit({ kind: 'orderDone', side });
 }
 
 /**

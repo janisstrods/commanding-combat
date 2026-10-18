@@ -414,6 +414,13 @@
 .gp-log__line--vp { color: #5a4310; font-weight: 600; }
 .gp-log__line--end { font-weight: 700; color: var(--kit-red); }
 .gp-log__line--say { font-style: italic; }
+/* Orders as subheadings: Turn → Order (or pass) → its lines; reactions tagged */
+.gp-log__line--d1 { margin-left: 6px; }
+.gp-log__line--d2 { margin-left: 16px; }
+.gp-log__line--order { margin-top: 4px; font-family: var(--kit-font-title); font-weight: 600; letter-spacing: .04em; font-size: 12px; }
+.gp-log__line--order.is-you { color: var(--kit-olive); }
+.gp-log__line--order.is-them { color: #8a2318; }
+.gp-log__tag { margin-right: 5px; padding: 0 4px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--kit-paper-light); background: var(--kit-ink-soft); }
 
 /* ---------- tooltips */
 .tip-hex { max-width: 340px; font-size: 13px; }

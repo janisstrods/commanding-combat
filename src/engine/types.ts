@@ -844,6 +844,10 @@ export interface FireParts {
 export type GameEvent =
   | { kind: 'turnStart'; side: Side; number: number }
   | { kind: 'cardPlayed'; side: Side; card: CardId; as: 'order' | 'action'; name: OrderName | ActionName }
+  /** The active player passes (§O15), before his discards. */
+  | { kind: 'pass'; side: Side }
+  /** An Order (after its melees) or a pass is over: what follows belongs to the Turn again (the battle log's grouping). */
+  | { kind: 'orderDone'; side: Side }
   | { kind: 'discard'; side: Side; cards: CardId[] }
   | { kind: 'draw'; side: Side; cards: CardId[] }
   | { kind: 'reveal'; side: Side; card: CardId; purpose: RevealPurpose; value?: number; trigger?: Trigger | null }

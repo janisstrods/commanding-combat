@@ -5,12 +5,15 @@ import type { GameEvent, GameState, Side } from '../../engine/types';
 import { UNKNOWN_CARD, UNKNOWN_CHIT } from '../../engine/types';
 import { END_REASON_TEXT, PURPOSE_TEXT, chitText, counterName, hexName, isRollPurpose, pieceName, sideName } from './names';
 
-export type LogKind = 'turn' | 'card' | 'roll' | 'move' | 'fire' | 'result' | 'vp' | 'time' | 'info' | 'say' | 'end';
+/** 'order': an Order's (or a pass's) subheading; 'close': where that Order ends (never shown, it only groups). */
+export type LogKind = 'turn' | 'order' | 'close' | 'card' | 'roll' | 'move' | 'fire' | 'result' | 'vp' | 'time' | 'info' | 'say' | 'end';
 
 export interface LogEntry {
   text: string;
   side?: Side;
   kind: LogKind;
+  /** A played Action or an Op Fire activation: a reaction when made by the side not giving the Order. */
+  react?: boolean;
 }
 
 function cardName(id: string): string {
@@ -47,16 +50,17 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     case 'turnStart':
       return { kind: 'turn', side: e.side, text: `Turn ${e.number}: ${sideName(s, e.side)}${you(e.side, viewer)}` };
     case 'cardPlayed':
-      return {
-        kind: 'card',
-        side: e.side,
-        text: `${who(e.side)} play ${e.name} ${e.as === 'order' ? 'as an Order' : 'as an Action'}.`,
-      };
+      if (e.as === 'order') return { kind: 'order', side: e.side, text: `${sideName(s, e.side)} — ${e.name}` };
+      return { kind: 'card', side: e.side, react: true, text: `${who(e.side)} play ${e.name} as an Action.` };
+    case 'pass':
+      return { kind: 'order', side: e.side, text: `${sideName(s, e.side)} — Pass` };
+    case 'orderDone':
+      return { kind: 'close', side: e.side, text: '' };
     case 'discard':
       return {
         kind: 'card',
         side: e.side,
-        text: `${who(e.side)} pass and discard ${e.cards.length} card${e.cards.length === 1 ? '' : 's'}${e.cards.length ? `: ${e.cards.map((c) => cardOf(c).order).join(', ')}` : ''}.`,
+        text: `${who(e.side)} discard ${e.cards.length} card${e.cards.length === 1 ? '' : 's'}${e.cards.length ? `: ${e.cards.map((c) => cardOf(c).order).join(', ')}` : ''}.`,
       };
     case 'draw': {
       const n = e.cards.length;
@@ -83,7 +87,7 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     case 'event':
       return { kind: 'card', side: e.side, text: `Event: ${e.event} (${whom(e.side)}).` };
     case 'activate':
-      return { kind: 'info', side: e.side, text: `${e.order === 'Op Fire' ? 'Op Fire' : e.order}: ${names(s, e.units)} activated.` };
+      return { kind: 'info', side: e.side, react: e.order === 'Op Fire' || undefined, text: `${e.order}: ${names(s, e.units)} activated.` };
     case 'move':
       // an Advance moves without spending MP
       if (!e.mp) return { kind: 'move', text: `${names(s, e.units)} advance${e.units.length === 1 ? 's' : ''} to ${hexName(e.to)}.` };
@@ -167,6 +171,43 @@ export function logEntry(e: GameEvent, s: GameState, viewer: Side): LogEntry | n
     default:
       return null;
   }
+}
+
+/** A log line as the panel shows it: its depth under the Turn and Order headings, and whether it is a reaction. */
+export type LogRow<T extends LogEntry = LogEntry> = T & { depth: 0 | 1 | 2; reaction: boolean };
+
+/**
+ * The log grouped for showing (pure, from the lines alone, so Undo's trimming and a resumed game's replay group the
+ * same): a Turn heading at depth 0; an Order or pass subheading under it (1) with its lines under that (2) until the
+ * Order closes; the Turn's other lines (end-of-Turn draws) at 1. Actions and Op Fire by the side not giving the Order
+ * are its reactions. The 'close' lines only group and are left out.
+ */
+export function logRows<T extends LogEntry>(lines: readonly T[]): LogRow<T>[] {
+  const out: LogRow<T>[] = [];
+  let inTurn = false;
+  let order: Side | null = null;
+  for (const l of lines) {
+    if (l.kind === 'close') {
+      order = null;
+      continue;
+    }
+    if (l.kind === 'turn') {
+      // the battle's title line is a 'turn' line too, without a side
+      inTurn = !!l.side;
+      order = null;
+      out.push({ ...l, depth: 0, reaction: false });
+      continue;
+    }
+    const base = inTurn ? 1 : 0;
+    if (l.kind === 'order') {
+      order = l.side ?? null;
+      out.push({ ...l, depth: base as 0 | 1, reaction: false });
+      continue;
+    }
+    const under = order !== null;
+    out.push({ ...l, depth: (base + (under ? 1 : 0)) as 0 | 1 | 2, reaction: under && !!l.react && !!l.side && l.side !== order });
+  }
+  return out;
 }
 
 /**

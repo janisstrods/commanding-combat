@@ -10,7 +10,7 @@ import { UNKNOWN_CARD, UNKNOWN_CHIT, other } from '../../engine/types';
 import { TIME_TRACK_LAST } from '../../engine/casualties';
 import { Modal, Tooltip } from '../kit';
 import type { LogLine } from './controller';
-import { vpTotalText } from './log';
+import { logRows, vpTotalText } from './log';
 import { chitText, pieceName, sideName } from './names';
 import { objectiveWorth, worthText } from './objectiveWorth';
 
@@ -337,8 +337,12 @@ export function LogPanel({ log, s, human }: { log: readonly LogLine[]; s: GameSt
           stick.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
         }}
       >
-        {log.map((l) => (
-          <div key={l.id} className={`gp-log__line gp-log__line--${l.kind} ${l.side ? (l.side === human ? 'is-you' : 'is-them') : ''}`}>
+        {logRows(log).map((l) => (
+          <div
+            key={l.id}
+            className={`gp-log__line gp-log__line--${l.kind} gp-log__line--d${l.depth} ${l.side ? (l.side === human ? 'is-you' : 'is-them') : ''} ${l.reaction ? 'is-reaction' : ''}`}
+          >
+            {l.reaction ? <span className="gp-log__tag">reaction</span> : null}
             {l.text}
           </div>
         ))}
