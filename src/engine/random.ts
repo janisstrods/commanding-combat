@@ -3,6 +3,7 @@
 import { activationError, commandRadius } from './activation';
 import { answerError } from './decisions';
 import { fireOptions } from './fire';
+import { smokeOptions } from './orders/fire';
 import { moveAnswers } from './orders/move';
 import { isLeader } from './state';
 import type { Answer, Decision, GameState } from './types';
@@ -56,11 +57,16 @@ function make(s: GameState, d: Decision, rnd: Rand): Answer {
       if (!isLeader(p)) return { kind: 'activate', units: [first] };
       const radius = commandRadius(s, p);
       const some = [first, ...subset(radius, between(0, radius.length, rnd), rnd)];
-      return activationError(s, d, some) ? { kind: 'activate', units: [first, ...radius] } : { kind: 'activate', units: some };
+      if (!activationError(s, d, some)) return { kind: 'activate', units: some };
+      // the whole radius, or the Leader alone (a Fire For Effect activates only its Spotter)
+      return activationError(s, d, [first, ...radius]) ? { kind: 'activate', units: [first] } : { kind: 'activate', units: [first, ...radius] };
     }
     case 'fire': {
       const opts = [...fireOptions(s, d.pieces, d.mode, d.target).values()].flat();
-      if (!opts.length || (!d.mustFire && rnd() < 0.2)) return { kind: 'done' };
+      const smoke = d.target === undefined ? smokeOptions(s, d.pieces, d.mode) : [];
+      if ((!opts.length && !smoke.length) || (!d.mustFire && rnd() < 0.2)) return { kind: 'done' };
+      // now and then a Smoke round (there are many more of them than attacks)
+      if (smoke.length && (!opts.length || rnd() < 0.15)) return { kind: 'fire', spec: pick(smoke, rnd) };
       return { kind: 'fire', spec: pick(opts, rnd) };
     }
     case 'move': {

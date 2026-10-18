@@ -8,6 +8,7 @@ import { roll } from './deck';
 import { choose, type Gen } from './decisions';
 import { areAdjacent, distance } from './hex';
 import { losCheck } from './los';
+import { smokeRound, smokeShotError } from './orders/fire';
 import { window } from './reactions';
 import { cover, currentStats, weaponStats } from './stats';
 import { hexOf, isLeader, isUnit, typeOf } from './state';
@@ -171,7 +172,7 @@ function chained(hexes: HexId[]): boolean {
 
 /**
  * Why `spec` is not a legal Fire Attack for `side` from `pool` (`target`: the only target allowed, e.g. Op Fire on the
- * hex just entered), or null. Smoke rounds are Task 8's (refused until then).
+ * hex just entered), or null. Smoke rounds (`spec.smoke`) are checked by orders/fire.ts `smokeShotError`.
  */
 export function fireSpecError(
   s: GameState, side: Side, spec: FireSpec | undefined, pool: PieceId[], mode: 'order' | 'opFire' | 'assault', target?: HexId,
@@ -180,7 +181,7 @@ export function fireSpecError(
   if (new Set(spec.pieces).size !== spec.pieces.length) return 'Each piece once.';
   if (!spec.pieces.every((id) => pool.includes(id))) return 'Only activated pieces that have not fired yet may fire.';
   if (target !== undefined && spec.target !== target) return 'Fire at the hex just entered.';
-  if (spec.smoke) return 'Smoke rounds are not available yet.';
+  if (spec.smoke) return smokeShotError(s, spec, mode);
   if (!Number.isInteger(spec.target) || spec.target < 0 || spec.target >= s.map.terrain.length) return 'Choose a target hex.';
   if (!enemyIn(s, spec.target, side)) return 'The target hex holds no enemy unit.';
   const shooters: Shooter[] = [];
@@ -272,6 +273,7 @@ export function fireOptions(s: GameState, pieces: PieceId[], mode: 'order' | 'op
  * its Defense roll. Returns whether the pieces fired.
  */
 export function* fireAttack(s: GameState, ctx: FlowCtx, side: Side, spec: FireSpec, mode: 'order' | 'opFire' | 'assault'): Gen<boolean> {
+  if (spec.smoke) return yield* smokeRound(s, ctx, side, spec); // a Smoke round (§O20.2.1): no Fire Attack
   const shooters = spec.pieces.map((id) => shooter(s, id, mode === 'opFire')).filter((x): x is Shooter => !!x);
   if (!shooters.length) return false;
   const ordnance = shooters.length === 1 && shooters[0].ordnance;

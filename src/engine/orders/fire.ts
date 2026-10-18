@@ -1,10 +1,15 @@
-// The Fire Order (§O20) and the Fire Action, Opportunity Fire (§A33).
+// The Fire Order (§O20), Smoke rounds (§O20.2.1) and the Fire Action, Opportunity Fire (§A33).
 import { activationCandidates, markActivated } from '../activation';
 import { CARDS } from '../data';
+import { roll } from '../deck';
 import { ask, type Gen } from '../decisions';
-import { canShootSomething, fireAttack, fireOptions, firingPieces } from '../fire';
+import { canShootSomething, fireAttack, fireOptions, firingPieces, inRange, shooter } from '../fire';
+import { ALL_HEXES, distance, label } from '../hex';
+import { losCheck } from '../los';
 import type { ActionHandler, OrderHandler } from '../registry';
-import type { ActionOption, Answer, FlowCtx, GameState, HexId, PieceId, Side } from '../types';
+import { typeOf } from '../state';
+import type { ActionOption, Answer, FireSpec, FlowCtx, GameState, HexId, PieceId, Side } from '../types';
+import { canHoldSmoke, placeRandomSmoke } from './artillery';
 
 /**
  * Fire Attacks by the pieces of activated `units` until the player stops or none can fire (each piece once, §O20.3).
@@ -15,7 +20,7 @@ export function* fireLoop(s: GameState, ctx: FlowCtx, side: Side, units: PieceId
   let tried = false;
   for (;;) {
     const pool = firingPieces(s, units).filter((id) => !s.turn.fired.includes(id));
-    if (!fireOptions(s, pool, mode).size) return;
+    if (!fireOptions(s, pool, mode).size && !hasSmokeShot(s, pool, mode)) return;
     const a = yield* ask(s, ctx, { kind: 'fire', side, mode, pieces: pool, ...(tried ? {} : { mustFire: true }) });
     if (a.kind !== 'fire') return;
     tried = true;
@@ -76,3 +81,80 @@ export const opFireAction: ActionHandler = {
     if (yield* fireAttack(s, ctx, side, a.spec, 'opFire')) info.opFireDone = true;
   },
 };
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Smoke rounds (§O20.2.1): a Weapon showing "Smoke" fires alone, with a Fire Order, at any hex in its Range and LOS
+// (no enemy unit needed), declared with the target before rolling (FireSpec.smoke). Its Targeting roll (the product,
+// less the largest Hindrance on the LOS, above the range) hits or misses; a hit places one random Smoke marker there and
+// makes no Fire Attack. fire.ts hands smoke specs to `smokeShotError` and `smokeRound`.
+
+/** Is `id` a Weapon that shows Smoke? */
+function smokeWeapon(s: GameState, id: PieceId): boolean {
+  const p = s.pieces[id];
+  if (!p) return false;
+  const t = typeOf(p);
+  return t.kind === 'weapon' && !!t.smoke;
+}
+
+/** Why `spec` (a Smoke round) is not legal in `mode`, or null. The pool checks are fire.ts `fireSpecError`'s. */
+export function smokeShotError(s: GameState, spec: FireSpec, mode: 'order' | 'opFire' | 'assault'): string | null {
+  if (mode !== 'order') return 'Smoke rounds are fired only with a Fire Order.';
+  if (spec.pieces.length !== 1) return 'A Smoke round is fired by one Weapon alone.';
+  const id = spec.pieces[0];
+  const name = typeOf(s.pieces[id]).name;
+  if (!smokeWeapon(s, id)) return `${name} cannot fire Smoke.`;
+  if (!Number.isInteger(spec.target) || spec.target < 0 || spec.target >= s.map.terrain.length) return 'Choose a target hex.';
+  const sh = shooter(s, id);
+  if (!sh) return `${name} cannot fire now.`;
+  if (!inRange(sh, spec.target)) {
+    return sh.minRange > 1 && distance(sh.hex, spec.target) < sh.minRange ? `The target is inside the ${name}'s minimum range.` : 'The target is out of range.';
+  }
+  const l = losCheck(s, sh.hex, spec.target);
+  return l.clear ? null : `No line of sight: ${l.blockedBy ?? 'blocked'}.`;
+}
+
+/**
+ * The Smoke rounds open to `pieces` in `mode`: per Weapon that shows Smoke, every hex in its Range and LOS that can
+ * hold Smoke (other hexes in Range and LOS are legal too, but pointless). For the UI, the AI and random play.
+ */
+export function smokeOptions(s: GameState, pieces: PieceId[], mode: 'order' | 'opFire' | 'assault' = 'order'): FireSpec[] {
+  const out: FireSpec[] = [];
+  if (mode !== 'order') return out;
+  for (const id of pieces) {
+    if (!smokeWeapon(s, id)) continue;
+    const sh = shooter(s, id);
+    if (!sh) continue;
+    for (const h of ALL_HEXES) if (canHoldSmoke(s, h) && inRange(sh, h) && losCheck(s, sh.hex, h).clear) out.push({ pieces: [id], target: h, smoke: true });
+  }
+  return out;
+}
+
+/** Can one of `pieces` fire a Smoke round now (as `smokeOptions`, stopping at the first)? */
+export function hasSmokeShot(s: GameState, pieces: PieceId[], mode: 'order' | 'opFire' | 'assault' = 'order'): boolean {
+  if (mode !== 'order') return false;
+  for (const id of pieces) {
+    if (!smokeWeapon(s, id)) continue;
+    const sh = shooter(s, id);
+    if (!sh) continue;
+    for (const h of ALL_HEXES) if (canHoldSmoke(s, h) && inRange(sh, h) && losCheck(s, sh.hex, h).clear) return true;
+  }
+  return false;
+}
+
+/**
+ * Fire a legal Smoke round: the Targeting roll (Event!, Sniper!, Time! trigger; Jammed! does not), then on a hit one
+ * random Smoke marker in the target hex, if the Weapon is still in play after the trigger. Returns true (it fired).
+ */
+export function* smokeRound(s: GameState, ctx: FlowCtx, side: Side, spec: FireSpec): Gen<boolean> {
+  const w = spec.pieces[0];
+  const sh = shooter(s, w);
+  if (!sh) return false;
+  const range = distance(sh.hex, spec.target);
+  const hind = losCheck(s, sh.hex, spec.target).hindrance;
+  ctx.emit({ kind: 'log', text: `${sh.type.name}: a Smoke round at ${label(spec.target)}.`, side });
+  const r = yield* roll(s, ctx, side, 'targeting');
+  const hit = r.product - hind > range;
+  ctx.emit({ kind: 'targeting', side, piece: w, target: spec.target, product: r.product, need: range + hind + 1, hit });
+  if (hit && s.pieces[w].where === 'carried') placeRandomSmoke(s, ctx, spec.target);
+  return true;
+}
