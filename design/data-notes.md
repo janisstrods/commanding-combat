@@ -97,32 +97,43 @@ nation unless a special rule says otherwise. Where the Playbook and the module d
 - Scenario 11 (Hold the Line): The module's "Immobilized Sherman" fortification is the Playbook's Bunker.
 - Scenario 12 (Misty Mountain): Base-game stand-ins (as in the VASSAL setup): US Lt Blankenship, Cpl Hubbard and Cpl Jensen for the Brazilian Lt Oliveira, Cpl Pereira and Cpl Santos; Sgt Smith for Sgt Alves; US Line / Green Squads, Weapon Teams, MMGs and mortars (same printed values).
 
-### Special rules the SpecialRules fields cannot express (`special.notes`; each needs code in Task 1 / 7-10)
+### Scenario briefings (`special.notes`): every rule listed is implemented (SpecialRules fields, src/engine/scenarioRules.ts and src/engine/scenario/setup.ts)
 
+- Scenario 1 (Fat Lipki): Hidden set-up: both sides set up at the same time, neither seeing the other (Allies in or next to A2 and O1, Axis in or next to G10 and N10); everything is revealed when both are done.
+- Scenario 1 (Fat Lipki): Initiative: once both hands are dealt, the Axis either keeps the Initiative card and lets the Allies move first, or gives it to the Allies and moves first himself.
+- Scenario 2 (Hedgerows & Hand Grenades): Forward Observer: the Allies place Lt Blankenship after the Axis set-up, in any hex without a German unit.
+- Scenario 2 (Hedgerows & Hand Grenades): Bocage: crossing a Hedge costs 2 more MP (instead of 1), and a Hedge gives Cover 2 (instead of 1).
 - Scenario 3 (Bonfire of the NKVD): Command Post: Cpt Egorov sets up in N5.
-- Scenario 3 (Bonfire of the NKVD): Hidden Fortifications: the Allies may place their Wire after the Axis set-up (in their own set-up area).
+- Scenario 3 (Bonfire of the NKVD): Hidden Fortifications: the Allies place their Wire after the Axis set-up (in their own set-up area).
+- Scenario 3 (Bonfire of the NKVD): Chits V, W and X are left out of the cup.
 - Scenario 3 (Bonfire of the NKVD): Sappers: the Axis starts with card G-65 in hand (taken out of the deck before shuffling; it counts toward the opening hand).
-- Scenario 4 (Closed for Renovation): Hidden Gun: the Axis may set up one Weapon Team and the IG 18 Gun after the Allied set-up (in the Axis set-up area).
+- Scenario 4 (Closed for Renovation): Hidden Gun: the Axis sets up one Weapon Team and the IG 18 Gun after the Allied set-up (in the Axis set-up area).
 - Scenario 4 (Closed for Renovation): Rubble: Axis Wire must be placed in or adjacent to Building hexes.
-- Scenario 5 (Cold Front): Deep Freeze: one of the four German Weapons, picked at random, starts broken. After play starts no Fortification can enter play by any means (an Action or Event that would place one does nothing, like Command Confusion).
+- Scenario 4 (Closed for Renovation): Reinforcements: Sgt White, both Engineer Squads and both Flamethrowers enter along the Allied edge on Time space 3.
+- Scenario 5 (Cold Front): Chits R, V and X are left out of the cup.
+- Scenario 5 (Cold Front): Deep Freeze: one of the four German Weapons, picked at random, starts broken. After play starts no Fortification can enter play by any means: an Action that would place one cannot be played (like Command Confusion), an Event that would place one does nothing.
+- Scenario 5 (Cold Front): Snow: Open Ground costs 1½ MP.
 - Scenario 5 (Cold Front): Winter Camouflage: an Allied Concealment Action lowers the Axis Fire Attack Total by a further 2.
 - Scenario 6 (Paralyzed from the West Down): Axis Orders per Turn start at 1 and rise by 1 at every Time advance, to at most 3.
-- Scenario 7 (Bessarabian Nights): Allied set-up: for each Russian unit reveal a Random Hex from the Russian Fate deck; the unit sets up in or adjacent to that hex. Then the Allies hand out their Weapons to Russian units, and the Russian deck is reshuffled.
+- Scenario 6 (Paralyzed from the West Down): Chit W is left out of the cup.
+- Scenario 7 (Bessarabian Nights): Allied set-up: a Random Hex is revealed from the Russian Fate deck for each Russian unit; the Allies set up one unit of their choice in or adjacent to each such hex. Then they hand out their Weapons to Russian units, and the Russian deck is reshuffled.
 - Scenario 7 (Bessarabian Nights): Axis set-up: all German units form one contiguous chain of Axis-occupied hexes, none in a hex with a Russian unit.
 - Scenario 7 (Bessarabian Nights): Objective control starts with the side that alone occupies each Objective after set-up; the others start uncontrolled.
 - Scenario 7 (Bessarabian Nights): The captured German Light Mortar is eliminated instead of breaking.
-- Scenario 7 (Bessarabian Nights): No Quarter: nobody can earn Exit VP; a unit that leaves the map in any way is eliminated.
+- Scenario 7 (Bessarabian Nights): No Quarter: chits R and W are left out of the cup; nobody can earn Exit VP: a unit that leaves the map in any way is eliminated.
 - Scenario 7 (Bessarabian Nights): Partisans: Allied units pay exactly 1 MP for every hex they enter (terrain, hexside and uphill costs are ignored); impassable terrain stays impassable and Wire still ends their movement.
 - Scenario 7 (Bessarabian Nights): Hidden Forces: the Allies start with card R-31 in hand (taken out of the deck before shuffling; it counts toward the opening hand).
-- Scenario 8 (Breakout Dance): Night Action: every Fire Attack Total is reduced by the distance in hexes between the target and the closest firing hex.
+- Scenario 8 (Breakout Dance): Night Action: the Axis Discard Capability is 1; every Fire Attack Total is reduced by the distance in hexes between the target and the closest firing hex.
 - Scenario 8 (Breakout Dance): Breakout: only the Axis can earn Exit VP; a Russian unit that leaves the map for any reason counts as eliminated.
-- Scenario 9 (Rush to Contact): Mines option: before the opening draw the Axis may cut his Mines from 8 to 7 FP and in exchange start with card G-32 in hand (taken out of the deck before shuffling; it counts toward the opening hand).
+- Scenario 9 (Rush to Contact): Reinforcements: most of the German force enters on Time space 3; American units on Time spaces 3, 4 and 5, and the American 105mm Radio comes to the Artillery Box on Time space 6.
+- Scenario 9 (Rush to Contact): Mines: the German Mines are 8 FP. Before the opening draw the Axis may cut them to 7 FP and in exchange start with card G-32 in hand (taken out of the deck before shuffling; it counts toward the opening hand).
 - Scenario 10 (Commando School): Combat Engineers: the two Pionier Squads start carrying the Flamethrower and the Satchel Charge (one each).
 - Scenario 10 (Commando School): Commandos: every Allied Melee roll gets +1.
 - Scenario 11 (Hold the Line): Uncleared Fortifications: the pre-placed Wire and Mines belong to neither side; the Mines are 6 FP.
-- Scenario 11 (Hold the Line): Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex and is eliminated if its carrier or the Bunker is.
+- Scenario 11 (Hold the Line): Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.
+- Scenario 11 (Hold the Line): Reinforcements: one American Line Squad enters on each of Time spaces 2, 3, 4 and 5.
 - Scenario 11 (Hold the Line): Captured Panzerfausts: the two American Satchel Charges cannot attack a hex whose Cover is below 2.
-- Scenario 12 (Misty Mountain): Reinforcements: when the Time space 7 group enters, any of it may be placed in or adjacent to road hex A9 instead of along the friendly edge.
+- Scenario 12 (Misty Mountain): Reinforcements: Sgt Smith and eight Green Squads arrive on Time space 7; any of them may be placed in or adjacent to road hex A9 instead of along the friendly edge.
 - Scenario 12 (Misty Mountain): Caves: an Axis Sniper may break an enemy unit up to 2 hexes from the Random Hex.
 - Scenario 12 (Misty Mountain): Fog: every hex has a Hindrance of 3 at every elevation, added to the largest other Hindrance (also for adjacent shots; not for Melee, Mine Attacks or Artillery Impact). Each Breeze Event lowers the fog by 1 (to 2, 1, then 0).
 <!-- /auto:scenarios -->

@@ -65,6 +65,13 @@
   "openChits": ["W"],
   "prePlaced": [],
   "special": {
+    "carried": {
+      "axis": [
+        {"unit":"German/Pionier Squad","weapon":"German/Flamethrower"},
+        {"unit":"German/Pionier Squad","weapon":"German/Satchel Charge"}
+      ]
+    },
+    "meleeBonus": {"allied":1},
     "notes": [
       "Combat Engineers: the two Pionier Squads start carrying the Flamethrower and the Satchel Charge (one each).",
       "Commandos: every Allied Melee roll gets +1."

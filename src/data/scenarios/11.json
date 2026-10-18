@@ -86,9 +86,22 @@
     {"hex":"E8","fort":"mines"}
   ],
   "special": {
+    "carried": {
+      "allied": [
+        {"unit":"American/Sgt Buehler","weapon":"American/.50 cal MG"},
+        {"unit":"American/Weapon Team","weapon":"American/Pack Howitzer"}
+      ]
+    },
+    "setupTogether": {
+      "allied": {"units":["American/Sgt Buehler","American/Weapon Team"],"fort":"bunker","terrain":"Open","elevation":0}
+    },
+    "fortStackingLimits": {"bunker":4},
+    "fixedWeapons": {"American/Pack Howitzer":"bunker"},
+    "minTargetCover": {"American/Satchel Charge":2},
     "notes": [
       "Uncleared Fortifications: the pre-placed Wire and Mines belong to neither side; the Mines are 6 FP.",
-      "Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex and is eliminated if its carrier or the Bunker is.",
+      "Immobilised Sherman: the Bunker, Sgt Buehler with the .50 cal MG and the Weapon Team with the Pack Howitzer set up together in one non-Hill Open Ground hex. While the Bunker exists, that hex holds at most 4 figures of units. The Pack Howitzer cannot leave the Bunker hex (a carrier that leaves abandons it) and is eliminated if its carrier or the Bunker is.",
+      "Reinforcements: one American Line Squad enters on each of Time spaces 2, 3, 4 and 5.",
       "Captured Panzerfausts: the two American Satchel Charges cannot attack a hex whose Cover is below 2."
     ]
   }

@@ -10,6 +10,7 @@ import { areAdjacent, distance } from './hex';
 import { losCheck } from './los';
 import { smokeRound, smokeShotError } from './orders/fire';
 import { window } from './reactions';
+import { nightPenalty, targetCoverError } from './scenarioRules';
 import { cover, currentStats, weaponStats } from './stats';
 import { hexOf, isLeader, isUnit, typeOf } from './state';
 import { isWaterHex } from './terrain';
@@ -104,7 +105,7 @@ export function canShootSomething(s: GameState, units: PieceId[], opFire = false
   for (const id of firingPieces(s, units)) {
     const sh = shooter(s, id, opFire);
     if (!sh) continue;
-    for (const t of targets) if (inRange(sh, t) && losCheck(s, sh.hex, t).clear) return true;
+    for (const t of targets) if (inRange(sh, t) && !targetCoverError(s, sh.type, t) && losCheck(s, sh.hex, t).clear) return true;
   }
   return false;
 }
@@ -204,6 +205,8 @@ export function fireSpecError(
     if (!inRange(sh, spec.target)) {
       return sh.minRange > 1 && distance(sh.hex, spec.target) < sh.minRange ? `The target is inside the ${sh.type.name}'s minimum range.` : 'The target is out of range.';
     }
+    const coverError = targetCoverError(s, sh.type, spec.target);
+    if (coverError) return coverError;
     const l = losCheck(s, sh.hex, spec.target);
     if (!l.clear) return `No line of sight: ${l.blockedBy ?? 'blocked'}.`;
   }
@@ -305,7 +308,7 @@ export function* fireAttack(s: GameState, ctx: FlowCtx, side: Side, spec: FireSp
   const defenders = attack.targets.map((h) => unitsAt(s, h, other(side)));
   const r = yield* roll(s, ctx, side, 'fireAttack');
   const airburst = attack.mortarOrArtillery && attack.targets.some((h) => s.map.terrain[h] === 'Woods') ? 2 : 0;
-  attack.total = fp + r.sum + airburst;
+  attack.total = fp + r.sum + airburst - nightPenalty(s, firers, attack.targets, ctx);
   ctx.emit({
     kind: 'fireAttack', side, pieces: attack.pieces.slice(), target: spec.target, fp, total: attack.total,
     ...(attack.targets.length > 1 ? { hexes: attack.targets.slice() } : {}),

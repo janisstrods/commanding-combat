@@ -14,6 +14,7 @@
 // each hex pair is computed once and cached; nothing is cached per map, so maps may be edited (tests do).
 import { loadMap } from './data';
 import { NUM_HEXES, SIDES, areAdjacent, centre, hexAt, hexsideKey, label, lineHexes, neighbour, type HexId } from './hex';
+import { fogHindrance } from './scenarioRules';
 import { HEXSIDE, TERRAIN, hexsideInfo, hindranceOf } from './terrain';
 import { MASK, type GameState, type HexsideFeature, type MapDef, type SpecialRules } from './types';
 
@@ -393,9 +394,17 @@ function maskPass(map: MapDef, g: Geom, z: Heights, blockT: number, onBlock: (t:
 
 /**
  * Line of sight between the centre dots of `from` and `to` (§10). Reciprocal: losCheck(v, a, b) equals
- * losCheck(v, b, a). The hindrance is the largest single Hindrance on the LOS (Smoke in either end hex included).
+ * losCheck(v, b, a). The hindrance is the largest single Hindrance on the LOS (Smoke in either end hex included), plus
+ * a scenario's Fog when the view is a game (scenarioRules `fogHindrance`).
  */
 export function losCheck(view: LosView, from: HexId, to: HexId): LosResult {
+  const r = terrainLos(view, from, to);
+  const fog = fogHindrance(view);
+  return fog > 0 && r.clear ? { ...r, hindrance: r.hindrance + fog } : r;
+}
+
+/** losCheck without the Fog. */
+function terrainLos(view: LosView, from: HexId, to: HexId): LosResult {
   const { map, smoke, blaze } = view;
   if (from === to) return { clear: true, hindrance: smoke[from] ?? 0, blockedBy: null };
   const a = Math.min(from, to);

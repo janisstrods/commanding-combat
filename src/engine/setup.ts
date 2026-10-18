@@ -7,6 +7,7 @@ import { drawCards } from './deck';
 import { ask, choose, type Gen } from './decisions';
 import { drawChit, openChit, updateControl } from './objectives';
 import { randInt } from './rng';
+import { fortHexAllowed, fortsPlaced, lateInOwnArea, lateSetupTypes, openingCards, scenarioDeploy, setupPlaces, setupStart } from './scenario/setup';
 import { figures, stackLimit, unitFigures } from './stats';
 import {
   attachWeapon, canHoldFort, hasUnitOf, isImpassableHex, isUnit, isWeapon, newTurn, placeFort, typeOf,
@@ -29,10 +30,12 @@ export function setupHexes(s: GameState, side: Side): HexId[] {
 export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
   placeChits(s, ctx);
   attachCarried(s);
+  setupStart(s, ctx);
   const first = s.scenario.setupFirst;
   const late = latePieces(s);
   const fortsLast = !!s.scenario.special.fortificationsLast;
   for (const side of [first, other(first)]) {
+    yield* scenarioDeploy(s, ctx, side);
     yield* deploySide(s, ctx, side, setupHexes(s, side), late);
     if (!fortsLast) yield* placeFortifications(s, ctx, side);
   }
@@ -40,13 +43,16 @@ export function* setupFlow(s: GameState, ctx: FlowCtx): Gen {
     const mine = [...late].filter((id) => s.pieces[id].side === side);
     if (!mine.length) continue;
     const free = s.map.terrain.map((_, h) => h).filter((h) => !isImpassableHex(s, h) && !hasUnitOf(s, h, other(side)));
-    yield* deploySide(s, ctx, side, free, new Set(), mine);
+    const own = lateInOwnArea(s, side, mine);
+    if (own.length) yield* deploySide(s, ctx, side, setupHexes(s, side), new Set(), own);
+    yield* deploySide(s, ctx, side, free, new Set(), mine.filter((id) => !own.includes(id)));
   }
   // RS.12: Fortifications after both sides' units are down
   if (fortsLast) for (const side of [first, other(first)]) yield* placeFortifications(s, ctx, side);
   // RS.11.2 / RS.13: Objectives held by one side alone after set-up pass to it
   if (s.scenario.special.controlAfterSetup) updateControl(s, ctx);
-  for (const side of SIDES) yield* drawCards(s, ctx, side, s.players[side].handSize);
+  yield* openingCards(s, ctx);
+  for (const side of SIDES) yield* drawCards(s, ctx, side, s.players[side].handSize - s.players[side].hand.length);
   if (s.scenario.special.initiativeChoice) {
     const holder = s.initiative;
     const [i] = yield* choose(s, ctx, holder, 'initiativeChoice', [{ label: 'keep' }, { label: 'give' }], 1, 1);
@@ -102,7 +108,7 @@ function latePieces(s: GameState): Set<string> {
   const out = new Set<string>();
   const lp = s.scenario.special.latePlacement ?? {};
   for (const side of SIDES) {
-    for (const type of lp[side] ?? []) {
+    for (const type of [...(lp[side] ?? []), ...lateSetupTypes(s, side)]) {
       const p = Object.values(s.pieces).find((x) => x.side === side && x.where === 'staging' && x.type === type && !out.has(x.id));
       if (p) out.add(p.id);
     }
@@ -112,6 +118,7 @@ function latePieces(s: GameState): Set<string> {
 
 /** Hexes of `area` where staged piece `p` may go now. */
 function placesFor(s: GameState, p: Piece, area: HexId[]): HexId[] {
+  area = setupPlaces(s, p, area);
   if (isWeapon(p)) return area.filter((h) => unitsHere(s, h, p.side).some((u) => !u.weapon));
   const f = unitFigures(p);
   return area.filter((h) => figures(s, h, p.side) + f <= stackLimit(s, h));
@@ -183,8 +190,8 @@ function place(s: GameState, ctx: FlowCtx, p: Piece, hex: HexId, carrier?: strin
 function* placeFortifications(s: GameState, ctx: FlowCtx, side: Side): Gen {
   const forts = s.scenario.sides[side].fortifications;
   for (const [kind, n] of Object.entries(forts) as [FortKind, number][]) {
-    for (let i = 0; i < n; i++) {
-      const hexes = setupHexes(s, side).filter((h) => canHoldFort(s, h));
+    for (let i = fortsPlaced(s, side, kind); i < n; i++) {
+      const hexes = setupHexes(s, side).filter((h) => canHoldFort(s, h) && fortHexAllowed(s, side, kind, h));
       if (!hexes.length) break;
       const [j] = yield* choose(s, ctx, side, 'placement', hexes.map((hex) => ({ hex })), 1, 1, { fort: kind });
       placeFort(s, ctx, hexes[j], kind);

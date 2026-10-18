@@ -56,12 +56,19 @@
   "prePlaced": [],
   "special": {
     "excludeChits": ["R","W"],
+    "randomHexSetup": ["allied"],
+    "chainSetup": ["axis"],
+    "controlAfterSetup": true,
+    "eliminateInsteadOfBreak": {"allied":["German/Light Mortar"]},
+    "noExit": ["axis","allied"],
+    "flatMoveCost": ["allied"],
+    "startingCards": {"allied":["R-31"]},
     "notes": [
-      "Allied set-up: for each Russian unit reveal a Random Hex from the Russian Fate deck; the unit sets up in or adjacent to that hex. Then the Allies hand out their Weapons to Russian units, and the Russian deck is reshuffled.",
+      "Allied set-up: a Random Hex is revealed from the Russian Fate deck for each Russian unit; the Allies set up one unit of their choice in or adjacent to each such hex. Then they hand out their Weapons to Russian units, and the Russian deck is reshuffled.",
       "Axis set-up: all German units form one contiguous chain of Axis-occupied hexes, none in a hex with a Russian unit.",
       "Objective control starts with the side that alone occupies each Objective after set-up; the others start uncontrolled.",
       "The captured German Light Mortar is eliminated instead of breaking.",
-      "No Quarter: nobody can earn Exit VP; a unit that leaves the map in any way is eliminated.",
+      "No Quarter: chits R and W are left out of the cup; nobody can earn Exit VP: a unit that leaves the map in any way is eliminated.",
       "Partisans: Allied units pay exactly 1 MP for every hex they enter (terrain, hexside and uphill costs are ignored); impassable terrain stays impassable and Wire still ends their movement.",
       "Hidden Forces: the Allies start with card R-31 in hand (taken out of the deck before shuffling; it counts toward the opening hand)."
     ]

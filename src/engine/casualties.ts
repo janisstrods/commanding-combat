@@ -9,6 +9,7 @@ import { finalScore, updateControl } from './objectives';
 import { window } from './reactions';
 import { GameOver, newPiece, typeOf, unitsOf } from './state';
 import { teamFor } from './data';
+import { breaksToElimination, exitEliminated } from './scenarioRules';
 import { type CasualtyCause, type FlowCtx, type GameState, type Piece, type PieceId, type Side, other } from './types';
 
 export { GameOver } from './state';
@@ -45,7 +46,7 @@ export function* breakPiece(s: GameState, ctx: FlowCtx, id: PieceId, cause: Casu
     yield* window(s, ctx, 'squadWouldBreak', { units: [id], hex: p.hex, cause });
     if (s.pieces[id].where !== 'map') return;
   }
-  if (p.broken) {
+  if (p.broken || breaksToElimination(s, p)) {
     yield* eliminate(s, ctx, id, cause);
     return;
   }
@@ -158,6 +159,7 @@ export function* exitUnits(s: GameState, ctx: FlowCtx, ids: PieceId[]): Gen {
   if (!ids.length) return;
   const side = s.pieces[ids[0]].side;
   const from = s.pieces[ids[0]].hex;
+  if (yield* exitEliminated(s, ctx, ids)) return;
   let vp = 0;
   for (const id of ids) {
     const p = s.pieces[id];

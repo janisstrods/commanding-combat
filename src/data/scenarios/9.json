@@ -68,8 +68,10 @@
   "openChits": ["U"],
   "prePlaced": [],
   "special": {
+    "minesForCard": {"axis":{"minefield":7,"card":"G-32"}},
     "notes": [
-      "Mines option: before the opening draw the Axis may cut his Mines from 8 to 7 FP and in exchange start with card G-32 in hand (taken out of the deck before shuffling; it counts toward the opening hand)."
+      "Reinforcements: most of the German force enters on Time space 3; American units on Time spaces 3, 4 and 5, and the American 105mm Radio comes to the Artillery Box on Time space 6.",
+      "Mines: the German Mines are 8 FP. Before the opening draw the Axis may cut them to 7 FP and in exchange start with card G-32 in hand (taken out of the deck before shuffling; it counts toward the opening hand)."
     ]
   }
 }

@@ -62,9 +62,13 @@
   "prePlaced": [],
   "special": {
     "excludeChits": ["V","W","X"],
+    "setupHex": {"allied":{"Russian/Cpt Egorov":"N5"}},
+    "fortificationsLast": true,
+    "startingCards": {"axis":["G-65"]},
     "notes": [
       "Command Post: Cpt Egorov sets up in N5.",
-      "Hidden Fortifications: the Allies may place their Wire after the Axis set-up (in their own set-up area).",
+      "Hidden Fortifications: the Allies place their Wire after the Axis set-up (in their own set-up area).",
+      "Chits V, W and X are left out of the cup.",
       "Sappers: the Axis starts with card G-65 in hand (taken out of the deck before shuffling; it counts toward the opening hand)."
     ]
   }

@@ -46,8 +46,10 @@
   "openChits": ["W"],
   "prePlaced": [],
   "special": {
+    "night": true,
+    "noExit": ["allied"],
     "notes": [
-      "Night Action: every Fire Attack Total is reduced by the distance in hexes between the target and the closest firing hex.",
+      "Night Action: the Axis Discard Capability is 1; every Fire Attack Total is reduced by the distance in hexes between the target and the closest firing hex.",
       "Breakout: only the Axis can earn Exit VP; a Russian unit that leaves the map for any reason counts as eliminated."
     ]
   }

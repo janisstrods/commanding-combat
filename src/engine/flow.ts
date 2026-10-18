@@ -10,6 +10,7 @@ import { ask, choose, type Gen } from './decisions';
 import { resolveMelee } from './melee';
 import { window } from './reactions';
 import { ORDERS } from './registry';
+import { checkFixedWeapons } from './scenarioRules';
 import { setupFlow } from './setup';
 import { figures, stackLimit } from './stats';
 import { cardOf, endGame, isGameOver, isUnit, mixedHexes, newTurn, typeOf } from './state';
@@ -103,6 +104,7 @@ export function* giveOrder(s: GameState, ctx: FlowCtx, side: Side, card: CardId,
   s.turn.ordersGiven++;
   ctx.emit({ kind: 'cardPlayed', side, card, as: 'order', name: order });
   yield* ORDERS[order].run(s, ctx, side, cardOf(card));
+  yield* checkFixedWeapons(s, ctx);
   const t = s.turn;
   t.fired = [];
   t.move = null;
@@ -132,6 +134,7 @@ export function* resolveMelees(s: GameState, ctx: FlowCtx): Gen {
 
 /** The end of the Turn (§J.3): overstacking for both players, then the active player's refill. */
 export function* endOfTurn(s: GameState, ctx: FlowCtx): Gen {
+  yield* checkFixedWeapons(s, ctx);
   yield* overstack(s, ctx);
   yield* refill(s, ctx, s.active);
 }

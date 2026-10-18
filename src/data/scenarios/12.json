@@ -64,8 +64,11 @@
   "openChits": ["N","Q","S"],
   "prePlaced": [],
   "special": {
+    "entryHex": {"allied":{"space":7,"hex":"A9"}},
+    "sniperRange": {"axis":2},
+    "fog": 3,
     "notes": [
-      "Reinforcements: when the Time space 7 group enters, any of it may be placed in or adjacent to road hex A9 instead of along the friendly edge.",
+      "Reinforcements: Sgt Smith and eight Green Squads arrive on Time space 7; any of them may be placed in or adjacent to road hex A9 instead of along the friendly edge.",
       "Caves: an Axis Sniper may break an enemy unit up to 2 hexes from the Random Hex.",
       "Fog: every hex has a Hindrance of 3 at every elevation, added to the largest other Hindrance (also for adjacent shots; not for Melee, Mine Attacks or Artillery Impact). Each Breeze Event lowers the fog by 1 (to 2, 1, then 0)."
     ]

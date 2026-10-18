@@ -45,5 +45,12 @@
   "control": [null,null,null,null,null],
   "openChits": ["random"],
   "prePlaced": [],
-  "special": {"simultaneousSetup":true,"initiativeChoice":true}
+  "special": {
+    "simultaneousSetup": true,
+    "initiativeChoice": true,
+    "notes": [
+      "Hidden set-up: both sides set up at the same time, neither seeing the other (Allies in or next to A2 and O1, Axis in or next to G10 and N10); everything is revealed when both are done.",
+      "Initiative: once both hands are dealt, the Axis either keeps the Initiative card and lets the Allies move first, or gives it to the Allies and moves first himself."
+    ]
+  }
 }

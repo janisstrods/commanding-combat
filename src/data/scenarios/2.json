@@ -64,5 +64,12 @@
   "control": ["axis","axis","axis","axis","axis"],
   "openChits": ["T"],
   "prePlaced": [],
-  "special": {"latePlacement":{"allied":["American/Lt Blankenship"]},"hedge":{"cost":2,"cover":2}}
+  "special": {
+    "latePlacement": {"allied":["American/Lt Blankenship"]},
+    "hedge": {"cost":2,"cover":2},
+    "notes": [
+      "Forward Observer: the Allies place Lt Blankenship after the Axis set-up, in any hex without a German unit.",
+      "Bocage: crossing a Hedge costs 2 more MP (instead of 1), and a Hedge gives Cover 2 (instead of 1)."
+    ]
+  }
 }

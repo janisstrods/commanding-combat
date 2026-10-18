@@ -13,6 +13,7 @@ import { chitVWinner, finalScore, updateControl } from './objectives';
 import { window } from './reactions';
 import { EVENTS } from './registry';
 import { shuffle } from './rng';
+import { afterEvent, checkFixedWeapons, entryHexes, eventBlocked, onTimeAdvance, sniperExtraTargets } from './scenarioRules';
 import { figures, stackLimit, unitFigures } from './stats';
 import { GameOver, cardOf, isImpassableHex, isUnit, radioOf, removeSmoke, typeOf } from './state';
 import { type FateCard, type FlowCtx, type GameState, type HexId, type Piece, type RevealPurpose, type Side, SIDES, type Edge, other } from './types';
@@ -94,7 +95,9 @@ export function* roll(s: GameState, ctx: FlowCtx, side: Side, purpose: RevealPur
 export function* eventTrigger(s: GameState, ctx: FlowCtx, side: Side): Gen {
   const card = yield* reveal(s, ctx, side, 'event');
   ctx.emit({ kind: 'event', side, card: card.id, event: card.event });
-  yield* EVENTS[card.event](s, ctx, side, card);
+  if (!eventBlocked(s, ctx, side, card.event)) yield* EVENTS[card.event](s, ctx, side, card);
+  afterEvent(s, ctx, card.event);
+  yield* checkFixedWeapons(s, ctx);
   yield* resolveMelees(s, ctx);
 }
 
@@ -107,6 +110,7 @@ export function* sniper(s: GameState, ctx: FlowCtx, side: Side): Gen {
     const p = s.pieces[id];
     if (p.where === 'map' && area.has(p.hex) && isUnit(p)) targets.push(p);
   }
+  targets.push(...sniperExtraTargets(s, side, hex));
   const pick = yield* choose(s, ctx, side, 'sniperTarget', targets.map((p) => ({ piece: p.id })), 0, 1, { hex });
   if (pick.length) yield* breakPiece(s, ctx, targets[pick[0]].id, 'sniper');
 }
@@ -144,6 +148,7 @@ export function* advanceTime(s: GameState, ctx: FlowCtx, side: Side): Gen {
   const tctx = deeper(ctx);
   s.time++;
   ctx.emit({ kind: 'time', time: s.time, side });
+  onTimeAdvance(s, ctx);
   const p = s.players[side];
   p.deck = shuffle(s, [...p.deck, ...p.discards]);
   p.discards = [];
@@ -179,10 +184,10 @@ export function edgeHexes(edge: Edge): HexId[] {
   return out;
 }
 
-/** Hexes along `side`'s own edge where `unit` may be placed (stacking observed, not impassable). */
+/** Hexes along `side`'s own edge (and a scenario's entry hexes) where `unit` may be placed (stacking observed, not impassable). */
 export function edgePlacements(s: GameState, side: Side, unit: Piece): HexId[] {
   const f = unitFigures(unit);
-  return edgeHexes(s.players[side].edge).filter((h) => !isImpassableHex(s, h) && figures(s, h, side) + f <= stackLimit(s, h));
+  return entryHexes(s, side, edgeHexes(s.players[side].edge)).filter((h) => !isImpassableHex(s, h) && figures(s, h, side) + f <= stackLimit(s, h));
 }
 
 /**

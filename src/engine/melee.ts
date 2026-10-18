@@ -14,6 +14,7 @@ import { roll } from './deck';
 import type { Gen } from './decisions';
 import { label } from './hex';
 import { window } from './reactions';
+import { meleeBonus } from './scenarioRules';
 import { currentStats } from './stats';
 import { isUnit, typeOf } from './state';
 import { type FlowCtx, type GameState, type HexId, type PieceId, type Side, other } from './types';
@@ -83,7 +84,7 @@ export function* resolveMelee(s: GameState, ctx: FlowCtx, hex: HexId): Gen {
   const totals: Record<Side, number> = { ...fp };
   for (const side of [other(s.active), s.active]) {
     const r = yield* roll(s, c, side, 'melee');
-    totals[side] = fp[side] + r.sum;
+    totals[side] = fp[side] + r.sum + meleeBonus(s, side);
     if (!stillIn(s, parts.axis, hex).length || !stillIn(s, parts.allied, hex).length) {
       ctx.emit({ kind: 'log', text: `The melee in ${where} is over: one side has no units left (R-05).` });
       return;

@@ -12,6 +12,7 @@ import { roll } from './deck';
 import type { Gen } from './decisions';
 import { defendHex } from './fire';
 import { label } from './hex';
+import { leaveFixedWeapons } from './scenarioRules';
 import { isUnit } from './state';
 import { isTrenchMove } from './terrain';
 import { type AttackInfo, type FlowCtx, type GameState, type HexId, type PieceId, other } from './types';
@@ -53,6 +54,7 @@ export function* mineAttack(s: GameState, ctx: FlowCtx, units: PieceId[], hex: H
 
 /** Before `units` leave `from` for `to`. `stop`: they may enter `to` but must end their move there. */
 export function* onLeaveHex(s: GameState, ctx: FlowCtx, units: PieceId[], from: HexId, _to: HexId, how: HowMoved): Gen<{ stop: boolean }> {
+  yield* leaveFixedWeapons(s, ctx, units);
   const fort = s.fort[from];
   if (fort === 'mines') yield* mineAttack(s, ctx, units, from);
   // §F106.2: a Moving unit loses its remaining MP right after leaving a Wire hex (Advance and Retreat ignore it)

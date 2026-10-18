@@ -3,6 +3,7 @@
 // he has at least one playable option, so a window nobody can use costs no decision.
 import { ask, type Gen } from './decisions';
 import { ACTIONS } from './registry';
+import { actionBlocked } from './scenarioRules';
 import type { ActionName, ActionOption, Answer, FlowCtx, GameState, Side, WindowInfo, WindowKind } from './types';
 import { other } from './types';
 
@@ -13,7 +14,7 @@ export function optionsFor(s: GameState, side: Side, w: WindowKind, info: Window
   const out: ActionOption[] = [];
   for (const name of NAMES()) {
     const h = ACTIONS[name];
-    if (h.windows.includes(w)) for (const o of h.options(s, side, w, info)) out.push(o);
+    if (h.windows.includes(w) && !actionBlocked(s, name)) for (const o of h.options(s, side, w, info)) out.push(o);
   }
   return out;
 }

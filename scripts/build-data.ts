@@ -55,7 +55,7 @@ if (want('scenarios')) {
     '',
     ...scenarioConversionNotes(),
     '',
-    '### Special rules the SpecialRules fields cannot express (`special.notes`; each needs code in Task 1 / 7-10)',
+    '### Scenario briefings (`special.notes`): every rule listed is implemented (SpecialRules fields, src/engine/scenarioRules.ts and src/engine/scenario/setup.ts)',
     '',
     ...built.flatMap(([n, scn]) => (scn.special.notes ?? []).map((t) => `- Scenario ${n} (${scn.name}): ${t}`)),
   ]);

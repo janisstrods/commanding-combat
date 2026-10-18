@@ -63,6 +63,10 @@
   "prePlaced": [],
   "special": {
     "excludeChits": ["W"],
-    "notes": ["Axis Orders per Turn start at 1 and rise by 1 at every Time advance, to at most 3."]
+    "ordersRiseTo": {"axis":3},
+    "notes": [
+      "Axis Orders per Turn start at 1 and rise by 1 at every Time advance, to at most 3.",
+      "Chit W is left out of the cup."
+    ]
   }
 }

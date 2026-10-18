@@ -15,6 +15,7 @@ import { areAdjacent, neighbours } from '../hex';
 import { updateControl } from '../objectives';
 import { optionsFor, playAction, window } from '../reactions';
 import { ACTIONS, type OrderHandler } from '../registry';
+import { flatCost } from '../scenarioRules';
 import { currentStats } from '../stats';
 import { hasUnitOf, isUnit } from '../state';
 import { hasRoad, moveCost } from '../terrain';
@@ -26,9 +27,12 @@ export function mpLeft(s: GameState, id: PieceId, m: MoveProgress | null = s.tur
   return currentStats(s, id).move + bonus - (m?.spent[id] ?? 0);
 }
 
-/** MP to enter adjacent `to` from `from` by a Move, or null when it cannot (terrain, Cliff, Blaze, bridge sides). */
-export function stepCost(s: GameState, from: HexId, to: HexId): number | null {
-  return moveCost(s.map, from, to, s.scenario.special, s);
+/**
+ * MP to enter adjacent `to` from `from` by a Move of `side`'s units (default: the active player, who gives every Move
+ * Order), or null when it cannot (terrain, Cliff, Blaze, bridge sides). A scenario may set it to 1 (scenarioRules).
+ */
+export function stepCost(s: GameState, from: HexId, to: HexId, side: Side = s.active): number | null {
+  return flatCost(s, side, moveCost(s.map, from, to, s.scenario.special, s));
 }
 
 /** Hexes off which `side`'s units may exit: the opponent's edge row (§7.2.1). */

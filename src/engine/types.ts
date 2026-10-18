@@ -337,7 +337,62 @@ export interface SpecialRules {
   /** Pieces that start together: one unit of type `unit` carries one Weapon of type `weapon` from staging on (a unit
    * bought with its Weapon on a Support Table must set up with it, RS.7 / §11.2; also fits scenario 10's Pioniers). */
   carried?: Partial<Record<Side, { unit: string; weapon: string }[]>>;
-  /** Free text of the rules this list cannot express, shown in the briefing; each must also be implemented in code. */
+  // --- Task 15 (src/engine/scenarioRules.ts reads these; hexes are labels such as "N5") ---------------------------------
+  /** Units that set up in a named hex before the rest of their side (counter type → hex label; scenario 3 Command Post). */
+  setupHex?: Partial<Record<Side, Record<string, string>>>;
+  /** Per-side pieces placed after all other deployment, in their side's own set-up area (one per listed counter type;
+   * scenario 4 Hidden Gun). */
+  lateSetup?: Partial<Record<Side, string[]>>;
+  /** Set-up Fortifications of a kind that must go in or adjacent to a hex of this terrain (scenario 4 Rubble: Wire near
+   * Buildings). */
+  fortNear?: Partial<Record<Side, Partial<Record<FortKind, TerrainType>>>>;
+  /** Units (with the Weapons `carried` gives them) that set up together in one hex of the side's set-up area with this
+   * terrain and elevation, with one of the side's set-up Fortifications `fort` (scenario 11 Immobilised Sherman). */
+  setupTogether?: Partial<Record<Side, { units: string[]; fort: FortKind; terrain: TerrainType; elevation: number }>>;
+  /** Sides whose units set up by Random Hexes from their own Fate deck: each revealed hex takes one unit (the owner's
+   * pick) in or adjacent to it; then the Weapons are handed out and the deck is reshuffled (scenario 7). */
+  randomHexSetup?: Side[];
+  /** Sides whose units must set up as one chain: each new unit in a hex the side holds or next to one (scenario 7). */
+  chainSetup?: Side[];
+  /** Number of a side's Weapons, picked at random (pre-game: seeded RNG), that start broken (scenario 5 Deep Freeze). */
+  brokenWeapons?: Partial<Record<Side, number>>;
+  /** Fate cards a side starts with in hand: taken out of the deck, they count toward the opening hand (scenarios 3, 7). */
+  startingCards?: Partial<Record<Side, CardId[]>>;
+  /** Before the opening draw the side may lower its Minefield strength to `minefield` and take `card` into its opening
+   * hand (scenario 9). */
+  minesForCard?: Partial<Record<Side, { minefield: number; card: CardId }>>;
+  /** After play starts no Fortification enters play: the Actions that would place one cannot be played (as Command
+   * Confusion) and the Events that would place one do nothing (scenario 5 Deep Freeze). */
+  noNewFortifications?: boolean;
+  /** A Concealment Action of this side lowers the Fire Attack Total by this much more (scenario 5 Winter Camouflage). */
+  concealmentBonus?: Partial<Record<Side, number>>;
+  /** The side's Orders per Turn rise by 1 at every Time advance, up to this number (scenario 6). */
+  ordersRiseTo?: Partial<Record<Side, number>>;
+  /** Counter types (per side) that are eliminated instead of breaking (scenario 7 captured Light Mortar). */
+  eliminateInsteadOfBreak?: Partial<Record<Side, string[]>>;
+  /** Sides that earn no Exit VP: their units that exit are eliminated instead (scenarios 7 No Quarter, 8 Breakout). */
+  noExit?: Side[];
+  /** Sides whose units pay exactly 1 MP for every hex a Move enters (scenario 7 Partisans; impassable stays so). */
+  flatMoveCost?: Side[];
+  /** Night: every Fire Attack Total is reduced by the distance from the closest firing hex to the target (scenario 8). */
+  night?: boolean;
+  /** Added to every Melee total of the side (scenario 10 Commandos). */
+  meleeBonus?: Partial<Record<Side, number>>;
+  /** Stacking limit (figures) of a hex while it holds this Fortification (scenario 11: the Sherman's Bunker, 4). */
+  fortStackingLimits?: Partial<Record<FortKind, number>>;
+  /** Weapon types fixed in a hex with this Fortification: eliminated when their carrier leaves the hex or the
+   * Fortification is gone (scenario 11 Pack Howitzer). */
+  fixedWeapons?: Record<string, FortKind>;
+  /** Weapon types that may only attack a hex whose Cover is at least this (scenario 11 captured Panzerfausts: 2). */
+  minTargetCover?: Record<string, number>;
+  /** The side's reinforcements of Time space `space` may also enter in or adjacent to hex `hex` (scenario 12: A9). */
+  entryHex?: Partial<Record<Side, { space: number; hex: string }>>;
+  /** The side's Sniper! may also break an enemy unit up to this many hexes from the Random Hex (scenario 12 Caves: 2). */
+  sniperRange?: Partial<Record<Side, number>>;
+  /** Fog: a Hindrance in every hex at start (scenario 12: 3), added to the largest other Hindrance of every LOS; each
+   * Breeze Event lowers it by 1 (GameState.fog holds the current value). */
+  fog?: number;
+  /** The briefing players see: every special rule of the scenario in words (all implemented, src/engine/scenarioRules.ts). */
   notes?: string[];
 }
 
@@ -503,6 +558,8 @@ export interface GameState {
    * secret chits. The masked lists themselves hold UNKNOWN_CARD / UNKNOWN_CHIT.
    */
   unseen?: { cards: Record<Side, CardId[]>; chits: ChitId[] };
+  /** The scenario Fog Hindrance now (SpecialRules.fog, lowered by Breeze); absent = the scenario's starting value. */
+  fog?: number;
 }
 
 /** Placeholder for an Objective chit the viewer cannot know (cup, opponent's secret chits) in a redacted state. */
@@ -662,7 +719,9 @@ export type ChoiceReason =
   /** Rout: which broken unit the Order's player rolls for next. */
   | 'routOrder'
   | 'initiativeChoice'
-  | 'placement';
+  | 'placement'
+  /** A scenario's pre-game option (SpecialRules.minesForCard): 'label' items, the first keeps things as they are. */
+  | 'scenarioOption';
 
 export type ChoiceItem =
   | { piece: PieceId }

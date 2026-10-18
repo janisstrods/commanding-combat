@@ -6,6 +6,7 @@
 import { firerHexes } from '../fire';
 import { hexsideCoverAgainst } from '../los';
 import type { ActionHandler } from '../registry';
+import { concealmentBonus } from '../scenarioRules';
 import { cover, hexCover } from '../stats';
 import { hasRoad } from '../terrain';
 import type { AttackInfo, GameState, HexId, PieceId } from '../types';
@@ -45,6 +46,7 @@ export const concealmentAction: ActionHandler = {
     if (!attack || !id || s.pieces[id]?.where !== 'map') return;
     const v = concealmentValue(s, attack, id);
     attack.reduction += v;
+    attack.reduction += concealmentBonus(s, ctx, side);
     attack.played.push('Concealment');
     ctx.emit({ kind: 'log', text: `Concealment: the attack total is ${v >= 0 ? `reduced by ${v}` : `raised by ${-v}`}.`, side });
   },

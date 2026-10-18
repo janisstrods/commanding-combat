@@ -1,5 +1,6 @@
 // Current values of units and Weapons (§3.3, §13, §O20.4, §F106), Cover (§T78.3, §T93, R-17, R-20) and stacking (§8.2).
 import { hexsideCoverAgainst } from './los';
+import { fortStackLimit } from './scenarioRules';
 import { isUnit, typeOf } from './state';
 import { TERRAIN, hasRoad } from './terrain';
 import type { FortKind, GameState, HexId, Piece, PieceId, Side } from './types';
@@ -21,9 +22,9 @@ export function figures(s: GameState, hex: HexId, side: Side): number {
   return n;
 }
 
-/** The stacking limit of `hex` in figures: 7, or a scenario's lower limit. */
+/** The stacking limit of `hex` in figures: 7, or a scenario's lower limit (a hex's, or a Fortification's while there). */
 export function stackLimit(s: GameState, hex: HexId): number {
-  return s.scenario.special.stackingLimits?.[hex] ?? 7;
+  return s.scenario.special.stackingLimits?.[hex] ?? fortStackLimit(s, hex) ?? 7;
 }
 
 export interface UnitStats {
