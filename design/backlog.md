@@ -119,6 +119,29 @@ only for rolls whose result is bad for the human; one test per roll purpose in `
 not whether the roll went against him. It now asks only when a re-roll would raise the human's chance of a good result
 by 10 points or more.
 
+**Radios on the battle screen.** Neither player can see a Radio during play: it sits in its owner's Artillery Box
+(`where: 'artillery'`, `radioOf`), the board draws only pieces on the map, and no panel shows the box. Its calibre turns
+up only in log lines ("Radio (105mm) breaks.", Battery Access) and its FP only in the Artillery overlay of a Fire for
+Effect. Add an Artillery Box for each side to the panels next to Victory, Time and Objectives (`panels.tsx`,
+`GameScreen.tsx`):
+- the Radio counter itself (`Counter`, broken face when broken), its calibre and FP, or "No radio";
+- updated as it breaks (Artillery Denied), is repaired (Battery Access), is eliminated, or arrives (Reinforcements,
+  Support Table Events);
+- a tooltip with what it allows: Fire for Effect when unbroken and a Spotter is free, Battery Access when broken.
+Both boxes are open information (`redact` does not hide them).
+
+**Status: not started.**
+
+**Artillery Request: clicking a Leader selects only him.** Fire for Effect activates the Spotter alone
+(`activationError` in `orders/artillery.ts`), but the activate prompt treats him like any Leader: a click selects him
+and every unit in his Command radius (`activateClickPiece` / `activateClickHex` in `src/ui/game/prompts.ts`), marks the
+radius, says he "brings the units within N hexes", and leaves Activate disabled until the player clicks each extra unit
+off. For Artillery Request, select the Leader alone, show no radius, and say he is the Spotter. Better driven by the
+engine than by the Order name (e.g. a field on the `activate` decision saying the first unit activates alone), so any
+other one-unit activation gets the same; one test in `tests/ui`.
+
+**Status: not started.**
+
 ## 4. Other known issues from v1.0.0
 
 **Counter-mix limits.** The box's exact counter mix is not public: named Leaders, the single Pillbox and the RSG
