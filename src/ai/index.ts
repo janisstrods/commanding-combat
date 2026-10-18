@@ -121,10 +121,10 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
         stalled = sig === mem.turnSig;
         mem.turnSig = sig;
       }
-      if (level.battlePlan) keepPlan(v, me, mem);
+      if (level.battlePlan) keepPlan(v, me, mem, level);
       const r = planTurn(v, d, level, rng, {
         budgetMs: opts.timeBudgetMs ?? level.budgetMs, simBudget: opts.simBudget, deterministic: opts.deterministic,
-        mustDiscard: stalled, tune: opts.tune, battle: level.battlePlan ? mem.battle : null,
+        mustDiscard: stalled, tune: levelTune(level, opts.tune), battle: level.battlePlan ? mem.battle : null,
       });
       answer = r.answer;
       pc.plan = r.plan;
@@ -154,12 +154,18 @@ export function chooseAnswer(view: GameState, d: Decision, opts: AiOptions, mem:
   return say ? { answer, say } : { answer };
 }
 
+/** The evaluation's weight factors for this level (the battle plan's weight). */
+function levelTune(level: LevelCfg, tune?: Partial<Weights>): Partial<Weights> | undefined {
+  if (level.planWeight === 1) return tune;
+  return { ...tune, plan: (tune?.plan ?? 1) * level.planWeight };
+}
+
 /** Make the battle plan at the first own Turn, and again when a re-plan trigger fires (logged in the memory). */
-function keepPlan(v: GameState, me: Side, mem: AiMemory): void {
+function keepPlan(v: GameState, me: Side, mem: AiMemory, level: LevelCfg): void {
   const why = mem.battle ? replanReason(v, me, mem.battle) : 'first plan';
   if (!why) return;
   const prev = mem.battle;
-  const plan = makePlan(v, me, why, prev);
+  const plan = makePlan(v, me, why, prev, level.planZone);
   if (!plan) return;
   mem.battle = plan;
   mem.log.push(describePlan(v, me, plan, prev));

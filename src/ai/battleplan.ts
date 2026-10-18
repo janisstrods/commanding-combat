@@ -9,8 +9,9 @@
 // position, so the search does not drift off the plan for small gains elsewhere. Every plan and re-plan is logged in
 // the memory (the match scripts print the log).
 import { distance, label } from '../engine/hex';
-import { losCheck } from '../engine/los';
+import { hexsideCoverAgainst, losCheck } from '../engine/los';
 import { chitValue, objectiveValue } from '../engine/objectives';
+import { hexCover } from '../engine/stats';
 import { isLeader, isUnit, typeOf } from '../engine/state';
 import { type GameState, type HexId, type Piece, type PieceId, type Side, other } from '../engine/types';
 import { projectedMargin } from './evaluate';
@@ -34,6 +35,11 @@ export interface BattlePlan {
   posts: HexId[];
   /** The Time by which the main effort should be on the target. */
   by: number;
+  /**
+   * 0: the main effort counts by its nearness to the target from anywhere; n > 0: only within n hexes of it (the
+   * approach is left to the rest of the evaluation), and the support group only once a main-effort unit is that near.
+   */
+  zone?: number;
   /** The position it was made in: what the re-plan triggers compare against. */
   base: PlanBase;
 }
@@ -134,9 +140,9 @@ function postsOn(s: GameState, hex: HexId): HexId[] {
 
 /**
  * Choose a plan for `me` in view `s`. `prev` (a re-plan): its target is preferred a little (no flip-flopping between two
- * near-equal Objectives).
+ * near-equal Objectives). `zone`: see BattlePlan.zone.
  */
-export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePlan | null = null): BattlePlan | null {
+export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePlan | null = null, zone = 0): BattlePlan | null {
   const n = s.map.objectives.length;
   const mine = goodUnits(s, me).filter((u) => !holdsFixedWeapon(s, u));
   if (!n || !mine.length) return null;
@@ -161,9 +167,10 @@ export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePla
       const inTime = Math.max(0.1, Math.min(1, 1.2 - dist / 3 / turnsLeft));
       u = (worth * inTime * (posture === 'defend' ? 0.6 : 1)) / (1 + 0.12 * foes);
     } else {
-      // to hold: worth, scaled by how strongly the enemy threatens it (none near: little to do)
+      // to hold: worth first, more when the enemy is coming (his good-order units within 6 hexes)
       aim = 'hold';
-      u = worth * Math.min(1, 0.15 + 0.12 * foes) * (posture === 'attack' ? 0.7 : 1);
+      const coming = goodUnits(s, other(me)).reduce((n, e) => n + Math.max(0, 1 - distance(e.hex, hex) / 7), 0);
+      u = worth * (0.5 + 0.5 * Math.min(1, coming / 4)) * (posture === 'attack' ? 0.7 : 1);
     }
     if (prev && prev.target === i) u *= 1.25;
     if (!best || u > best.u) best = { i, aim, u, worth };
@@ -204,6 +211,7 @@ export function makePlan(s: GameState, me: Side, reason: string, prev: BattlePla
     support: support.map((u) => u.id),
     posts,
     by: Math.max(s.time + 1, s.suddenDeath - 2),
+    ...(zone > 0 ? { zone } : {}),
     base: {
       margin: projectedMargin(s, me),
       chits: chitSig(s, me),
@@ -245,10 +253,23 @@ const fmt = (x: number) => (x > 0 ? `+${x}` : `${x}`);
 
 /** Cached Set of a plan's firing positions (plans are kept as plain data). */
 const postSets = new WeakMap<BattlePlan, Set<HexId>>();
+/** Cached Wall / Hedge Cover of each hex against fire from the plan's target (the map does not change). */
+const sideCovers = new WeakMap<BattlePlan, Map<HexId, number>>();
+
+/** How well a unit in `hex` is covered against fire from the target's direction: 0 (open) to 1 (Cover 3 or more). */
+function covered(s: GameState, plan: BattlePlan, hex: HexId, target: HexId): number {
+  let m = sideCovers.get(plan);
+  if (!m) sideCovers.set(plan, (m = new Map()));
+  let side = m.get(hex);
+  if (side === undefined) m.set(hex, (side = hexsideCoverAgainst(s.map, target, hex, s.scenario.special)));
+  return Math.min(1, Math.max(hexCover(s, hex), side) / 3);
+}
 
 /**
  * The plan's part of the evaluation for `me` in `s` (VP-like): each main-effort unit in good order by its nearness to
- * the target (more as the plan's Time comes near), each support unit in a firing position within its range.
+ * the target (more as the plan's Time comes near; to hold it, anywhere on or next to it is as good), each support unit
+ * in a firing position within its range. Both count fully from Cover facing the target and less in the open: the
+ * main effort closes in by bounds from cover to cover, not across open ground.
  */
 export function planTerm(s: GameState, me: Side, plan: BattlePlan): number {
   const hex = s.map.objectives[plan.target];
@@ -256,18 +277,26 @@ export function planTerm(s: GameState, me: Side, plan: BattlePlan): number {
   let posts = postSets.get(plan);
   if (!posts) postSets.set(plan, (posts = new Set(plan.posts)));
   const urgency = Math.max(0, Math.min(1, (s.time - (plan.by - 3)) / 3));
+  const zone = plan.zone ?? 0;
   let main = 0;
+  let close = false;
   for (const id of plan.main) {
     const u = s.pieces[id];
     if (!u || u.where !== 'map' || u.broken || u.side !== me) continue;
     const d = distance(u.hex, hex);
-    main += d === 0 ? 1 : Math.max(0, 0.88 - 0.11 * d);
+    let near: number;
+    if (zone > 0) {
+      if (d > zone) continue;
+      close = true;
+      near = plan.aim === 'hold' && d <= 1 ? 1 : 1 - d / (zone + 1);
+    } else near = plan.aim === 'hold' ? (d <= 1 ? 1 : Math.max(0, 1 - 0.15 * (d - 1))) : d === 0 ? 1 : Math.max(0, 0.88 - 0.11 * d);
+    main += d === 0 ? near : near * (0.45 + 0.55 * covered(s, plan, u.hex, hex));
   }
   let sup = 0;
-  for (const id of plan.support) {
+  if (zone === 0 || close) for (const id of plan.support) {
     const u = s.pieces[id];
     if (!u || u.where !== 'map' || u.broken || u.side !== me) continue;
-    if (posts.has(u.hex) && distance(u.hex, hex) <= reach(s, u)) sup += u.suppressed ? 0.5 : 1;
+    if (posts.has(u.hex) && distance(u.hex, hex) <= reach(s, u)) sup += (u.suppressed ? 0.5 : 1) * (0.5 + 0.5 * covered(s, plan, u.hex, hex));
   }
   return main * (0.55 + 0.35 * urgency) + 0.35 * sup;
 }

@@ -21,7 +21,8 @@ import { chooseAnswer as chooseItems, itemScores, safety } from './choose';
 import { deployAnswer, type DeployMemo } from './deploy';
 import { SUM, contestOdds, pSumBelow } from './dice';
 import { projectedMargin } from './evaluate';
-import type { LevelCfg } from './levels';
+import type { BattlePlan } from './battleplan';
+import { LEVELS, type LevelCfg } from './levels';
 import { holdsFixedWeapon, moveAnswer, planMoves } from './moves';
 import type { Rng } from './rand';
 import { safeAnswer } from './sim';
@@ -59,9 +60,17 @@ export interface PolicyCtx {
   /** The hex the AI means to Op Fire at, after playing a Fire card to activate units for it. */
   opFireHex: HexId | null;
   deploy: DeployMemo | null;
-  /** quickTurn also considers Move Orders (planMoves; too slow inside simulations, used by the 'greedy' baseline). */
-  quickMoves?: boolean;
+  /**
+   * quickTurn also considers Move Orders: with the level's Move plans (the 'greedy' baseline), or 'narrow' ones (a few
+   * first units, no variants: Elite's look-ahead with `rolloutMoves`).
+   */
+  quickMoves?: boolean | 'narrow';
+  /** The battle plan the Move plans follow (in a simulation of the AI's own Turn). */
+  battle?: BattlePlan | null;
 }
+
+/** A narrow Move search for quick Turns inside simulations. */
+const NARROW: LevelCfg = { ...LEVELS.line, moveActs: 3, moveVariants: 1 };
 
 export function newPolicyCtx(me: Side, level: LevelCfg, rng: Rng, cheap = false): PolicyCtx {
   return { me, level, rng, plan: null, cheap, lastFire: null, opFireHex: null, deploy: null };
@@ -118,7 +127,7 @@ export function quickTurn(s: GameState, d: Extract<Decision, { kind: 'turn' }>, 
   }
   const move = d.orders.filter((o) => o.order === 'Move');
   if (pc.quickMoves && move.length) {
-    const best = planMoves(s, me, pc.level)[0];
+    const best = planMoves(s, me, pc.quickMoves === 'narrow' ? NARROW : pc.level, undefined, pc.battle ?? null)[0];
     const card = cheapest(move.map((o) => o.card), cc);
     if (best && best.gain > cardCost(s, me, card, cc) + 0.2) {
       pc.plan = { turn: s.turn.number, given: s.turn.ordersGiven, card, order: 'Move', units: best.units, dest: best.dest, paths: best.paths, label: 'quick move' };

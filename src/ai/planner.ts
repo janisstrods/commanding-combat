@@ -270,6 +270,10 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
   const rng = new Rng(seed);
   const mine: PolicyCtx = newPolicyCtx(me, level, rng);
   mine.plan = c.plan;
+  if (level.rolloutMoves) {
+    mine.quickMoves = 'narrow';
+    mine.battle = battle;
+  }
   const theirs: PolicyCtx = newPolicyCtx(other(me), level, rng, true);
   let first = true;
   const policy = (st: GameState, d: Decision): Answer => {
@@ -292,6 +296,7 @@ function simulate(w: GameState, me: Side, c: Candidate, level: LevelCfg, seed: n
       // Elite: play the opponent's reply too (his greedy Turn: his best Fire, else a pass), then judge
       const opp = other(me);
       const his: PolicyCtx = newPolicyCtx(opp, level, rng);
+      if (level.replyMoves) his.quickMoves = 'narrow';
       const reply = (st: GameState, d: Decision): Answer =>
         d.kind === 'turn' && d.side === opp ? quickTurn(st, d, his) : policyAnswer(st, d, d.side === me ? mine : his);
       mine.plan = null;
@@ -321,11 +326,17 @@ export interface PlanOpts {
 export type StopReason = 'single' | 'clock' | 'sims' | 'worlds' | 'clear' | 'even';
 
 /**
- * The paired comparison of the two best candidates over the worlds both have played (common random numbers): the mean
- * score difference and its standard error.
+ * Spread (VP) assumed on top of the observed one when judging a difference: a few worlds may not yet show an outcome
+ * that is rare but large (an Op Fire, a lost melee), so a small sample of near-equal results is not taken as proof.
  */
-function paired(a: Scored, b: Scored): { diff: number; se: number; n: number } {
-  const n = Math.min(a.n, b.n);
+const PRIOR_SD = 1;
+
+/**
+ * The paired comparison of the two best candidates over the worlds both have played (common random numbers): the mean
+ * score difference and its standard error (with the prior spread).
+ */
+export function paired(a: { scores: number[] }, b: { scores: number[] }): { diff: number; se: number; n: number } {
+  const n = Math.min(a.scores.length, b.scores.length);
   if (n < 2) return { diff: 0, se: Infinity, n };
   let sum = 0;
   let sq = 0;
@@ -336,15 +347,16 @@ function paired(a: Scored, b: Scored): { diff: number; se: number; n: number } {
   }
   const diff = sum / n;
   const variance = Math.max(0, (sq - n * diff * diff) / (n - 1));
-  return { diff, se: Math.sqrt(variance / n), n };
+  return { diff, se: Math.sqrt((variance + PRIOR_SD * PRIOR_SD) / n), n };
 }
 
 /**
  * Choose the AI's answer to its Turn decision `d` in view `view`: candidates, then simulations within the budget.
  * Successive halving: every live candidate gets its next world before any gets another; after `minSims` worlds each,
- * every round drops the weaker part. The search ends early when the choice is clear — the best candidate is ahead of
- * the runner-up by `clear` standard errors of their paired difference — or does not matter (the two are even within a
- * small margin); else when the worlds, the simulation budget or the time run out.
+ * every round drops the weaker part. The search ends early when the choice is clear — after 2 × `minSims` worlds, the
+ * best candidate is ahead of the runner-up by `clear` standard errors of their paired difference — or does not matter
+ * (after 4 × `minSims`, the two are even within `even`); else when the worlds, the simulation budget or the time run
+ * out.
  */
 export function planTurn(view: GameState, d: TurnD, level: LevelCfg, rng: Rng, o: PlanOpts): PlanResult {
   const t0 = now();
@@ -390,11 +402,11 @@ export function planTurn(view: GameState, d: TurnD, level: LevelCfg, rng: Rng, o
       live.sort((a, b) => b.sum / b.n - a.sum / a.n);
       if (level.clear > 0) {
         const p = paired(live[0], live[1]);
-        if (p.diff > 0.05 && p.diff > level.clear * p.se) {
+        if (p.n >= 2 * level.minSims && p.diff > level.clear * p.se) {
           stop = 'clear';
           break;
         }
-        if (p.n >= 2 * level.minSims && Math.abs(p.diff) + 2 * p.se < level.even) {
+        if (p.n >= 4 * level.minSims && Math.abs(p.diff) + 2 * p.se < level.even) {
           stop = 'even';
           break;
         }

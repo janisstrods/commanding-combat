@@ -30,32 +30,39 @@ export interface LevelCfg {
   lookahead: boolean;
   /** Then play the opponent's reply Turn (greedy) before judging. */
   reply: boolean;
+  /** The look-ahead's own Orders may be Moves too (a narrow Move plan), not only Fire, Recover or the end of the Turn. */
+  rolloutMoves: boolean;
+  /** The opponent's simulated reply Turn may give Move Orders too (a narrow Move plan). */
+  replyMoves: boolean;
   /** Fraction of the live candidates kept after each round once every one has `minSims` worlds. */
   keep: number;
   /**
    * Early stop: the search ends when the best candidate leads the runner-up by this many standard errors of their
-   * paired difference (0: never), or when the two are even within `even` points.
+   * paired difference (0: never), or when the two are even within `even` points (planner.ts).
    */
   clear: number;
   even: number;
-  /** Keep a battle plan across Turns (battleplan.ts). */
+  /** Keep a battle plan across Turns (battleplan.ts), and the weight of its terms in the evaluation (a factor). */
   battlePlan: boolean;
+  planWeight: number;
+  /** The battle plan's zone (battleplan.ts BattlePlan.zone): 0 counts the main effort from anywhere. */
+  planZone: number;
 }
 
 export const LEVELS: Record<AiLevel, LevelCfg> = {
   green: {
     level: 'green', budgetMs: 600, worlds: 1, minSims: 1, maxCands: 4, fireActs: 2, moveActs: 2, moveVariants: 1,
-    noise: 4, sloppy: 0.6, reroll: false, lookahead: false, reply: false,
-    keep: 0.6, clear: 0, even: 0, battlePlan: false,
+    noise: 4, sloppy: 0.6, reroll: false, lookahead: false, reply: false, rolloutMoves: false, replyMoves: false,
+    keep: 0.6, clear: 0, even: 0, battlePlan: false, planWeight: 0, planZone: 0,
   },
   line: {
     level: 'line', budgetMs: 8000, worlds: 128, minSims: 8, maxCands: 18, fireActs: 5, moveActs: 8, moveVariants: 3,
-    noise: 0, sloppy: 0, reroll: true, lookahead: false, reply: false,
-    keep: 0.6, clear: 3, even: 0.1, battlePlan: true,
+    noise: 0, sloppy: 0, reroll: true, lookahead: false, reply: false, rolloutMoves: false, replyMoves: false,
+    keep: 0.6, clear: 3, even: 0.3, battlePlan: true, planWeight: 0.5, planZone: 4,
   },
   elite: {
     level: 'elite', budgetMs: 20000, worlds: 256, minSims: 12, maxCands: 26, fireActs: 7, moveActs: 12, moveVariants: 4,
-    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: true,
-    keep: 0.6, clear: 3, even: 0.1, battlePlan: true,
+    noise: 0, sloppy: 0, reroll: true, lookahead: true, reply: true, rolloutMoves: false, replyMoves: false,
+    keep: 0.6, clear: 3, even: 0.3, battlePlan: true, planWeight: 0.5, planZone: 4,
   },
 };

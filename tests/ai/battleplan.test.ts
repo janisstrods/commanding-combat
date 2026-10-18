@@ -172,10 +172,40 @@ describe('the plan in the evaluation', () => {
     sup.hex = H('O10'); // out of range: no credit
     const away = planTerm(s, 'axis', p);
     sup.hex = p.posts.find((h) => distance(h, H('H5')) === 3)!;
-    expect(planTerm(s, 'axis', p)).toBeCloseTo(away + 0.35);
+    expect(planTerm(s, 'axis', p)).toBeCloseTo(away + 0.35 * 0.5); // in the open: half
     const parts = evaluateParts(s, 'axis', weightsFor(s, 'axis'), { battle: p });
     expect(parts.plan).toBeCloseTo(planTerm(s, 'axis', p));
     expect(evaluateParts(s, 'axis', weightsFor(s, 'axis')).plan).toBe(0);
+  });
+});
+
+describe('the assault zone (Line and Elite: zone 4)', () => {
+  it('counts the main effort only within the zone, and the support group only once the main effort is there', () => {
+    const s = attack();
+    const p = makePlan(redact(s, 'axis'), 'axis', 'first plan', null, 4)!;
+    expect(p.zone).toBe(4);
+    // the main effort out of the zone (H10 is 5 hexes from H5), the support group in firing positions
+    for (const id of p.main) s.pieces[id].hex = H('H10');
+    for (const id of p.support) s.pieces[id].hex = p.posts.find((h) => distance(h, H('H5')) === 3)!;
+    expect(planTerm(s, 'axis', p)).toBe(0);
+    s.pieces[p.main[0]].hex = H('H7');
+    const inside = planTerm(s, 'axis', p);
+    expect(inside).toBeGreaterThan(0.35 * 0.5 * p.support.length - 1e-9);
+    s.pieces[p.main[0]].hex = H('H6');
+    expect(planTerm(s, 'axis', p)).toBeGreaterThan(inside);
+  });
+});
+
+describe('closing in by bounds', () => {
+  it('a main-effort unit counts more in Cover than in the open at the same distance', () => {
+    const s = attack({ map: { objectives: OBJ, terrain: { H7: 'Woods' } } });
+    const p = plan(s);
+    const mover = s.pieces[p.main.find((id) => id !== 'p5')!];
+    mover.hex = H('G7');
+    const open = planTerm(s, 'axis', p);
+    mover.hex = H('H7');
+    expect(distance(H('G7'), H('H5'))).toBe(distance(H('H7'), H('H5')));
+    expect(planTerm(s, 'axis', p)).toBeGreaterThan(open);
   });
 });
 
