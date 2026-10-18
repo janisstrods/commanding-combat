@@ -1,17 +1,20 @@
 // The scenario picker: the twelve scenarios with their briefings, a side (by nation) and the AI level; Start goes to
 // #/play/<id>/<side>/<level>.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SCENARIOS, loadMap } from '../../engine/data';
+import { SCENARIOS } from '../../engine/data';
 import type { Edge, Nation, Posture, Quality, ScenarioDef, Side } from '../../engine/types';
 import { summaryOf } from '../../scenarios/summaries';
 import { Board } from '../board';
 import { Button, NATION_COLORS, Segmented } from '../kit';
+import { BATTLE_PPU, MapLoading, preloadMap, usePreparedMap } from '../maps';
 import { AI_LEVELS, DEFAULT_AI_LEVEL, navigate, type AiLevel } from '../routes';
 import { storage } from '../storage';
 import './screens.css';
 import { SpecialRulesList } from './ScenarioDialog';
 
 const PICK_KEY = 'cce-picker-v1';
+/** Painting resolution of the briefing's map. */
+const PREVIEW_PPU = 44;
 
 export const NATION_PLURAL: Record<Nation, string> = { German: 'Germans', American: 'Americans', Russian: 'Russians' };
 export const POSTURE_LABEL: Record<Posture, string> = { attack: 'Attack', recon: 'Recon', defend: 'Defend' };
@@ -98,6 +101,8 @@ export function ScenarioPicker(p: { selected?: string }) {
                 ref={s.id === scn.id ? scrollIn : undefined}
                 className={`picker-item ${s.id === scn.id ? 'is-active' : ''}`}
                 onClick={() => choose(s.id)}
+                onPointerEnter={() => preloadMap(s.map)}
+                onFocus={() => preloadMap(s.map)}
                 aria-current={s.id === scn.id}
               >
                 <span className="picker-num">{s.id}</span>
@@ -117,13 +122,7 @@ export function ScenarioPicker(p: { selected?: string }) {
 
 function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pick; setPick: (f: (p: Pick) => Pick) => void; onStart: () => void }) {
   const summary = summaryOf(scn.id);
-  const map = useMemo(() => {
-    try {
-      return loadMap(scn.map);
-    } catch {
-      return null;
-    }
-  }, [scn.map]);
+  const { map, error } = usePreparedMap(scn.map, PREVIEW_PPU);
   const mine = scn.sides[pick.side];
   const edges = useMemo(() => {
     const out: Partial<Record<Edge, string>> = {};
@@ -199,7 +198,11 @@ function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pic
         <SpecialRulesList scn={scn} />
       </article>
       <div className="picker-map">
-        {map ? <Board map={map} rotate180={turnFor(mine.edge)} showLabels={false} showCompass={false} edgeLabels={edges} marginScale={2} ppu={44} title={`Map ${scn.map}`} /> : null}
+        {map ? (
+          <Board map={map} rotate180={turnFor(mine.edge)} showLabels={false} showCompass={false} edgeLabels={edges} marginScale={2} ppu={PREVIEW_PPU} title={`Map ${scn.map}`} />
+        ) : (
+          <MapLoading id={scn.map} error={error} />
+        )}
       </div>
       <div className="picker-choose kit-paper">
         <div className="choose-group">
@@ -224,7 +227,14 @@ function Briefing({ scn, pick, setPick, onStart }: { scn: ScenarioDef; pick: Pic
             options={AI_LEVELS.map((l) => ({ value: l, label: AI_LEVEL_INFO[l].label, hint: AI_LEVEL_INFO[l].hint }))}
           />
         </div>
-        <Button size="lg" className="picker-start" onClick={onStart}>
+        <Button
+          size="lg"
+          className="picker-start"
+          onClick={onStart}
+          // a head start for the battle board's terrain (the battle waits for it: src/ui/maps.tsx)
+          onPointerEnter={() => preloadMap(scn.map, BATTLE_PPU)}
+          onFocus={() => preloadMap(scn.map, BATTLE_PPU)}
+        >
           Start
         </Button>
       </div>

@@ -2,13 +2,14 @@
 // overlay and (once src/engine/los.ts exists) a line-of-sight demo: click a hex, then another.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CounterG } from '../art/Counter';
-import { COUNTERS, MAP_IDS, loadMap } from '../engine/data';
+import { COUNTERS, MAP_IDS, hasMap } from '../engine/data';
 import { hexAt, hexsideKey, label, neighbour, parseHex, type HexId, type HexSide } from '../engine/hex';
 import { MASK, type CounterType, type MapDef, type PathKind } from '../engine/types';
 import { Board, StackView, type LosLine, type MaskOverlayMode } from '../ui/board';
 import { terrainField, type TerrainField } from '../ui/board/paint/field';
 import { simulateMask } from '../ui/board/paint/simulate';
 import { Button, Segmented, Toggle } from '../ui/kit';
+import { MapLoading, usePreparedMap } from '../ui/maps';
 import { navigate } from '../ui/routes';
 import './gallery.css';
 
@@ -58,13 +59,9 @@ function sampleStacks(): Record<number, CounterType[]> {
 export function MapGallery({ mapId }: { mapId: string }) {
   const flags = useMemo(hashFlags, []);
   const [simulate, setSimulate] = useState(() => flags.has('sim'));
-  const real = useMemo(() => {
-    try {
-      return loadMap(mapId);
-    } catch {
-      return null;
-    }
-  }, [mapId]);
+  const known = hasMap(mapId);
+  // the board is shown once the map is loaded and painted (src/ui/maps.tsx)
+  const { map: real, error } = usePreparedMap(known ? mapId : null);
   const map = useMemo(() => (real && simulate && !real.mask ? { ...real, mask: simulateMask(real) } : real), [real, simulate]);
   const field = useMemo(() => (map ? terrainField(map) : null), [map]);
   const [labels, setLabels] = useState(true);
@@ -110,7 +107,7 @@ export function MapGallery({ mapId }: { mapId: string }) {
     );
   }, []);
 
-  if (!map) {
+  if (!known) {
     return (
       <div className="gallery-root kit-desk">
         <p>No map “{mapId}”.</p>
@@ -121,7 +118,7 @@ export function MapGallery({ mapId }: { mapId: string }) {
   const target = to ?? (from !== null ? hover : null);
   let losLine: LosLine | null = null;
   let losText = 'Click a hex to look from, then another to look at.';
-  if (losOn && los && from !== null && target !== null && target !== from) {
+  if (map && losOn && los && from !== null && target !== null && target !== from) {
     try {
       const r = los({ map, smoke: Array(150).fill(0), blaze: Array(150).fill(false) }, from, target);
       losLine = { from, to: target, clear: r.clear };
@@ -151,7 +148,7 @@ export function MapGallery({ mapId }: { mapId: string }) {
         <span className="gallery-title">Map</span>
         <div className="gallery-maps">
           {MAP_IDS.map((id) => (
-            <button key={id} type="button" className={`gallery-map ${id === map.id ? 'is-on' : ''}`} onClick={() => navigate({ kind: 'galleryMap', map: id })}>
+            <button key={id} type="button" className={`gallery-map ${id === mapId ? 'is-on' : ''}`} onClick={() => navigate({ kind: 'galleryMap', map: id })}>
               {id}
             </button>
           ))}
@@ -178,8 +175,8 @@ export function MapGallery({ mapId }: { mapId: string }) {
           <Toggle checked={stacks} onChange={setStacks}>
             Sample stacks
           </Toggle>
-          <h4>Terrain field {real?.mask ? '(mask)' : simulate ? '(simulated mask)' : '(per hex)'}</h4>
-          {!real?.mask ? (
+          <h4>Terrain field {!real ? '' : real.mask ? '(mask)' : simulate ? '(simulated mask)' : '(per hex)'}</h4>
+          {real && !real.mask ? (
             <Toggle checked={simulate} onChange={setSimulate}>
               Simulated mask (dev)
             </Toggle>
@@ -208,25 +205,29 @@ export function MapGallery({ mapId }: { mapId: string }) {
           </Toggle>
           {losOn ? <p className="gallery-los">{losText}</p> : null}
           <h4>Hex</h4>
-          {hover !== null ? <HexInfo map={map} field={field!} h={hover} /> : <p className="gallery-hint">Point at a hex.</p>}
+          {hover !== null && map && field ? <HexInfo map={map} field={field} h={hover} /> : <p className="gallery-hint">Point at a hex.</p>}
         </aside>
         <main className="gallery-board">
-          <Board
-            map={map}
-            rotate180={turned}
-            showLabels={labels}
-            showGrid={grid}
-            showHexsides={hexsides}
-            showObjectives={objectives}
-            maskOverlay={overlay === 'off' ? null : overlay}
-            onHexHover={setHover}
-            onHexClick={click}
-            losLine={losLine}
-            selectable={losOn && from !== null ? [from] : undefined}
-            renderStack={stacks ? renderStack : undefined}
-            topStack={open}
-            edgeLabels={{ top: 'Top edge', bottom: 'Bottom edge', left: 'Left edge', right: 'Right edge' }}
-          />
+          {map ? (
+            <Board
+              map={map}
+              rotate180={turned}
+              showLabels={labels}
+              showGrid={grid}
+              showHexsides={hexsides}
+              showObjectives={objectives}
+              maskOverlay={overlay === 'off' ? null : overlay}
+              onHexHover={setHover}
+              onHexClick={click}
+              losLine={losLine}
+              selectable={losOn && from !== null ? [from] : undefined}
+              renderStack={stacks ? renderStack : undefined}
+              topStack={open}
+              edgeLabels={{ top: 'Top edge', bottom: 'Bottom edge', left: 'Left edge', right: 'Right edge' }}
+            />
+          ) : (
+            <MapLoading id={mapId} error={error} />
+          )}
         </main>
       </div>
     </div>
