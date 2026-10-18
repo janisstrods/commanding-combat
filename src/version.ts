@@ -3,7 +3,14 @@
  * the game that suits what it brought (no fixed order, never reused). Bump for every publish, together with
  * package.json's version.
  */
-export const RELEASES = [{ number: '0.1.0', name: 'Fat Lipki', notes: 'First playable build' }] as const;
+export const RELEASES = [
+  {
+    number: '1.0.0',
+    name: 'Rush to Contact',
+    notes:
+      'The base game against a computer opponent: Germans, Americans and Russians, all twelve scenarios with their special rules, and the Random Scenario Generator',
+  },
+] as const;
 
 export const RELEASE = RELEASES[0];
 
